@@ -10,11 +10,14 @@ set(CMAKE_AUTORCC ON)  # Pour les fichiers .qrc
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Trouver Qt6 avec Widgets et QtSql
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Sql)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql)
 
-# Ajouter les fichiers sources
+# Trouver Qt6 avec Widgets, Sql, et Charts
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Sql Charts)
+
+# Vérification de la version Qt
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql Charts)
+
+# Ajouter les fichiers de votre projet
 set(PROJECT_SOURCES
     main.cpp
     connection.cpp
@@ -24,7 +27,7 @@ set(PROJECT_SOURCES
     mainwindow.h
     mainwindow.cpp
     mainwindow.ui
-    img.qrc  # Vérifiez que ce fichier existe bien
+    img.qrc
 )
 
 # Création de l'exécutable
@@ -42,18 +45,14 @@ else()
     endif()
 endif()
 
+# Ajouter le chemin des en-têtes de QtXlsx
+include_directories(${CMAKE_SOURCE_DIR}/QXlsx/header)
+
 # Lier les bibliothèques Qt
-target_link_libraries(gestion_services PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Sql)
+target_link_libraries(gestion_services PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Sql Qt${QT_VERSION_MAJOR}::Charts)
 
 # Définir les propriétés pour macOS et Windows
-if(${QT_VERSION} VERSION_LESS 6.1.0)
-    set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.gestion_services)
-endif()
-
 set_target_properties(gestion_services PROPERTIES
-    ${BUNDLE_ID_OPTION}
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
@@ -61,9 +60,9 @@ set_target_properties(gestion_services PROPERTIES
 # Installation
 include(GNUInstallDirs)
 install(TARGETS gestion_services
-    BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    BUNDLE DESTINATION .
 )
 
 # Finalisation pour Qt6

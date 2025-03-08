@@ -5,7 +5,6 @@
 #include <QSqlQuery>
 #include <QSqlQueryModel>
 #include <QSqlError>
-#include "modifierservicedialog.h"
 
 class Service
 {
@@ -20,14 +19,7 @@ private:
     QString date_fin_service;
     int id_espace;
 
-    int m_id;
-    QString m_nom;
-    QString m_description;
-    double m_cout;
-    QString m_frequence;
-    QString m_statut;
-    QString m_dateDebut;
-    QString m_dateFin;
+
 
 public:
     Service();

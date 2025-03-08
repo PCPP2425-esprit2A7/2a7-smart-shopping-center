@@ -24,11 +24,11 @@ private slots:
     void on_deleteButton_clicked();
     void supprimerService(int idService); // Déclaration de la fonction supprimer
     void on_modifyButton_clicked(); // Slot pour le bouton modifier
-
+    void afficherStatistiques();
+    void on_exel_clicked();
 
 private:
     Ui::MainWindow *ui;
-    void modifierService(int idService, const QString &nom, const QString &description, double cout, const QString &frequence, const QString &statut, const QString &dateDebut, const QString &dateFin);
 
 };
 #endif // MAINWINDOW_H

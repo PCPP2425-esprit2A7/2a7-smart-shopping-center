@@ -2,6 +2,7 @@
 #include <QSqlError>
 #include <QDebug>
 
+
 Service::Service() {}
 
 Service::Service(QString nom, QString description, double cout, QString frequence, QString statut, QString dateDebut, QString dateFin, int idEspace)
@@ -62,30 +63,44 @@ bool Service::supprimer(int id)
 
 bool Service::loadById(int id)
 {
+    qDebug() << "Chargement du service avec ID :" << id;
+
     QSqlQuery query;
-    query.prepare("SELECT * FROM services WHERE id = :id");
+    query.prepare("SELECT nom, description, cout, frequence, statut, date_deb, date_fin FROM SERVICE WHERE id = :id");
     query.bindValue(":id", id);
-    if (query.exec() && query.next()) {
-        m_id = id;
-        m_nom = query.value("nom").toString();
-        m_description = query.value("description").toString();
-        m_cout = query.value("cout").toDouble();
-        m_frequence = query.value("frequence").toString();
-        m_statut = query.value("statut").toString();
-        m_dateDebut = query.value("dateDebut").toString();
-        m_dateFin = query.value("dateFin").toString();
-        return true;
+
+    if (!query.exec()) {
+        qDebug() << "Erreur SQL :" << query.lastError().text();
+        return false;
     }
-    return false;
+
+    if (query.next()) {
+        setNom(query.value(0).toString());
+        setDescription(query.value(1).toString());
+        setCout(query.value(2).toDouble());
+        setFrequence(query.value(3).toString());
+        setStatut(query.value(4).toString());
+        setDateDebut(query.value(5).toString());
+        setDateFin(query.value(6).toString());
+
+        qDebug() << "Service chargé avec succès !";
+        return true;
+    } else {
+        qDebug() << "Aucun service trouvé avec cet ID.";
+        return false;
+    }
 }
+
+
 
 bool Service::modifier(int id, const QString &nom, const QString &description, double cout,
                        const QString &frequence, const QString &statut, const QString &dateDebut, const QString &dateFin)
 {
     QSqlQuery query;
-    query.prepare("UPDATE SERVICE SET nom = :nom, description = :description, cout = :cout, "
-                  "frequence = :frequence, statut = :statut, date_deb = :dateDebut, date_Fin = :dateFin "
-                  "WHERE id = :id");
+    query.prepare("UPDATE \"YOUSSEF\".\"SERVICE\" SET \"NOM\" = :nom, \"DESCRIPTION\" = :description, \"COUT\" = :cout, "
+                  "\"FREQUENCE\" = :frequence, \"STATUT\" = :statut, \"DATE_DEB\" = TO_DATE(:dateDebut, 'DD-MM-YY'),  "
+                  "\"DATE_FIN\" = TO_DATE(:dateFin, 'DD-MM-YY') WHERE \"ID\" = :id");
+
 
 
     query.bindValue(":id", id);
@@ -96,6 +111,6 @@ bool Service::modifier(int id, const QString &nom, const QString &description, d
     query.bindValue(":statut", statut);
     query.bindValue(":dateDebut", dateDebut);
     query.bindValue(":dateFin", dateFin);
-
     return query.exec();
+
 }
