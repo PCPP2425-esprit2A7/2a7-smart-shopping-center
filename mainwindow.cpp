@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "event.h"
+#include "dialog.h"
 #include <QMessageBox>
 #include <QTabBar>  // Ajouté pour éviter l'erreur
 #include <QDebug>   // Pour utiliser qDebug()
@@ -14,6 +15,10 @@ MainWindow::MainWindow(QWidget *parent) :
     afficherEvenement();
     connect(ui->pushButton_choisirImage, &QPushButton::clicked, this, &MainWindow::on_pushButton_choisirImage_clicked);
     connect(ui->btnRefresh, &QPushButton::clicked, this, &MainWindow::afficherEvenement);
+    connect(ui->btnDialog, &QPushButton::clicked, this, &MainWindow::on_btnDialog_clicked);
+
+
+
     // Cacher la barre des onglets pour forcer l'utilisateur à utiliser les boutons
     ui->tabWidget->tabBar()->hide();
 
@@ -52,11 +57,11 @@ void MainWindow::on_ajouter_button_clicked()
     QString statut = ui->statusl->currentText();
     QString categorie = ui->catl->text(); // Utiliser text() pour QLineEdit
     QString type = ui->typl->text();  // Utiliser text() pour QLineEdit
-      // Utiliser le bon nom du widget 'typl'
     QString organisateur = ui->orgl->text();
+    QString lieu = ui->lieul->text(); // Ajout du champ lieu (assurez-vous que lieul existe dans l'UI)
 
-    // Créer l’objet
-    Evenement ev( titre, type, capacite, prix, "", description, dateDebut, dateFin, categorie, statut, organisateur, 1);
+    // Créer l’objet Evenement avec le lieu ajouté
+    Evenement ev(titre, type, capacite, prix, lieu, description, dateDebut, dateFin, categorie, statut, organisateur, QString::number(1));
 
     // Appeler la méthode ajouter()
     if (ev.ajouter()) {
@@ -65,6 +70,7 @@ void MainWindow::on_ajouter_button_clicked()
         QMessageBox::critical(this, "Erreur", "Échec de l’ajout de l’événement !");
     }
 }
+
 void MainWindow::on_pushButton_choisirImage_clicked()
 {
     QString filePath = QFileDialog::getOpenFileName(this, "Choisir une image", "", "Images (*.png *.jpg *.bmp)");
@@ -147,161 +153,39 @@ void MainWindow::on_supprimer_clicked()
 }
 
 
-/*void MainWindow::on_modifier_clicked()
+
+
+
+void MainWindow::on_btnDialog_clicked()
 {
-    // Récupérer l'index sélectionné dans la table
-    QModelIndex index = ui->tableView->currentIndex();
-    if (!index.isValid()) {
-        QMessageBox::warning(this, "Erreur", "Veuillez sélectionner un événement à modifier.");
+    // Récupérer le modèle de sélection de la table
+    QItemSelectionModel *select = ui->tableView->selectionModel();
+    QModelIndexList selectedRows = select->selectedRows();
+
+    // Vérifier si une ligne est sélectionnée
+    if (selectedRows.isEmpty()) {
+        QMessageBox::warning(this, "Erreur", "Veuillez sélectionner un service à modifier.");
         return;
     }
 
-    // Récupérer l'ID de l'événement (assume que la première colonne contient l'ID)
-    int id = ui->tableView->model()->data(ui->tableView->model()->index(index.row(), 0)).toInt();
+    // Récupérer l'ID du service sélectionné depuis la première colonne
+    int idEvent = selectedRows.first().data().toInt();
 
-    // Créer une requête SQL pour obtenir les données de l'événement sélectionné
-    QSqlQuery query;
-    query.prepare("SELECT * FROM EVENEMENT WHERE ID = :id");
-    query.bindValue(":id", id);
-
-    // Exécuter la requête et charger les données dans les champs
-    if (query.exec() && query.next()) {
-        // Récupérer les valeurs depuis la base de données
-        QString titre = query.value("TITRE").toString();
-        QString description = query.value("DESCRIPTION").toString();
-        QString type = query.value("TYPE").toString();
-        int capacite = query.value("CAPACITE").toInt();
-        double prix = query.value("PRIX").toDouble();
-        QString categorie = query.value("CATEGORIE").toString();
-        QString statut = query.value("STATUT").toString();
-        QString organisateur = query.value("ORGANISATEUR").toString();
-        QDate dateDebut = query.value("DATE_DEB").toDate();
-        QDate dateFin = query.value("DATE_FIN").toDate();
-
-        // Remplir les champs de la page de modification
-        ui->titrel_2->setText(titre);
-        ui->desl_2->setText(description); // Si c'est un QTextEdit, sinon ->setText() pour un QLineEdit
-        ui->typl_2->setText(type);
-        ui->capl_2->setText(QString::number(capacite)); // Si c'est QLineEdit
-        ui->prixl_2->setValue(prix); // Si c'est QLineEdit
-        ui->catl_2->setText(categorie);
-        ui->statusl_2->setCurrentText(statut);
-        ui->orgl_2->setText(organisateur);
-        ui->ddl_2->setDate(dateDebut);
-        ui->dfl_2->setDate(dateFin);
-
-        // Afficher la page de modification
-        ui->tabWidget->setCurrentWidget(ui->tabWidget);
-
-    } else {
-        // Afficher un message d'erreur si la requête échoue
-        QMessageBox::critical(this, "Erreur", "Impossible de charger les détails de l'événement.");
+    // Vérifier que l'ID est valide
+    if (idEvent <= 0) {
+        QMessageBox::warning(this, "Erreur", "ID invalide pour le service.");
         return;
+    }
+
+    // Ouvrir la fenêtre de modification avec l'ID du service
+    Dialog dialog(idEvent, this);
+
+    // Afficher le dialogue pour permettre la modification
+    if (dialog.exec() == QDialog::Accepted) {
+        // Si le dialogue est validé, effectuer des actions supplémentaires si nécessaire
+        // Par exemple, recharger ou rafraîchir les données de la table
     }
 }
-
-{
-    int id = ui->tableView->selectionModel()->currentIndex().row();
-    if (id == -1) {
-        QMessageBox::warning(this, "Erreur", "Veuillez sélectionner un événement à modifier.");
-        return;
-    }
-
-    QModelIndex index = ui->tableView->model()->index(id, 0); // Supposons que la colonne 0 c'est l'ID
-    int idEvenement = index.data().toInt();
-
-    QSqlQuery query;
-    query.prepare("SELECT * FROM EVENEMENT WHERE ID = :id");
-    query.bindValue(":id", idEvenement);
-
-    if (query.exec() && query.next()) {
-        // Récupérer les valeurs
-        QString titre = query.value("TITRE").toString();
-        QString description = query.value("DESCRIPTION").toString();
-        QString type = query.value("TYPE").toString();
-        int capacite = query.value("CAPACITE").toInt();
-        double prix = query.value("PRIX").toDouble();
-        QString categorie = query.value("CATEGORIE").toString();
-        QString statut = query.value("STATUT").toString();
-        QString organisateur = query.value("ORGANISATEUR").toString();
-        QDate dateDebut = query.value("DATE_DEB").toDate();
-        QDate dateFin = query.value("DATE_FIN").toDate();
-
-        // Remplir les champs de la page modification
-        ui->titrel_2->setText(titre);
-        ui->desl_2->setText(description);                // Si c'est un QTextEdit, sinon ->setText() pour un QLineEdit
-        ui->typl_2->setText(type);
-        ui->capl_2->setText(QString::number(capacite)); // Si c'est QLineEdit
-        ui->prixl_2->setValue(prix);                 // Si c'est QLineEdit
-        ui->catl_2->setText(categorie);
-        ui->statusl_2->setCurrentText(statut);
-        ui->orgl_2->setText(organisateur);
-        ui->ddl_2->setDate(dateDebut);
-        ui->dfl_2->setDate(dateFin);
-    } else {
-        QMessageBox::critical(this, "Erreur", "Impossible de charger les détails de l'événement.");
-    }
-}
-{
-    QModelIndex index = ui->tableView->currentIndex();
-    if (!index.isValid()) {
-        QMessageBox::warning(this, "Erreur", "Veuillez sélectionner un événement à modifier.");
-        return;
-    }
-
-    int id = ui->tableView->model()->data(ui->tableView->model()->index(index.row(), 0)).toInt();
-
-    // Charger les données dans la nouvelle page (formulaire de modification)
-    QSqlQuery query;
-    query.prepare("SELECT * FROM EVENEMENT WHERE ID = :id");
-    query.bindValue(":id", id);
-    if (query.exec() && query.next()) {
-        ui->titrel_2->setText(query.value("TITRE").toString());
-        ui->desl_2->setText(query.value("DESCRIPTION").toString());
-        ui->ddl_2->setDate(query.value("DATE_DEB").toDate());
-        ui->dfl_2->setDate(query.value("DATE_FIN").toDate());
-        ui->capl_2->setText(QString::number(valeurCapacite));
-        ui->statusl_2->setCurrentText(query.value("STATUT").toString());
-        ui->catl_2->setCurrentText(query.value("CATEGORIE").toString());
-        ui->typl_2->setCurrentText(query.value("TYPE").toString());
-        ui->prixl_2->setValue(query.value("PRIX").toDouble());
-        ui->orgl_2->setText(query.value("ORGANISATEUR").toString());
-    } else {
-        QMessageBox::critical(this, "Erreur", "Impossible de charger les données.");
-        return;
-    }
-
-    // Afficher la page de modification
-    ui->stackedWidget->setCurrentWidget(ui->pageModifier);
-}
-
-
-
-void MainWindow::on_modifier_2_clicked()
-{
-    int id = ui->id->text().toInt();  // récupère l'id de l'événement à modifier
-
-    Evenement E;
-    E.setTitre(ui->titrel_2->text());
-    QString description = ui->desl->text();
-      // Texte long => QTextEdit
-    E.setDateDebut(ui->ddl_2->date());
-    E.setDateFin(ui->dfl_2->date());
-    E.setCapacite(ui->capl_2->text().toInt());
-    E.setStatut(ui->statusl_2->currentText());
-    E.setType(ui->typl_2->text());
-    E.setPrix(ui->prixl_2->value());
-    E.setCategorie(ui->catl_2->text());
-    E.setOrganisateur(ui->orgl_2->text());
-
-    if (E.modifier(id)) {  // bien passer l'ID ici !
-        QMessageBox::information(this, "Succès", "Événement modifié avec succès.");
-        afficherEvenement();  // refresh
-    } else {
-        QMessageBox::critical(this, "Erreur", "Échec de la modification.");
-    }
-}*/
-
 
 
 

@@ -33,8 +33,8 @@
      <property name="geometry">
       <rect>
        <x>-20</x>
-       <y>310</y>
-       <width>101</width>
+       <y>240</y>
+       <width>121</width>
        <height>61</height>
       </rect>
      </property>
@@ -51,14 +51,39 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
      </property>
      <property name="icon">
       <iconset resource="img.qrc">
-       <normaloff>:/new/prefix1/img/ecommerce_home_market_mart_shop_shopping_store_icon_123207.png</normaloff>:/new/prefix1/img/ecommerce_home_market_mart_shop_shopping_store_icon_123207.png</iconset>
+       <normaloff>:/Downloads/5973800-removebg-preview.png</normaloff>:/Downloads/5973800-removebg-preview.png</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_4">
      <property name="geometry">
       <rect>
-       <x>-30</x>
-       <y>550</y>
+       <x>-20</x>
+       <y>480</y>
+       <width>121</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(227, 241, 244);
+border: 2px solid; /* Ajoute une bordure */
+border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
+border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
+border-radius: 30px; /* Ajuste selon le degré d'arrondi souhaité */
+qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="img.qrc">
+       <normaloff>:/Downloads/1623971-removebg-preview.png</normaloff>:/Downloads/1623971-removebg-preview.png</iconset>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_5">
+     <property name="geometry">
+      <rect>
+       <x>-10</x>
+       <y>400</y>
        <width>111</width>
        <height>61</height>
       </rect>
@@ -76,40 +101,15 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
      </property>
      <property name="icon">
       <iconset resource="img.qrc">
-       <normaloff>:/new/prefix1/img/sidebar_utilities_18421.png</normaloff>:/new/prefix1/img/sidebar_utilities_18421.png</iconset>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_5">
-     <property name="geometry">
-      <rect>
-       <x>-20</x>
-       <y>470</y>
-       <width>101</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(227, 241, 244);
-border: 2px solid; /* Ajoute une bordure */
-border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
-border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
-border-radius: 30px; /* Ajuste selon le degré d'arrondi souhaité */
-qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="img.qrc">
-       <normaloff>:/new/prefix1/img/website_maintenance_settings_window_alert_icon_193897 (1).png</normaloff>:/new/prefix1/img/website_maintenance_settings_window_alert_icon_193897 (1).png</iconset>
+       <normaloff>:/Downloads/9321345-removebg-preview.png</normaloff>:/Downloads/9321345-removebg-preview.png</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_6">
      <property name="geometry">
       <rect>
        <x>-20</x>
-       <y>630</y>
-       <width>101</width>
+       <y>560</y>
+       <width>111</width>
        <height>61</height>
       </rect>
      </property>
@@ -126,7 +126,7 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
      </property>
      <property name="icon">
       <iconset resource="img.qrc">
-       <normaloff>:/new/prefix1/img/investment_asset_management_worker_employee_welfare_icon_210504.png</normaloff>:/new/prefix1/img/investment_asset_management_worker_employee_welfare_icon_210504.png</iconset>
+       <normaloff>:/Downloads/4986021-removebg-preview.png</normaloff>:/Downloads/4986021-removebg-preview.png</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_3">
@@ -156,9 +156,9 @@ border: none; /* Supprime la bordure si nécessaire */
     <widget class="QPushButton" name="pushButton_11">
      <property name="geometry">
       <rect>
-       <x>-30</x>
-       <y>230</y>
-       <width>111</width>
+       <x>-20</x>
+       <y>160</y>
+       <width>121</width>
        <height>61</height>
       </rect>
      </property>
@@ -175,12 +175,12 @@ qproperty-iconSize: 50px 50px; /* Ajuste la taille de l'icône */</string>
      </property>
      <property name="icon">
       <iconset resource="img.qrc">
-       <normaloff>:/new/prefix1/img/validated_buyer_user_apply_done_icon_177174 (1).png</normaloff>:/new/prefix1/img/validated_buyer_user_apply_done_icon_177174 (1).png</iconset>
+       <normaloff>:/Downloads/166260.png</normaloff>:/Downloads/166260.png</iconset>
      </property>
      <property name="iconSize">
       <size>
-       <width>50</width>
-       <height>50</height>
+       <width>35</width>
+       <height>35</height>
       </size>
      </property>
     </widget>
@@ -188,7 +188,7 @@ qproperty-iconSize: 50px 50px; /* Ajuste la taille de l'icône */</string>
      <property name="geometry">
       <rect>
        <x>-30</x>
-       <y>390</y>
+       <y>320</y>
        <width>141</width>
        <height>61</height>
       </rect>
@@ -206,7 +206,7 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
      </property>
      <property name="icon">
       <iconset resource="img.qrc">
-       <normaloff>:/new/prefix1/img/calendar_date_day_event_month_schedule_time_icon_123230.png</normaloff>:/new/prefix1/img/calendar_date_day_event_month_schedule_time_icon_123230.png</iconset>
+       <normaloff>:/Downloads/3079026-removebg-preview.png</normaloff>:/Downloads/3079026-removebg-preview.png</iconset>
      </property>
     </widget>
     <widget class="QTabWidget" name="tabWidget">
@@ -227,7 +227,7 @@ border-radius: 25px; /* Ajuste selon le degré d'arrondi souhaité */
 </string>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="widget_3">
       <attribute name="title">
@@ -930,7 +930,7 @@ border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */</string>
          <normaloff>:/Downloads/561125-removebg-preview.png</normaloff>:/Downloads/561125-removebg-preview.png</iconset>
        </property>
       </widget>
-      <widget class="QPushButton" name="modifier">
+      <widget class="QPushButton" name="btnDialog">
        <property name="geometry">
         <rect>
          <x>910</x>
@@ -1920,8 +1920,8 @@ qproperty-iconSize: 30px 30px; /* Ajuste la taille de l'icône */</string>
      </property>
      <property name="iconSize">
       <size>
-       <width>40</width>
-       <height>40</height>
+       <width>30</width>
+       <height>30</height>
       </size>
      </property>
     </widget>

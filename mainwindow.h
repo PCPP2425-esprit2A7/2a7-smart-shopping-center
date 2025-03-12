@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
 #include <QMainWindow>
+class Dialog;
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -23,8 +23,13 @@ private slots:
     void on_pushButton_choisirImage_clicked();
     void afficherEvenement();
     void on_supprimer_clicked();
+   // void ouvrirDialog();
+   // void load_event_details(const QModelIndex &index);
 
 
+
+
+    void on_btnDialog_clicked();
 
 private:
     Ui::MainWindow *ui;

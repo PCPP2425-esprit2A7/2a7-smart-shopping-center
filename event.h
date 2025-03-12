@@ -22,6 +22,7 @@ private:
     QString statut;
     QString organisateur;
     int id_espace; // Jointure avec espace
+    QString lieu;
 
 public:
     // Constructeurs
@@ -29,7 +30,7 @@ public:
 
     Evenement( QString titre, QString type, int capacite, double prix, QString affiche,
               QString description, QDate date_debut, QDate date_fin, QString categorie,
-              QString statut, QString organisateur, int id_espace)
+              QString statut, QString organisateur,QString lieu)
     {
 
         this->titre = titre;
@@ -43,7 +44,8 @@ public:
         this->categorie = categorie;
         this->statut = statut;
         this->organisateur = organisateur;
-        this->id_espace = id_espace;
+
+        this->lieu = lieu;
     }
 
     ~Evenement() {}
@@ -62,6 +64,8 @@ public:
     QString getStatut() const { return statut; }
     QString getOrganisateur() const { return organisateur; }
     int getIdEspace() const { return id_espace; }
+    QString getLieu() const { return lieu; }
+
 
     // Setters
     void setId(int id) { this->id = id; }
@@ -77,12 +81,19 @@ public:
     void setStatut(const QString &statut) { this->statut = statut; }
     void setOrganisateur(const QString &organisateur) { this->organisateur = organisateur; }
     void setIdEspace(int id_espace) { this->id_espace = id_espace; }
+    void setLieu(const QString &lieu) { this->lieu = lieu; }
 
     // CRUD
     bool ajouter();
     QSqlQueryModel *afficher();
-    bool modifier(int id);
     bool supprimer(int id);
+    bool loadById(int id);
+    bool modifier(int id, const QString &titre, const QString &type, int capacite, double prix,
+                              const QString &description, const QString &dateDebut,
+                             const QString &dateFin, const QString &categorie, const QString &statut,
+                  const QString &organisateur ,const QString &lieu );
+
+
 };
 
 #endif // EVENEMENT_H
