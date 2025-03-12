@@ -27,6 +27,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         espace.h espace.cpp
         connection.h connection.cpp
         IMG.qrc
+        modifierespacesdialog.h modifierespacesdialog.cpp modifierespacesdialog.ui
+
     )
 else()
     if(ANDROID)

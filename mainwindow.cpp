@@ -4,6 +4,7 @@
 #include <QSqlQueryModel>
 #include <QPushButton>
 #include "espace.h"
+#include "modifierespacesDialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -87,8 +88,8 @@ void MainWindow::on_pushButton_15_clicked()
     int superficie = ui->spinBox_Superficie->value();
     QString emplacement = ui->lineEdit_Emplacement->text();
     QString statut = ui->comboBox->currentText();
-    QString dateDebut = ui->dateEdit->date().toString("dd-MM-yyyy");
-    QString dateFin = ui->dateEdit_2->date().toString("dd-MM-yyyy");
+    QString dateDebut = ui->dateEdit->date().toString("yyyy-MM-dd"); // Using yyyy-MM-dd format for consistency
+    QString dateFin = ui->dateEdit_2->date().toString("yyyy-MM-dd"); // Using yyyy-MM-dd format for consistency
 
     // Check if loyer field is empty
     QString loyerStr = ui->lineEdit_loyer->text().replace(",", ".");
@@ -113,13 +114,16 @@ void MainWindow::on_pushButton_15_clicked()
     }
 
     // Check consistency of dates
-    if (ui->dateEdit->date() >= ui->dateEdit_2->date()) {
+    QDate startDate = ui->dateEdit->date();
+    QDate endDate = ui->dateEdit_2->date();
+
+    if (startDate >= endDate) {
         QMessageBox::warning(this, "Erreur", "La date de fin doit être après la date de début !");
         return;
     }
 
     // Create Espace and add to database
-    Espace Espace(nom, type, superficie, emplacement, statut, loyer, dateDebut, dateFin, 1);
+    Espace Espace(nom, type, superficie, emplacement, statut, loyer, startDate, endDate, 1);
     if (Espace.ajouter()) {
         QMessageBox::information(this, "Succès", "Espace ajouté avec succès !");
 
@@ -170,9 +174,9 @@ void MainWindow::on_supprimer_clicked()
     }
 }
 
+// Function to modify an Espace
 void MainWindow::on_modifier_clicked()
 {
-    // Get the selected row from the table view
     QModelIndexList selectedRows = ui->tableView->selectionModel()->selectedRows();
 
     if (selectedRows.isEmpty()) {
@@ -180,27 +184,11 @@ void MainWindow::on_modifier_clicked()
         return;
     }
 
-    // Get the ID of the selected space (assumes ID is in the first column)
     int selectedRow = selectedRows.first().row();
     int espaceID = ui->tableView->model()->data(ui->tableView->model()->index(selectedRow, 0)).toInt();
 
-    // Retrieve the data of the selected space
-    Espace espaceTmp;
-    if (!espaceTmp.charger(espaceID)) {
-        QMessageBox::critical(this, "Erreur", "Impossible de charger l'espace pour modification !");
-        return;
+    modifierespacesDialog dialog(espaceID, this);
+    if (dialog.exec() == QDialog::Accepted) {
+        afficherEspaces();
     }
-
-    // Populate the fields with the existing data
-    ui->lineEdit_Nom->setText(espaceTmp.getNom_Espace());
-    ui->lineEdit_Type->setText(espaceTmp.getType_Espace());
-    ui->spinBox_Superficie->setValue(espaceTmp.getSuperficie());
-    ui->lineEdit_Emplacement->setText(espaceTmp.getEmplacement());
-    ui->comboBox->setCurrentText(espaceTmp.getStatut());
-    ui->lineEdit_loyer->setText(QString::number(espaceTmp.getLoyer_Mensuel()));
-    ui->dateEdit->setDate(QDate::fromString(espaceTmp.getDate_Debut(), "dd-MM-yyyy"));
-    ui->dateEdit_2->setDate(QDate::fromString(espaceTmp.getDate_Fin(), "dd-MM-yyyy"));
-
-    // Switch to the modification tab (if you have one)
-    ui->tabWidget->setCurrentIndex(0);  // Assuming index 0 is the modification tab
 }
