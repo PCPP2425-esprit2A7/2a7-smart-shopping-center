@@ -20,13 +20,18 @@ set(PROJECT_SOURCES
     mainwindow.ui
     connection.h
     connection.cpp
+    locataire.h
+    locataire.cpp
+    dialog.h
+    dialog.cpp
+    dialog.ui
+    img.qrc  # Ajouter le fichier .qrc ici si nécessaire
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(hamza
         MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-        locataire.h locataire.cpp
+        ${PROJECT_SOURCES}  # Liste des fichiers sources
     )
 else()
     if(ANDROID)
