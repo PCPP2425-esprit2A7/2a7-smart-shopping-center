@@ -12,9 +12,7 @@ ModifierServiceDialog::ModifierServiceDialog(int id, QWidget *parent) :
 {
     ui->setupUi(this);  // S'assurer que l'UI est bien liée
     loadServiceDetails();
-    connect(ui->saveButton, &QPushButton::clicked, this, &ModifierServiceDialog::on_saveButton_clicked);
-
-
+    //connect(ui->saveButton, &QPushButton::clicked, this, &ModifierServiceDialog::on_saveButton_clicked);
 }
 
 ModifierServiceDialog::~ModifierServiceDialog()

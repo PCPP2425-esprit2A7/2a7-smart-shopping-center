@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "service.h"
-#include <QMessageBox>
 #include <QDebug>
 #include "modifierservicedialog.h"
 #include <QFileDialog>
@@ -13,6 +12,37 @@
 #include <QPropertyAnimation>
 #include <QChartView>
 #include <QVBoxLayout>
+#include <QPdfWriter>
+#include <QPainter>
+#include <QSqlRecord>
+#include <QPushButton>
+#include <QEvent>
+
+
+HoverButton::HoverButton(QWidget *parent) : QPushButton(parent)  // ✅ Implémentation correcte
+{
+    setAttribute(Qt::WA_Hover); // Active la gestion du survol
+}
+void HoverButton::enterEvent(QEnterEvent *event)
+{
+    // On vérifie si l'événement est bien un QEnterEvent
+    if (event->type() == QEvent::Enter) {
+        // Ici, on gère le survol du bouton (entrer dans la zone du bouton)
+        emit hoverEntered();  // Émettre un signal pour signaler que le curseur est sur le bouton
+    }
+}
+
+void HoverButton::leaveEvent(QEvent *event)
+{
+    // Vérification similaire pour leaveEvent
+    if (event->type() == QEvent::Leave) {
+        // Ici, on gère le départ du survol (le curseur quitte la zone du bouton)
+        emit hoverLeft();  // Émettre un signal pour signaler que le curseur a quitté le bouton
+    }
+
+    // Appel de la méthode parente (facultatif)
+    QPushButton::leaveEvent(event);
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -23,14 +53,13 @@ MainWindow::MainWindow(QWidget *parent)
     // Cacher la barre des onglets pour forcer l'utilisation des boutons
     ui->tabWidget->tabBar()->hide();
     connect(ui->afficher, &QPushButton::clicked, this, &MainWindow::afficherServices);
-    connect(ui->deleteButton, &QPushButton::clicked, this, &MainWindow::on_deleteButton_clicked);
-    connect(ui->modifyButton, &QPushButton::clicked, this, &MainWindow::on_modifyButton_clicked);
     connect(ui->stat, &QPushButton::clicked, this, &MainWindow::afficherStatistiques);
     connect(ui->liste, &QPushButton::clicked, this, &MainWindow::afficherServices);
-
-
-
-
+    connect(ui->liste, &QPushButton::clicked, this, &MainWindow::changerCouleurBouton);
+    connect(ui->form, &QPushButton::clicked, this, &MainWindow::changerCouleurBouton);
+    connect(ui->stat, &QPushButton::clicked, this, &MainWindow::changerCouleurBouton);
+    connect(ui->save_stat, &QPushButton::clicked, this, &MainWindow::changerCouleurBouton);
+      setUpNavigationButtons();
     // Connexion des boutons pour changer d'onglet
     connect(ui->liste, &QPushButton::clicked, this, [=]() {
         ui->tabWidget->setCurrentIndex(0);
@@ -55,38 +84,54 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_ajouter_2_clicked()
 {
-    // Récupérer les valeurs des champs du formulaire
+    // Récupérer les valeurs des champs
     QString nom = ui->lineEdit_Nom_2->text().trimmed();
     QString description = ui->textEdit_Description_2->toPlainText().trimmed();
     QString statut = ui->comboBox_Statut_2->currentText();
     QString frequence = ui->comboBox_Frequence_2->currentText();
-    QString dateDebut = ui->dateEdit_Debut_2->date().toString("dd-MM-yy");
-    QString dateFin = ui->dateEdit_Fin_2->date().toString("dd-MM-yy");
+    QDate dateDebut = ui->dateEdit_Debut_2->date();
+    QDate dateFin = ui->dateEdit_Fin_2->date();
 
     // Vérifier si le champ coût est vide
     QString coutStr = ui->lineEdit_Cout_2->text().trimmed().replace(",", ".");
     coutStr.remove(QChar(0x200E)); // Supprimer les caractères invisibles
 
-    qDebug() << "Valeur après suppression des caractères invisibles :" << coutStr;
+    // Vérifier que tous les champs obligatoires sont remplis
+    if (nom.isEmpty() || description.isEmpty() || coutStr.isEmpty()) {
+        QMessageBox::warning(this, "Erreur", "Veuillez remplir tous les champs obligatoires !");
+        return;
+    }
 
-    if (coutStr.isEmpty()) {
-        QMessageBox::warning(this, "Erreur", "Veuillez entrer un coût !");
+    // Vérifier la longueur du nom
+    if (nom.length() > 50) {
+        QMessageBox::warning(this, "Erreur", "Le nom ne doit pas dépasser 50 caractères !");
+        return;
+    }
+
+    // Vérifier la longueur de la description
+    if (description.length() > 255) {
+        QMessageBox::warning(this, "Erreur", "La description est trop longue (max 255 caractères) !");
         return;
     }
 
     // Vérifier et convertir le coût
     bool ok;
     double cout = coutStr.toDouble(&ok);
-    qDebug() << "Valeur convertie en double :" << cout;
 
-    if (!ok) {
-        qDebug() << "Erreur : la conversion a échoué !";
-        QMessageBox::warning(this, "Erreur", "Le coût doit être un nombre valide !");
+    if (!ok || cout <= 0) {
+        QMessageBox::warning(this, "Erreur", "Le coût doit être un nombre valide et positif !");
+        return;
+    }
+
+    // Vérifier que la date de fin est postérieure à la date de début
+    if (dateFin < dateDebut) {
+        QMessageBox::warning(this, "Erreur", "La date de fin doit être postérieure à la date de début !");
         return;
     }
 
     // Création du service et tentative d'ajout
-    Service s(nom, description, cout, frequence, statut, dateDebut, dateFin, 1);
+    Service s(nom, description, cout, frequence, statut, dateDebut.toString("dd-MM-yyyy"), dateFin.toString("dd-MM-yyyy"), 1);
+
     if (s.ajouter()) {
         QMessageBox::information(this, "Succès", "Service ajouté avec succès !");
 
@@ -99,12 +144,11 @@ void MainWindow::on_ajouter_2_clicked()
         ui->dateEdit_Debut_2->setDate(QDate::currentDate());
         ui->dateEdit_Fin_2->setDate(QDate::currentDate());
 
-        // Passage automatique à l'onglet "Liste"
-        ui->tabWidget->setCurrentIndex(1);
     } else {
         QMessageBox::critical(this, "Erreur", "Échec de l'ajout du service !");
     }
 }
+
 
 void MainWindow::afficherServices() {
     Service service;
@@ -203,9 +247,61 @@ void MainWindow::on_modifyButton_clicked()
 
 
 
-void MainWindow::on_exel_clicked()
+void MainWindow::on_pdf_clicked()
 {
+    QString filePath = QFileDialog::getSaveFileName(this, "Enregistrer le PDF", "", "PDF Files (*.pdf)");
+    if (filePath.isEmpty()) return;
 
+    QPdfWriter pdfWriter(filePath);
+    pdfWriter.setPageSize(QPageSize::A4);
+    pdfWriter.setResolution(300);
+    QPainter painter(&pdfWriter);
+    painter.setFont(QFont("Arial", 10));
+
+    int pageWidth = pdfWriter.width();
+    int startX = 50;
+    int startY = 80;
+    int rowHeight = 40;  // Hauteur des lignes ajustée
+    int colWidths[] = {50, 100, 200, 80, 80, 100, 80}; // Largeur des colonnes ajustée
+
+    QSqlQuery query("SELECT * FROM SERVICE");
+    QSqlRecord record = query.record();
+    int columnCount = record.count();
+
+    // Titre du document
+    painter.setFont(QFont("Arial", 16, QFont::Bold));
+    painter.drawText(startX, startY - 30, "Liste des Services");
+
+    // Dessiner l'en-tête du tableau
+    painter.setBrush(Qt::lightGray);
+    painter.setPen(Qt::black);
+    int colStartX = startX;
+
+    for (int i = 0; i < columnCount; i++) {
+        painter.drawRect(colStartX, startY, colWidths[i], rowHeight);
+        painter.drawText(colStartX + 5, startY + 25, record.fieldName(i));
+        colStartX += colWidths[i];
+    }
+
+    startY += rowHeight;
+    painter.setFont(QFont("Arial", 10));
+    painter.setBrush(Qt::NoBrush);
+
+    // Dessiner les lignes du tableau
+    while (query.next()) {
+        colStartX = startX;
+        for (int i = 0; i < columnCount; i++) {
+            QString data = query.value(i).toString();
+            QRect rect(colStartX, startY, colWidths[i], rowHeight);
+            painter.drawRect(rect);
+            painter.drawText(rect.adjusted(5, 5, -5, -5), Qt::AlignLeft | Qt::TextWordWrap, data);
+            colStartX += colWidths[i];
+        }
+        startY += rowHeight;
+    }
+
+    painter.end();
+    QMessageBox::information(this, "Succès", "Le fichier PDF a été généré avec succès !");
 
 }
 
@@ -290,4 +386,138 @@ void MainWindow::afficherStatistiques() {
 
     // Rafraîchir l'onglet des statistiques
     statistiquesTab->setLayout(layout);
+}
+
+
+void MainWindow::on_save_stat_clicked()
+{
+    // Sélectionner l'endroit où enregistrer l'image
+    QString filePath = QFileDialog::getSaveFileName(this, "Enregistrer l'image", "", "Images (*.png)");
+
+    if (!filePath.isEmpty()) {
+        // Capture du widget contenant les statistiques (remplace "statistique" par le bon nom)
+        QPixmap pixmap = ui->tabWidget->widget(2)->grab();
+
+        // Enregistrement de l'image
+        if (pixmap.save(filePath)) {
+            QMessageBox::information(this, "Succès", "L'image des statistiques a été enregistrée !");
+        } else {
+            QMessageBox::warning(this, "Erreur", "Échec de l'enregistrement de l'image.");
+        }
+    }
+}
+
+void MainWindow::changerCouleurBouton() {
+    QPushButton *button = qobject_cast<QPushButton *>(sender()); // Récupérer le bouton cliqué
+    if (!button) return;
+
+    // Liste de tous les boutons
+    QList<QPushButton*> boutons = {ui->stat, ui->form, ui->liste, ui->save_stat}; // Ajoute tous tes boutons ici
+
+    // Réinitialiser le style de tous les boutons
+    for (QPushButton* btn : boutons) {
+        btn->setStyleSheet("QPushButton {"
+                           "background-color: rgb(227, 241, 244);"
+                           "font: 700 9pt 'Segoe UI';"
+                           "border: 2px solid black;"
+                           "border-radius: 20px;"
+                           "qproperty-iconSize: 30px 30px;"
+                           "}"
+                           "QPushButton:hover {"
+                           "background-color: rgb(180, 210, 230);"
+                           "}"); // Ajout de l'effet hover pour tous les boutons
+    }
+
+    // Appliquer le style uniquement au bouton cliqué
+    button->setStyleSheet("QPushButton {"
+                          "background-color: rgb(71, 127, 172);"  // Couleur sélectionnée
+                          "color: white;"  // Texte en blanc pour contraste
+                          "font: 700 9pt 'Segoe UI';"
+                          "border: 2px solid black;"
+                          "border-radius: 20px;"
+                          "qproperty-iconSize: 30px 30px;"
+                          "}"
+                          "QPushButton:hover {"
+                          "background-color: rgb(100, 150, 200);"  // Couleur du bouton survolé
+                          "}");
+}
+void MainWindow::setUpNavigationButtons()
+{
+    // Créer un tableau de tous les boutons à gérer
+    QList<QPushButton*> boutons = {ui->pushButton_1, ui->pushButton_2, ui->pushButton_3,
+                                    ui->pushButton_5, ui->pushButton_7, ui->pushButton_6};
+
+    // Remplacer chaque bouton classique par un HoverButton
+    for (QPushButton* btn : boutons) {
+        // Créer un nouveau HoverButton et le configurer
+        HoverButton *hoverButton = new HoverButton(btn);
+
+        // Assurez-vous que le parent du bouton est un QWidget valide
+        QWidget* parentWidget = qobject_cast<QWidget*>(btn->parent());
+        if (parentWidget) {
+            hoverButton->setParent(parentWidget);  // Définir le parent pour la gestion mémoire
+        }
+
+        // Ajuster la taille et la position du HoverButton pour qu'il remplace visuellement l'ancien bouton
+        hoverButton->setGeometry(btn->geometry());  // Copier la géométrie de l'ancien bouton
+
+        // Définir explicitement l'icône du bouton si nécessaire
+        hoverButton->setIcon(btn->icon());  // Copier l'icône de l'ancien bouton
+
+        // Appliquer les styles à l'icône et autres propriétés
+        hoverButton->setStyleSheet("QPushButton {"
+                                   "background-color: rgb(227, 241, 244);"
+                                   "border: 2px solid black;"
+                                   "border-radius: 50px;"
+                                   "qproperty-iconSize: 52px 52px;"
+                                   "}");
+
+        // Connexion des signaux hoverEntered et hoverLeft
+        connect(hoverButton, &HoverButton::hoverLeft, this, &MainWindow::onLeaveNavigationButton);
+        connect(hoverButton, &HoverButton::hoverEntered, this, &MainWindow::onEnterNavigationButton);
+
+
+        // Ajouter le HoverButton au layout et l'afficher
+        hoverButton->show();
+
+        // Masquer l'ancien bouton
+        btn->hide();
+    }
+}
+void MainWindow::onEnterNavigationButton()
+{
+    QPushButton* button = qobject_cast<QPushButton*>(sender());
+    if (button) {
+        QPoint currentPos = button->pos();
+        QPoint maxPos = currentPos + QPoint(70, 0); // Limite max
+
+        // Vérifier que le bouton ne dépasse pas la limite
+        if (button->x() < maxPos.x()) {
+            QPropertyAnimation* animation = new QPropertyAnimation(button, "pos");
+            animation->setDuration(200);
+            animation->setEasingCurve(QEasingCurve::InOutQuad);
+
+            animation->setEndValue(maxPos);
+            animation->start();
+        }
+    }
+}
+
+void MainWindow::onLeaveNavigationButton()
+{
+    QPushButton* button = qobject_cast<QPushButton*>(sender());
+    if (button) {
+        QPoint currentPos = button->pos();
+        QPoint minPos = currentPos - QPoint(70, 0); // Limite min
+
+        // Vérifier que le bouton ne dépasse pas la limite
+        if (button->x() > minPos.x()) {
+            QPropertyAnimation* animation = new QPropertyAnimation(button, "pos");
+            animation->setDuration(200);
+            animation->setEasingCurve(QEasingCurve::InOutQuad);
+
+            animation->setEndValue(minPos);
+            animation->start();
+        }
+    }
 }

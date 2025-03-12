@@ -30,296 +30,7 @@ border: 2px solid transparent;</string>
       <property name="frameShadow">
        <enum>QFrame::Shadow::Raised</enum>
       </property>
-      <widget class="QPushButton" name="pushButton_6">
-       <property name="geometry">
-        <rect>
-         <x>-60</x>
-         <y>230</y>
-         <width>161</width>
-         <height>101</height>
-        </rect>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>351</width>
-         <height>101</height>
-        </size>
-       </property>
-       <property name="acceptDrops">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="whatsThis">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt; .XC./X&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(227, 241, 244);
-border: 2px solid black;
-border-radius: 50px;
-
-</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="img.qrc">
-         <normaloff>:/img/ecommerce_home_market_mart_shop_shopping_store_icon_123207.png</normaloff>:/img/ecommerce_home_market_mart_shop_shopping_store_icon_123207.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>120</width>
-         <height>120</height>
-        </size>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="pushButton_7">
-       <property name="geometry">
-        <rect>
-         <x>-60</x>
-         <y>340</y>
-         <width>161</width>
-         <height>101</height>
-        </rect>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>351</width>
-         <height>101</height>
-        </size>
-       </property>
-       <property name="acceptDrops">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="whatsThis">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt; .XC./X&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(227, 241, 244);
-border: 2px solid black;
-border-radius: 50px;
-
-</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="img.qrc">
-         <normaloff>:/img/calendar_date_day_event_month_schedule_time_icon_123230.png</normaloff>:/img/calendar_date_day_event_month_schedule_time_icon_123230.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>120</width>
-         <height>120</height>
-        </size>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="pushButton_8">
-       <property name="geometry">
-        <rect>
-         <x>-60</x>
-         <y>670</y>
-         <width>161</width>
-         <height>101</height>
-        </rect>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>351</width>
-         <height>101</height>
-        </size>
-       </property>
-       <property name="acceptDrops">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="whatsThis">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt; .XC./X&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(227, 241, 244);
-border: 2px solid black;
-border-radius: 50px;
-
-</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="img.qrc">
-         <normaloff>:/img/investment_asset_management_worker_employee_welfare_icon_210504.png</normaloff>:/img/investment_asset_management_worker_employee_welfare_icon_210504.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>120</width>
-         <height>120</height>
-        </size>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="pushButton_9">
-       <property name="geometry">
-        <rect>
-         <x>-60</x>
-         <y>450</y>
-         <width>161</width>
-         <height>101</height>
-        </rect>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>351</width>
-         <height>101</height>
-        </size>
-       </property>
-       <property name="acceptDrops">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="whatsThis">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt; .XC./X&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(227, 241, 244);
-border: 2px solid black;
-border-radius: 50px;
-
-</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="img.qrc">
-         <normaloff>:/img/website_maintenance_settings_window_alert_icon_193897 (1).png</normaloff>:/img/website_maintenance_settings_window_alert_icon_193897 (1).png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>120</width>
-         <height>120</height>
-        </size>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="pushButton_10">
-       <property name="geometry">
-        <rect>
-         <x>-60</x>
-         <y>560</y>
-         <width>241</width>
-         <height>101</height>
-        </rect>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>351</width>
-         <height>101</height>
-        </size>
-       </property>
-       <property name="acceptDrops">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="whatsThis">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt; .XC./X&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(227, 241, 244);
-border: 2px solid black;
-border-radius: 50px;
-qproperty-iconSize: 52px 52px; /* Ajuste la taille de l'icône */
-</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="img.qrc">
-         <normaloff>:/img/sidebar_utilities_18421.png</normaloff>:/img/sidebar_utilities_18421.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>52</width>
-         <height>52</height>
-        </size>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="pushButton_12">
-       <property name="geometry">
-        <rect>
-         <x>-60</x>
-         <y>120</y>
-         <width>161</width>
-         <height>101</height>
-        </rect>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>351</width>
-         <height>101</height>
-        </size>
-       </property>
-       <property name="acceptDrops">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="whatsThis">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt; .XC./X&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(227, 241, 244);
-border: 2px solid black;
-border-radius: 50px;
-qproperty-iconSize: 52px 52px; /* Ajuste la taille de l'icône */
-
-</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="img.qrc">
-         <normaloff>:/img/validated_buyer_user_apply_done_icon_177174 (1).png</normaloff>:/img/validated_buyer_user_apply_done_icon_177174 (1).png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>52</width>
-         <height>52</height>
-        </size>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="pushButton_2">
+      <widget class="QPushButton" name="home">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -348,9 +59,9 @@ border: none; /* Supprime la bordure si nécessaire */</string>
        <property name="geometry">
         <rect>
          <x>200</x>
-         <y>200</y>
+         <y>210</y>
          <width>1301</width>
-         <height>601</height>
+         <height>591</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -360,7 +71,7 @@ border-radius: 25px;
 </string>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="listes">
         <attribute name="title">
@@ -444,13 +155,13 @@ font: 700 10pt &quot;Arial Rounded MT&quot;;</string>
           <iconset theme="QIcon::ThemeIcon::MailMessageNew"/>
          </property>
         </widget>
-        <widget class="QPushButton" name="exel">
+        <widget class="QPushButton" name="pdf">
          <property name="geometry">
           <rect>
-           <x>1110</x>
+           <x>1100</x>
            <y>290</y>
-           <width>61</width>
-           <height>61</height>
+           <width>71</width>
+           <height>71</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -466,7 +177,7 @@ qproperty-iconSize: 50px 50px; /* Ajuste la taille de l'icône */</string>
          </property>
          <property name="icon">
           <iconset resource="img.qrc">
-           <normaloff>:/img/exel.png</normaloff>:/img/exel.png</iconset>
+           <normaloff>:/img/pdf17.png</normaloff>:/img/pdf17.png</iconset>
          </property>
         </widget>
         <widget class="QLabel" name="label_2">
@@ -487,7 +198,7 @@ qproperty-iconSize: 50px 50px; /* Ajuste la taille de l'icône */</string>
         <zorder>deleteButton</zorder>
         <zorder>afficher</zorder>
         <zorder>modifyButton</zorder>
-        <zorder>exel</zorder>
+        <zorder>pdf</zorder>
        </widget>
        <widget class="QWidget" name="formulaire">
         <attribute name="title">
@@ -807,7 +518,7 @@ background-color: rgb(227, 241, 244);
            </item>
            <item>
             <property name="text">
-             <string>mansuel</string>
+             <string>mensuel</string>
             </property>
            </item>
           </widget>
@@ -975,7 +686,7 @@ background:none</string>
         <string>Gestion Des Services</string>
        </property>
       </widget>
-      <widget class="QPushButton" name="pushButton_5">
+      <widget class="QPushButton" name="quitter">
        <property name="geometry">
         <rect>
          <x>330</x>
@@ -1091,6 +802,319 @@ border-radius: 20px; /* Ajuste selon le degré d'arrondi souhaité */</string>
        <property name="icon">
         <iconset resource="img.qrc">
          <normaloff>:/img/1170667-removebg-preview.png</normaloff>:/img/1170667-removebg-preview.png</iconset>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="save_stat">
+       <property name="geometry">
+        <rect>
+         <x>860</x>
+         <y>160</y>
+         <width>51</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(227, 241, 244);
+font: 700 9pt &quot;Segoe UI&quot;;
+border: 2px solid black ; /* Ajoute une bordure */
+border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
+border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
+qproperty-iconSize: 30px 30px; /* Ajuste la taille de l'icône */
+border-radius: 20px; /* Ajuste selon le degré d'arrondi souhaité */</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset theme="QIcon::ThemeIcon::DocumentPrintPreview"/>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_1">
+       <property name="geometry">
+        <rect>
+         <x>-100</x>
+         <y>700</y>
+         <width>231</width>
+         <height>101</height>
+        </rect>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>351</width>
+         <height>101</height>
+        </size>
+       </property>
+       <property name="acceptDrops">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt; .XC./X&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(227, 241, 244);
+border: 2px solid black;
+border-radius: 50px;
+
+</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="img.qrc">
+         <normaloff>:/img/4986021-removebg-preview.png</normaloff>:/img/4986021-removebg-preview.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>50</width>
+         <height>50</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_7">
+       <property name="geometry">
+        <rect>
+         <x>-100</x>
+         <y>150</y>
+         <width>231</width>
+         <height>101</height>
+        </rect>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>351</width>
+         <height>101</height>
+        </size>
+       </property>
+       <property name="acceptDrops">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt; .XC./X&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(227, 241, 244);
+border: 2px solid black;
+border-radius: 50px;
+qproperty-iconSize: 52px 52px; /* Ajuste la taille de l'icône */
+
+</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="img.qrc">
+         <normaloff>:/img/employe.jpg</normaloff>:/img/employe.jpg</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>52</width>
+         <height>52</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_6">
+       <property name="geometry">
+        <rect>
+         <x>-100</x>
+         <y>260</y>
+         <width>231</width>
+         <height>101</height>
+        </rect>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>351</width>
+         <height>101</height>
+        </size>
+       </property>
+       <property name="acceptDrops">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt; .XC./X&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(227, 241, 244);
+border: 2px solid black;
+border-radius: 50px;
+
+</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="img.qrc">
+         <normaloff>:/img/5973800-removebg-preview.png</normaloff>:/img/5973800-removebg-preview.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>50</width>
+         <height>50</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_3">
+       <property name="geometry">
+        <rect>
+         <x>-100</x>
+         <y>480</y>
+         <width>231</width>
+         <height>101</height>
+        </rect>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>351</width>
+         <height>101</height>
+        </size>
+       </property>
+       <property name="acceptDrops">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt; .XC./X&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(227, 241, 244);
+border: 2px solid black;
+border-radius: 50px;
+
+</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="img.qrc">
+         <normaloff>:/img/3079026-removebg-preview.png</normaloff>:/img/3079026-removebg-preview.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>50</width>
+         <height>50</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_2">
+       <property name="geometry">
+        <rect>
+         <x>-100</x>
+         <y>590</y>
+         <width>231</width>
+         <height>101</height>
+        </rect>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>351</width>
+         <height>101</height>
+        </size>
+       </property>
+       <property name="acceptDrops">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt; .XC./X&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(227, 241, 244);
+border: 2px solid black;
+border-radius: 50px;
+qproperty-iconSize: 52px 52px; /* Ajuste la taille de l'icône */
+</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="img.qrc">
+         <normaloff>:/img/9321345-removebg-preview.png</normaloff>:/img/9321345-removebg-preview.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>52</width>
+         <height>52</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_5">
+       <property name="geometry">
+        <rect>
+         <x>-100</x>
+         <y>370</y>
+         <width>231</width>
+         <height>101</height>
+        </rect>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>351</width>
+         <height>101</height>
+        </size>
+       </property>
+       <property name="acceptDrops">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt; .XC./X&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(227, 241, 244);
+border: 2px solid black;
+border-radius: 50px;
+qproperty-iconSize: 52px 52px; /* Ajuste la taille de l'icône */</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="img.qrc">
+         <normaloff>:/img/1623971-removebg-preview.png</normaloff>:/img/1623971-removebg-preview.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>52</width>
+         <height>52</height>
+        </size>
        </property>
       </widget>
      </widget>
