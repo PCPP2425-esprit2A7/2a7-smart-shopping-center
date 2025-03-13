@@ -1,6 +1,8 @@
 #include "dialog.h"
 #include "ui_dialog.h"
 #include <qmessagebox.h>
+#include <QFileDialog>
+#include <QBuffer>
 
 Dialog::Dialog(int id,QWidget *parent) :
     QDialog(parent),
@@ -34,9 +36,56 @@ void Dialog::loadEventDetails()
         ui->statusl->setCurrentText(event.getStatut());
         ui->orgl->setText(event.getOrganisateur());
         ui->lieul->setText(event.getLieu());
+
+        // ✅ Vérification et chargement de l'affiche
+        QString affichePath = event.getAffiche(); // Récupérer l'affiche en QString
+
+        if (!affichePath.isEmpty()) {
+            QPixmap pixmap;
+
+            // Vérifier si affichePath est un chemin valide vers une image
+            if (pixmap.load(affichePath)) {
+                ui->pushButton_affiche->setIcon(QIcon(pixmap));
+                ui->pushButton_affiche->setIconSize(QSize(150, 150));
+          } else {
+                qDebug() << "❌ Erreur : Impossible de charger l'image depuis le chemin spécifié :" << affichePath;
+            }
+        } else {
+            qDebug() << "⚠ Aucune donnée d'image disponible.";
+        }
     } else {
         QMessageBox::warning(this, "Erreur", "❌ Impossible de charger les détails de l'événement.");
     }
+}
+
+// 🔥 Bouton "Modifier Photo"
+void Dialog::on_modifier_affiche_clicked()
+{
+    Evenement event;
+    QString filePath = QFileDialog::getOpenFileName(this, "Choisir une image", "", "Images (*.png *.jpg *.jpeg *.bmp)");
+
+    if (!filePath.isEmpty()) {
+        QPixmap pixmap(filePath);
+        if (!pixmap.isNull()) {
+            // 🔥 Mettre à jour l'aperçu de l'image dans le bouton
+            ui->pushButton_affiche->setIcon(QIcon(pixmap));
+            ui->pushButton_affiche->setIconSize(QSize(150, 150));
+
+
+            // 🔥 Convertir l'image en QByteArray pour la sauvegarde
+            QByteArray byteArray;
+            QBuffer buffer(&byteArray);
+            buffer.open(QIODevice::WriteOnly);
+            pixmap.save(&buffer, "PNG");
+
+            // 🔥 Stocker le QByteArray dans l'objet evenement
+            event.setAffiche(byteArray);
+        } else {
+            QMessageBox::warning(this, "Erreur", "Impossible de charger l'image sélectionnée.");
+        }
+    }
+
+
 }
 
 void Dialog::on_enregistrer_clicked()
@@ -56,6 +105,7 @@ void Dialog::on_enregistrer_clicked()
     qDebug() << "Statut :" << ui->statusl->currentText();
     qDebug() << "Organisateur :" << ui->orgl->text();
     qDebug() << "Lieu :" << ui->lieul->text();  // Ajout du debug pour lieu
+
 
     // Vérification des champs obligatoires
     QString prixStr = QString::number(ui->prixl->value()).trimmed().replace(",", ".");
@@ -105,6 +155,8 @@ void Dialog::on_enregistrer_clicked()
         QMessageBox::critical(this, "Erreur", "Échec de la modification de l'événement.");
     }
 }
+
+
 
 
 

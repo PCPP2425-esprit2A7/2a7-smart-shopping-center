@@ -2,6 +2,8 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
+#include <QFileDialog>
+#include <QBuffer>
 
 bool Evenement::ajouter()
 {
@@ -16,7 +18,7 @@ bool Evenement::ajouter()
     query.bindValue(":description", description);
     query.bindValue(":date_debut", date_debut);
     query.bindValue(":date_fin", date_fin);
-    query.bindValue(":id_espace", id_espace);  // lieu sous forme d'ID (ex: espace dans le mall)
+    query.bindValue(":id_espace", 1);  // lieu sous forme d'ID (ex: espace dans le mall)
     query.bindValue(":capacite", capacite);
     query.bindValue(":statut", statut);
     query.bindValue(":categorie", categorie);

@@ -29,10 +29,10 @@
     <property name="title">
      <string/>
     </property>
-    <widget class="QPushButton" name="pushButton_10">
+    <widget class="QPushButton" name="espace">
      <property name="geometry">
       <rect>
-       <x>-20</x>
+       <x>-40</x>
        <y>240</y>
        <width>121</width>
        <height>61</height>
@@ -54,10 +54,10 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
        <normaloff>:/Downloads/5973800-removebg-preview.png</normaloff>:/Downloads/5973800-removebg-preview.png</iconset>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_4">
+    <widget class="QPushButton" name="maintenance">
      <property name="geometry">
       <rect>
-       <x>-20</x>
+       <x>-40</x>
        <y>480</y>
        <width>121</width>
        <height>61</height>
@@ -79,10 +79,10 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
        <normaloff>:/Downloads/1623971-removebg-preview.png</normaloff>:/Downloads/1623971-removebg-preview.png</iconset>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_5">
+    <widget class="QPushButton" name="service">
      <property name="geometry">
       <rect>
-       <x>-10</x>
+       <x>-30</x>
        <y>400</y>
        <width>111</width>
        <height>61</height>
@@ -104,10 +104,10 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
        <normaloff>:/Downloads/9321345-removebg-preview.png</normaloff>:/Downloads/9321345-removebg-preview.png</iconset>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_6">
+    <widget class="QPushButton" name="locataire">
      <property name="geometry">
       <rect>
-       <x>-20</x>
+       <x>-30</x>
        <y>560</y>
        <width>111</width>
        <height>61</height>
@@ -153,10 +153,10 @@ border: none; /* Supprime la bordure si nécessaire */
        <normaloff>:/Desktop/img/logo_final-removebg-preview.ico</normaloff>:/Desktop/img/logo_final-removebg-preview.ico</iconset>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_11">
+    <widget class="QPushButton" name="employe">
      <property name="geometry">
       <rect>
-       <x>-20</x>
+       <x>-40</x>
        <y>160</y>
        <width>121</width>
        <height>61</height>
@@ -179,15 +179,15 @@ qproperty-iconSize: 50px 50px; /* Ajuste la taille de l'icône */</string>
      </property>
      <property name="iconSize">
       <size>
-       <width>35</width>
-       <height>35</height>
+       <width>50</width>
+       <height>50</height>
       </size>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_7">
+    <widget class="QPushButton" name="event">
      <property name="geometry">
       <rect>
-       <x>-30</x>
+       <x>-60</x>
        <y>320</y>
        <width>141</width>
        <height>61</height>
@@ -227,7 +227,7 @@ border-radius: 25px; /* Ajuste selon le degré d'arrondi souhaité */
 </string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="widget_3">
       <attribute name="title">
@@ -880,7 +880,7 @@ border-radius: 12px; /* Ajuste selon le degré d'arrondi souhaité */
         <rect>
          <x>10</x>
          <y>10</y>
-         <width>891</width>
+         <width>791</width>
          <height>391</height>
         </rect>
        </property>
@@ -888,10 +888,10 @@ border-radius: 12px; /* Ajuste selon le degré d'arrondi souhaité */
       <widget class="QPushButton" name="btnRefresh">
        <property name="geometry">
         <rect>
-         <x>910</x>
-         <y>130</y>
-         <width>121</width>
-         <height>31</height>
+         <x>850</x>
+         <y>100</y>
+         <width>131</width>
+         <height>41</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -910,10 +910,10 @@ border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */</string>
       <widget class="QPushButton" name="supprimer">
        <property name="geometry">
         <rect>
-         <x>910</x>
-         <y>180</y>
-         <width>121</width>
-         <height>31</height>
+         <x>850</x>
+         <y>170</y>
+         <width>131</width>
+         <height>41</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -933,10 +933,10 @@ border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */</string>
       <widget class="QPushButton" name="btnDialog">
        <property name="geometry">
         <rect>
-         <x>910</x>
-         <y>230</y>
-         <width>121</width>
-         <height>31</height>
+         <x>850</x>
+         <y>240</y>
+         <width>131</width>
+         <height>41</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -952,6 +952,22 @@ background-color: rgb(255, 111, 15);</string>
          <normaloff>:/Downloads/7398464-removebg-preview.png</normaloff>:/Downloads/7398464-removebg-preview.png</iconset>
        </property>
       </widget>
+      <widget class="QTableView" name="tableView_2">
+       <property name="geometry">
+        <rect>
+         <x>810</x>
+         <y>10</y>
+         <width>211</width>
+         <height>391</height>
+        </rect>
+       </property>
+      </widget>
+      <zorder>tableView_2</zorder>
+      <zorder>label_14</zorder>
+      <zorder>tableView</zorder>
+      <zorder>btnRefresh</zorder>
+      <zorder>supprimer</zorder>
+      <zorder>btnDialog</zorder>
      </widget>
      <widget class="QWidget" name="stat_2">
       <attribute name="title">
@@ -975,544 +991,6 @@ background-color: rgb(255, 111, 15);</string>
       <attribute name="title">
        <string>Page</string>
       </attribute>
-      <widget class="QGroupBox" name="groupBox_6">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>1011</width>
-         <height>391</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(205, 239, 255);
-</string>
-       </property>
-       <property name="title">
-        <string/>
-       </property>
-       <widget class="QLabel" name="titre_2">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>10</y>
-          <width>61</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
-font: 700 8pt &quot;Arial Rounded MT&quot;;
-</string>
-        </property>
-        <property name="text">
-         <string>Titre </string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="des_2">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>50</y>
-          <width>101</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
-font: 700 8pt &quot;Arial Rounded MT&quot;;
-</string>
-        </property>
-        <property name="text">
-         <string>Description </string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="lieu_2">
-        <property name="geometry">
-         <rect>
-          <x>440</x>
-          <y>20</y>
-          <width>51</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
-font: 700 8pt &quot;Arial Rounded MT&quot;;
-</string>
-        </property>
-        <property name="text">
-         <string>Lieu</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="desl_2">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>70</y>
-          <width>241</width>
-          <height>111</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(227, 241, 244);
-border: 1px solid noir ; /* Ajoute une bordure */
-border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
-border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
-border-radius: 25px; /* Ajuste selon le degré d'arrondi souhaité */
-
-</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="dd_2">
-        <property name="geometry">
-         <rect>
-          <x>40</x>
-          <y>190</y>
-          <width>101</width>
-          <height>51</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
-font: 700 8pt &quot;Arial Rounded MT&quot;;
-</string>
-        </property>
-        <property name="text">
-         <string>Date_début</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="lieul_2">
-        <property name="geometry">
-         <rect>
-          <x>500</x>
-          <y>60</y>
-          <width>121</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(227, 241, 244);
-border: 1px solid noir ; /* Ajoute une bordure */
-border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
-border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
-border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */
-
-</string>
-        </property>
-       </widget>
-       <widget class="QDateEdit" name="ddl_2">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>230</y>
-          <width>141</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(227, 241, 244);
-border: 1px solid noir ; /* Ajoute une bordure */
-border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
-border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
-border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */
-</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="cap_2">
-        <property name="geometry">
-         <rect>
-          <x>420</x>
-          <y>60</y>
-          <width>71</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
-font: 700 8pt &quot;Arial Rounded MT&quot;;
-</string>
-        </property>
-        <property name="text">
-         <string>Capacité</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="capl_2">
-        <property name="geometry">
-         <rect>
-          <x>500</x>
-          <y>150</y>
-          <width>121</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(227, 241, 244);
-border: 1px solid noir ; /* Ajoute une bordure */
-border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
-border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
-border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */
-
-</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="df_2">
-        <property name="geometry">
-         <rect>
-          <x>250</x>
-          <y>190</y>
-          <width>81</width>
-          <height>51</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
-font: 700 8pt &quot;Arial Rounded MT&quot;;
-</string>
-        </property>
-        <property name="text">
-         <string>Date_fin</string>
-        </property>
-       </widget>
-       <widget class="QDateEdit" name="dfl_2">
-        <property name="geometry">
-         <rect>
-          <x>220</x>
-          <y>230</y>
-          <width>141</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(227, 241, 244);
-border: 1px solid noir ; /* Ajoute une bordure */
-border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
-border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
-border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */
-</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="titrel_2">
-        <property name="geometry">
-         <rect>
-          <x>70</x>
-          <y>10</y>
-          <width>301</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(227, 241, 244);
-border: 1px solid noir ; /* Ajoute une bordure */
-border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
-border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
-border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */
-
-</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="status_2">
-        <property name="geometry">
-         <rect>
-          <x>430</x>
-          <y>110</y>
-          <width>61</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
-font: 700 8pt &quot;Arial Rounded MT&quot;;
-</string>
-        </property>
-        <property name="text">
-         <string>Statut</string>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="statusl_2">
-        <property name="geometry">
-         <rect>
-          <x>500</x>
-          <y>110</y>
-          <width>91</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border: 1px solid noir ; /* Ajoute une bordure */
-qproperty-iconSize: 100px 100px; /* Ajuste la taille de l'icône */
-background-color: rgb(227, 241, 244);
-border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>planifié</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>en cours</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>terminé</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>annulé</string>
-         </property>
-        </item>
-       </widget>
-       <widget class="QLineEdit" name="catl_2">
-        <property name="geometry">
-         <rect>
-          <x>500</x>
-          <y>20</y>
-          <width>121</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(227, 241, 244);
-border: 1px solid noir ; /* Ajoute une bordure */
-border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
-border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
-border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */
-
-</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="cat_2">
-        <property name="geometry">
-         <rect>
-          <x>420</x>
-          <y>150</y>
-          <width>81</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
-font: 700 8pt &quot;Arial Rounded MT&quot;;
-</string>
-        </property>
-        <property name="text">
-         <string>Catégorie</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="type_2">
-        <property name="geometry">
-         <rect>
-          <x>430</x>
-          <y>190</y>
-          <width>41</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
-font: 700 8pt &quot;Arial Rounded MT&quot;;
-</string>
-        </property>
-        <property name="text">
-         <string>Type</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="typl_2">
-        <property name="geometry">
-         <rect>
-          <x>500</x>
-          <y>190</y>
-          <width>121</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(227, 241, 244);
-border: 1px solid noir ; /* Ajoute une bordure */
-border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
-border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
-border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */
-
-</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="prix_2">
-        <property name="geometry">
-         <rect>
-          <x>90</x>
-          <y>300</y>
-          <width>41</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
-font: 700 8pt &quot;Arial Rounded MT&quot;;
-</string>
-        </property>
-        <property name="text">
-         <string>Prix</string>
-        </property>
-       </widget>
-       <widget class="QSpinBox" name="prixl_2">
-        <property name="geometry">
-         <rect>
-          <x>140</x>
-          <y>300</y>
-          <width>111</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(227, 241, 244);
-border: 1px solid noir ; /* Ajoute une bordure */
-border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
-border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
-border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */
-
-</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="org_2">
-        <property name="geometry">
-         <rect>
-          <x>300</x>
-          <y>290</y>
-          <width>101</width>
-          <height>41</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
-font: 700 8pt &quot;Arial Rounded MT&quot;;
-</string>
-        </property>
-        <property name="text">
-         <string>Organisateur</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="orgl_2">
-        <property name="geometry">
-         <rect>
-          <x>400</x>
-          <y>290</y>
-          <width>191</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(227, 241, 244);
-border: 1px solid noir ; /* Ajoute une bordure */
-border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
-border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
-border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */
-
-</string>
-        </property>
-       </widget>
-       <widget class="QGroupBox" name="groupBox_8">
-        <property name="geometry">
-         <rect>
-          <x>650</x>
-          <y>30</y>
-          <width>351</width>
-          <height>301</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(205, 239, 255);</string>
-        </property>
-        <property name="title">
-         <string/>
-        </property>
-        <widget class="QLabel" name="affiche_2">
-         <property name="geometry">
-          <rect>
-           <x>40</x>
-           <y>10</y>
-           <width>281</width>
-           <height>41</height>
-          </rect>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
-font: 700 18pt &quot;Arial Rounded MT&quot;;
-</string>
-         </property>
-         <property name="text">
-          <string>Nouvelle affiche </string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="affichel_2">
-         <property name="geometry">
-          <rect>
-           <x>20</x>
-           <y>60</y>
-           <width>311</width>
-           <height>201</height>
-          </rect>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(227, 241, 244);
-border: 1px solid noir ; /* Ajoute une bordure */
-border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
-border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
-border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="pushButton_choisirImage_2">
-         <property name="geometry">
-          <rect>
-           <x>290</x>
-           <y>230</y>
-           <width>51</width>
-           <height>51</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="img.qrc">
-           <normaloff>:/Downloads/ajt.png</normaloff>:/Downloads/ajt.png</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>50</width>
-           <height>50</height>
-          </size>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QPushButton" name="modifier_2">
-        <property name="geometry">
-         <rect>
-          <x>430</x>
-          <y>340</y>
-          <width>151</width>
-          <height>41</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">font: 900 9pt &quot;Arial&quot;;
-background-color: rgb(255, 170, 0);
-border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */</string>
-        </property>
-        <property name="text">
-         <string>  Enregistrer</string>
-        </property>
-        <property name="icon">
-         <iconset resource="img.qrc">
-          <normaloff>:/Downloads/7823496-removebg-preview.png</normaloff>:/Downloads/7823496-removebg-preview.png</iconset>
-        </property>
-       </widget>
-      </widget>
      </widget>
     </widget>
     <widget class="QPushButton" name="ajout">
@@ -1744,7 +1222,7 @@ border-radius: 30px; /* Ajuste selon le degré d'arrondi souhaité */
      <property name="geometry">
       <rect>
        <x>1220</x>
-       <y>310</y>
+       <y>370</y>
        <width>51</width>
        <height>51</height>
       </rect>
@@ -1851,11 +1329,11 @@ border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */
       <string>                              _____________________________</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_15">
+    <widget class="QPushButton" name="pdf">
      <property name="geometry">
       <rect>
        <x>1220</x>
-       <y>370</y>
+       <y>310</y>
        <width>51</width>
        <height>51</height>
       </rect>

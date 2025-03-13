@@ -21,6 +21,7 @@ public:
 
 private slots:
     void on_enregistrer_clicked();
+    void on_modifier_affiche_clicked();
 
 private:
     Ui::Dialog *ui;

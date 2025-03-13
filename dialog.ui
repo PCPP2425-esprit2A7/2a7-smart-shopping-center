@@ -498,7 +498,7 @@ border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */
        <x>650</x>
        <y>30</y>
        <width>351</width>
-       <height>301</height>
+       <height>331</height>
       </rect>
      </property>
      <property name="styleSheet">
@@ -525,12 +525,12 @@ font: 700 18pt &quot;Arial Rounded MT&quot;;
        <string>Nouvelle affiche </string>
       </property>
      </widget>
-     <widget class="QLabel" name="affichel">
+     <widget class="QPushButton" name="pushButton_affiche">
       <property name="geometry">
        <rect>
-        <x>20</x>
+        <x>30</x>
         <y>60</y>
-        <width>311</width>
+        <width>291</width>
         <height>201</height>
        </rect>
       </property>
@@ -539,33 +539,35 @@ font: 700 18pt &quot;Arial Rounded MT&quot;;
 border: 1px solid noir ; /* Ajoute une bordure */
 border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
 border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
-border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */</string>
+border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */
+</string>
       </property>
       <property name="text">
        <string/>
       </property>
      </widget>
-     <widget class="QPushButton" name="pushButton_choisirImage_3">
+     <widget class="QPushButton" name="modifier_affiche">
       <property name="geometry">
        <rect>
-        <x>290</x>
-        <y>230</y>
-        <width>51</width>
-        <height>51</height>
+        <x>90</x>
+        <y>270</y>
+        <width>181</width>
+        <height>31</height>
        </rect>
       </property>
+      <property name="styleSheet">
+       <string notr="true">font: 900 9pt &quot;Arial&quot;;
+background-color: rgb(23, 127, 255);
+
+border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */
+border: 1px solid noir ; /* Ajoute une bordure */</string>
+      </property>
       <property name="text">
-       <string/>
+       <string> modifier l'affiche</string>
       </property>
       <property name="icon">
        <iconset resource="img.qrc">
-        <normaloff>:/Downloads/ajt.png</normaloff>:/Downloads/ajt.png</iconset>
-      </property>
-      <property name="iconSize">
-       <size>
-        <width>50</width>
-        <height>50</height>
-       </size>
+        <normaloff>:/Downloads/7398464-removebg-preview.png</normaloff>:/Downloads/7398464-removebg-preview.png</iconset>
       </property>
      </widget>
     </widget>

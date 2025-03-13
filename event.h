@@ -65,7 +65,7 @@ public:
     QString getOrganisateur() const { return organisateur; }
     int getIdEspace() const { return id_espace; }
     QString getLieu() const { return lieu; }
-
+    bool chargerImage(const QString &cheminFichier);
 
     // Setters
     void setId(int id) { this->id = id; }
@@ -73,7 +73,9 @@ public:
     void setType(const QString &type) { this->type = type; }
     void setCapacite(int capacite) { this->capacite = capacite; }
     void setPrix(double prix) { this->prix = prix; }
-    void setAffiche(const QString &affiche) { this->affiche = affiche; }
+    void setAffiche(const QByteArray &affiche) {
+        this->affiche = affiche;
+    }
     void setDescription(const QString &description) { this->description = description; }
     void setDateDebut(const QDate &date_debut) { this->date_debut = date_debut; }
     void setDateFin(const QDate &date_fin) { this->date_fin = date_fin; }
