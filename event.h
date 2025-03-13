@@ -91,12 +91,11 @@ public:
     bool supprimer(int id);
     bool loadById(int id);
     bool modifier(int id, const QString &titre, const QString &type, int capacite, double prix,
-                              const QString &description, const QString &dateDebut,
-                             const QString &dateFin, const QString &categorie, const QString &statut,
+                  const QString &description, const QString &dateDebut,
+                  const QString &dateFin, const QString &categorie, const QString &statut,
                   const QString &organisateur ,const QString &lieu );
 
 
 };
 
 #endif // EVENEMENT_H
-

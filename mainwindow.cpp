@@ -16,16 +16,28 @@
 #include <QPushButton>
 #include <QEvent>
 #include <QMouseEvent>
+#include <QSqlQueryModel>
+#include <QtCharts>
+#include <QPieSeries>
+#include <QPropertyAnimation>
+#include <QChartView>
+#include <QVBoxLayout>
+#include <QFuture>
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);  // Initialisation de l'interface
+    //statModel = new QSqlQueryModel(this);
     afficherEvenement();
-    connect(ui->pushButton_choisirImage, &QPushButton::clicked, this, &MainWindow::on_pushButton_choisirImage_clicked);
+    //connect(ui->pushButton_choisirImage, &QPushButton::clicked, this, &MainWindow::on_pushButton_choisirImage_clicked);
     connect(ui->btnRefresh, &QPushButton::clicked, this, &MainWindow::afficherEvenement);
     connect(ui->btnDialog, &QPushButton::clicked, this, &MainWindow::on_btnDialog_clicked);
+    connect(ui->stat, &QPushButton::clicked, this, &MainWindow::afficherStatistiques);
+
+
 
     // Cacher la barre des onglets pour forcer l'utilisateur à utiliser les boutons
     ui->tabWidget->tabBar()->hide();
@@ -68,6 +80,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->pushButton_choisirImage->setStyleSheet(buttonStyle);
 
 }
+
 
 
 
@@ -183,10 +196,6 @@ void MainWindow::on_supprimer_clicked()
         }
     }
 }
-
-
-
-
 
 void MainWindow::on_btnDialog_clicked()
 {
@@ -357,4 +366,104 @@ void MainWindow::on_pdf_clicked()
 
     painter.end();
     QMessageBox::information(this, "Succès", "Le fichier PDF a été généré avec succès !");
+}
+
+
+
+
+
+
+void MainWindow::afficherStatistiques() {
+    QSqlQuery query;
+    query.prepare("SELECT statut, categorie FROM EVENEMENT");
+
+    if (!query.exec()) {
+        QMessageBox::critical(this, "Erreur SQL", "Impossible d'exécuter la requête");
+        return;
+    }
+
+    QMap<QString, int> statutCount;   // Compteur des statuts
+    QMap<QString, int> categorieCount; // Compteur des catégories
+
+    // Récupérer les résultats et stocker les occurrences
+    while (query.next()) {
+        QString statut = query.value(0).toString();
+        QString categorie = query.value(1).toString();
+
+        statutCount[statut]++;
+        categorieCount[categorie]++;
+    }
+
+    // 📊 Création du graphique circulaire pour les statuts
+    QPieSeries *pieSeries = new QPieSeries();
+    for (auto it = statutCount.begin(); it != statutCount.end(); ++it) {
+        QPieSlice *slice = pieSeries->append(it.key(), it.value());
+        slice->setLabel(QString("%1 (%2)").arg(it.key()).arg(it.value()));
+        slice->setLabelVisible(true);
+        slice->setExploded(true);  // Effet d'explosion pour chaque tranche
+    }
+
+    QChart *pieChart = new QChart();
+    pieChart->addSeries(pieSeries);
+    pieChart->setTitle("Répartition des événements par statut");
+    pieChart->legend()->setAlignment(Qt::AlignRight);
+
+    // 🎬 Animation pour le graphique circulaire
+    pieChart->setAnimationOptions(QChart::AllAnimations);
+
+    // 📊 Création du graphique à barres pour les catégories
+    QBarSet *set = new QBarSet("Nombre d'événements");
+    QStringList categoriesList;
+
+    for (auto it = categorieCount.begin(); it != categorieCount.end(); ++it) {
+        *set << it.value();
+        categoriesList.append(it.key());
+    }
+
+    QBarSeries *barSeries = new QBarSeries();
+    barSeries->append(set);
+
+    QChart *barChart = new QChart();
+    barChart->addSeries(barSeries);
+    barChart->setTitle("Nombre d'événements par catégorie");
+
+    // 🎯 Configuration des axes du graphique à barres
+    QBarCategoryAxis *axisX = new QBarCategoryAxis();
+    axisX->append(categoriesList);
+    barChart->addAxis(axisX, Qt::AlignBottom);
+    barSeries->attachAxis(axisX);
+
+    QValueAxis *axisY = new QValueAxis();
+    axisY->setTitleText("Nombre d'événements");
+    axisY->setLabelFormat("%d");
+    barChart->addAxis(axisY, Qt::AlignLeft);
+    barSeries->attachAxis(axisY);
+
+    // 🎬 Animation pour le graphique à barres
+    barChart->setAnimationOptions(QChart::AllAnimations);
+
+    // 📌 Affichage avec QChartView
+    QChartView *pieChartView = new QChartView(pieChart);
+    pieChartView->setRenderHint(QPainter::Antialiasing);
+
+    QChartView *barChartView = new QChartView(barChart);
+    barChartView->setRenderHint(QPainter::Antialiasing);
+
+    pieChartView->setFixedSize(400, 350);
+    barChartView->setFixedSize(400, 350);
+
+    // 📌 Ajout des graphiques dans l'onglet statistiques
+    QWidget *statistiquesTab = ui->tabWidget->widget(2);
+
+    // Suppression de l'ancien layout s'il existe pour éviter l'empilement des graphiques
+    QLayout *oldLayout = statistiquesTab->layout();
+    if (oldLayout) {
+        delete oldLayout;
+    }
+
+    QHBoxLayout *layout = new QHBoxLayout(statistiquesTab);
+    layout->addWidget(pieChartView);
+    layout->addWidget(barChartView);
+
+    statistiquesTab->setLayout(layout);
 }

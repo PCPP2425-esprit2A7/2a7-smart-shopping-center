@@ -37,6 +37,8 @@ bool Evenement::ajouter()
     }
 }
 
+
+
 QSqlQueryModel* Evenement::afficher()
 {
     QSqlQueryModel* model = new QSqlQueryModel();
