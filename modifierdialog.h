@@ -17,7 +17,8 @@ public:
     ~ModifierDialog();
 
     void setEmploye(const Employe &employe);
-    Employe getEmployeModifie() const;
+    Employe getEmployeModifie() const; // ✅ Ajout de la déclaration correcte
+    void accept() override; // ✅ Déclaration de la fonction accept()
 
 private slots:
     void on_pushButton_modifierPhoto_clicked();
@@ -29,7 +30,7 @@ private:
     Ui::ModifierDialog *ui;
     QString cheminImage; // Pour stocker le chemin de la photo de profil
     Employe employe;
-
+    Employe employeModifie;
 
 
 };

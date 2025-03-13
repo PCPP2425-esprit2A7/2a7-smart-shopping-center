@@ -19,6 +19,14 @@
 #include <QtCharts/QBarCategoryAxis>
 #include <QEnterEvent>
 #include <QEvent>
+#include <QtCharts/QChartView>
+#include <QtCharts/QBarSet>
+#include <QtCharts/QBarSeries>
+#include <QtCharts/QBarCategoryAxis>
+#include <QPropertyAnimation>
+#include <QWidget>
+#include <QPen>
+#include <QBrush>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -76,9 +84,11 @@ private slots:
     void trierEmployes();
     void changerCouleurBouton();
     // ✅ Déclare les slots pour les animations
-    void setUpNavigationButtons();
-    void onEnterNavigationButton();
-    void onLeaveNavigationButton();
+    //void setUpNavigationButtons();
+    //void onEnterNavigationButton();
+    //void onLeaveNavigationButton();
+    void afficherStatistiques();
+
 
 private:
     Ui::MainWindow *ui;

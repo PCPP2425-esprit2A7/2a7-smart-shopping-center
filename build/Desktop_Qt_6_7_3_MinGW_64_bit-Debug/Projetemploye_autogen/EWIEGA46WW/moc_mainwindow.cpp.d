@@ -241,6 +241,7 @@ C:/Users/ASUS/Documents/Projetemploye/build/Desktop_Qt_6_7_3_MinGW_64_bit-Debug/
   C:/Qt/6.7.3/mingw_64/include/QtWidgets/QHBoxLayout \
   C:/Qt/6.7.3/mingw_64/include/QtWidgets/QMainWindow \
   C:/Qt/6.7.3/mingw_64/include/QtWidgets/QPushButton \
+  C:/Qt/6.7.3/mingw_64/include/QtWidgets/QWidget \
   C:/Qt/6.7.3/mingw_64/include/QtWidgets/qabstractbutton.h \
   C:/Qt/6.7.3/mingw_64/include/QtWidgets/qabstractscrollarea.h \
   C:/Qt/6.7.3/mingw_64/include/QtWidgets/qboxlayout.h \

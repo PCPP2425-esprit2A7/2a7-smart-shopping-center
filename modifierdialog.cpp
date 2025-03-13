@@ -56,25 +56,71 @@ void ModifierDialog::setEmploye(const Employe &employe)
     }
 }
 
-Employe ModifierDialog::getEmployeModifie() const
-{
+void ModifierDialog::accept() {
+    // Récupération des valeurs
+    QString nom = ui->nom->text().trimmed();
+    QString prenom = ui->prenom->text().trimmed();
+    QString email = ui->email->text().trimmed();
+    QString telephone = ui->telephone->text().trimmed();
+    QString poste = ui->poste->text().trimmed();
+    QString statut = ui->statut->text().trimmed();
+    QString sexe = ui->sexe->currentText().trimmed();
+    QDate dateEmbauche = ui->date_embauche->date();
+
+    // Vérification des champs obligatoires
+    if (nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || telephone.isEmpty()) {
+        QMessageBox::critical(this, "Erreur", "Tous les champs obligatoires doivent être remplis.");
+        return;
+    }
+
+    // Vérification du format de l'email
+    QRegularExpression regexEmail("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$");
+    if (!regexEmail.match(email).hasMatch()) {
+        QMessageBox::critical(this, "Erreur", "L'email n'est pas valide !");
+        return;
+    }
+
+    // Vérification du numéro de téléphone (8 à 12 chiffres)
+    QRegularExpression regexTel("^[0-9]{8,12}$");
+    if (!regexTel.match(telephone).hasMatch()) {
+        QMessageBox::critical(this, "Erreur", "Le numéro de téléphone doit contenir entre 8 et 12 chiffres !");
+        return;
+    }
+
+    // Vérification du salaire
+    bool ok;
+    double salaire = ui->salaire->text().toDouble(&ok);
+    if (!ok || salaire < 0) {
+        QMessageBox::critical(this, "Erreur", "Le salaire doit être un nombre valide et positif.");
+        return;
+    }
+
+    // Création de l'objet Employe après validation
     Employe employe;
-    employe.setNom(ui->nom->text());
-    employe.setPrenom(ui->prenom->text());
-    employe.setDateEmbauche(ui->date_embauche->date());
-    employe.setPoste(ui->poste->text());
-    employe.setSalaire(ui->salaire->text().toDouble());
-    employe.setEmail(ui->email->text());
-    employe.setSexe(ui->sexe->currentText());
-    employe.setTelephone(ui->telephone->text());
-    employe.setStatut(ui->statut->text());
+    employe.setNom(nom);
+    employe.setPrenom(prenom);
+    employe.setDateEmbauche(dateEmbauche);
+    employe.setPoste(poste);
+    employe.setSalaire(salaire);
+    employe.setEmail(email);
+    employe.setSexe(sexe);
+    employe.setTelephone(telephone);
+    employe.setStatut(statut);
 
-    // 🔥 Conserver le QByteArray de la photo de profil
-    employe.setPdp(this->employe.getPdp());
+    // Ajout de la conservation de la photo (si nécessaire)
+    // employe.setPdp(this->employe.getPdp()); // Si la classe Employe gère une photo de profil
 
-    return employe;
+    // ✅ Affectation correcte de l'objet Employe
+    this->employeModifie = employe;
+
+    // ✅ Fermeture de la fenêtre UNIQUEMENT si tout est valide
+    QDialog::accept();
 }
 
+// ✅ Fonction pour récupérer l'employé modifié
+Employe ModifierDialog::getEmployeModifie() const {
+    return employeModifie;
+}
 // 🔥 Bouton "Modifier Photo"
 void ModifierDialog::on_pushButton_modifierPhoto_clicked()
 {

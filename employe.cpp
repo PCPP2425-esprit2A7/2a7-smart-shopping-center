@@ -83,6 +83,7 @@ bool Employe::ajouter()
         return false;
     }
 }
+
 // ✅ Afficher les employés
 QSqlQueryModel* Employe::afficher()
 {

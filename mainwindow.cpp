@@ -19,7 +19,18 @@
 #include <QDebug>
 #include <QEnterEvent>
 #include <QEvent>
-
+#include <QtCharts/QChart>
+#include <QtCharts/QChartView>
+#include <QtCharts/QBarSeries>
+#include <QtCharts/QBarSet>
+#include <QtCharts/QBarCategoryAxis>
+#include <QSqlQuery>
+#include <QMap>
+#include <QRandomGenerator>
+#include <QPropertyAnimation>
+#include <QWidget>
+#include <QPen>
+#include <QBrush>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), cheminImagePDP("")
@@ -43,15 +54,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->ajout, &QPushButton::clicked, this, &MainWindow::changerCouleurBouton);
     connect(ui->liste, &QPushButton::clicked, this, &MainWindow::changerCouleurBouton);
 
+    connect(ui->stat, &QPushButton::clicked, this, &MainWindow::afficherStatistiques);
+
+
     connect(ui->ajout, &QPushButton::clicked, this, [=]() {
         qDebug() << "✅ Bouton ajout détecté";
     });
-
-
-
-
-
-
 
 
 
@@ -454,104 +462,119 @@ void MainWindow::trierEmployes() {
     proxyModel->sort(columnIndex, Qt::AscendingOrder);
     qDebug() << "Tri effectué sur la colonne : " << columnIndex;
 }
-void MainWindow::setUpNavigationButtons()
-{
-    // Créer un tableau de tous les boutons à gérer
-    QList<QPushButton*> boutons = {ui->pushButton_11, ui->pushButton_10, ui->pushButton_7,
-                                    ui->pushButton_5, ui->pushButton_4, ui->pushButton_6};
 
-    // Remplacer chaque bouton classique par un HoverButton
-    for (QPushButton* btn : boutons) {
-        // Créer un nouveau HoverButton et le configurer
-        HoverButton *hoverButton = new HoverButton(btn);
+void MainWindow::afficherStatistiques() {
+    // 🟢 Accéder à l'onglet Statistiques
+    QWidget *statistiquesTab = ui->tabWidget->widget(2);
+    QVBoxLayout *layout = qobject_cast<QVBoxLayout *>(statistiquesTab->layout());
 
-        // Assurez-vous que le parent du bouton est un QWidget valide
-        QWidget* parentWidget = qobject_cast<QWidget*>(btn->parent());
-        if (parentWidget) {
-            hoverButton->setParent(parentWidget);  // Définir le parent pour la gestion mémoire
-        }
-
-        // Ajuster la taille et la position du HoverButton pour qu'il remplace visuellement l'ancien bouton
-        hoverButton->setGeometry(btn->geometry());  // Copier la géométrie de l'ancien bouton
-
-        // Définir explicitement l'icône du bouton si nécessaire
-        hoverButton->setIcon(btn->icon());  // Copier l'icône de l'ancien bouton
-
-        // Appliquer les styles à l'icône et autres propriétés
-        hoverButton->setStyleSheet("QPushButton {"
-                                   "background-color: rgb(227, 241, 244);"
-                                   "border-image-source: linear-gradient(to right, black, white);"
-                                   "border: 2px solid black;"
-                                   "border-image-slice: 1;"
-                                   "border-radius: 30px;"
-                                   "qproperty-iconSize: 42px 42px;}"
-                                   );
-        if (hoverButton) {
-            qDebug() << "Hover enter event triggered";  // Message de débogage
-            QPoint currentPos = hoverButton->pos();
-            QPoint maxPos = currentPos + QPoint(70, 0); // Limite max
-
-            // Vérifier que le bouton ne dépasse pas la limite
-            if (hoverButton->x() < maxPos.x()) {
-                QPropertyAnimation* animation = new QPropertyAnimation(hoverButton, "pos");
-                animation->setDuration(200);
-                animation->setEasingCurve(QEasingCurve::InOutQuad);
-
-                animation->setEndValue(maxPos);
-                animation->start();
-            }
-        }
-
-        // Connexion des signaux hoverEntered et hoverLeft
-        connect(hoverButton, &HoverButton::hoverLeft, this, &MainWindow::onLeaveNavigationButton);
-        connect(hoverButton, &HoverButton::hoverEntered, this, &MainWindow::onEnterNavigationButton);
-
-        // Ajouter le HoverButton au layout et l'afficher
-        hoverButton->show();
-
-        // Masquer l'ancien bouton
-        btn->hide();
+    // Si le layout n'existe pas, on le crée
+    if (!layout) {
+        layout = new QVBoxLayout(statistiquesTab);
+        statistiquesTab->setLayout(layout);
     }
-}
 
-void MainWindow::onEnterNavigationButton()
-{
-    QPushButton* button = qobject_cast<QPushButton*>(sender());
-    if (button) {
-        qDebug() << "Hover enter event triggered";  // Message de débogage
-        QPoint currentPos = button->pos();
-        QPoint maxPos = currentPos + QPoint(70, 0); // Limite max
-
-        // Vérifier que le bouton ne dépasse pas la limite
-        if (button->x() < maxPos.x()) {
-            QPropertyAnimation* animation = new QPropertyAnimation(button, "pos");
-            animation->setDuration(200);
-            animation->setEasingCurve(QEasingCurve::InOutQuad);
-
-            animation->setEndValue(maxPos);
-            animation->start();
-        }
+    // Supprimer tous les widgets existants dans le layout (et donc effacer les anciennes statistiques)
+    QLayoutItem *child;
+    while ((child = layout->takeAt(0)) != nullptr) {
+        delete child->widget();
+        delete child;
     }
-}
 
-void MainWindow::onLeaveNavigationButton()
-{
-    QPushButton* button = qobject_cast<QPushButton*>(sender());
-    if (button) {
-        qDebug() << "Hover leave event triggered";  // Message de débogage
-        QPoint currentPos = button->pos();
-        QPoint minPos = currentPos - QPoint(70, 0); // Limite min
+    // Crée un layout horizontal pour placer les graphiques côte à côte
+    QHBoxLayout *hLayout = new QHBoxLayout();
+    layout->addLayout(hLayout); // Ajouter le layout horizontal à la disposition principale
 
-        // Vérifier que le bouton ne dépasse pas la limite
-        if (button->x() > minPos.x()) {
-            QPropertyAnimation* animation = new QPropertyAnimation(button, "pos");
-            animation->setDuration(200);
-            animation->setEasingCurve(QEasingCurve::InOutQuad);
+    // =========================== 1️⃣ Histogramme des Salaires (avec animation fluide) ===========================
+    QMap<QString, double> sommeSalaires;
+    QMap<QString, int> nombreEmployes;
 
-            animation->setEndValue(minPos);
-            animation->start();
-        }
+    QSqlQuery query("SELECT poste, salaire FROM employe");
+    while (query.next()) {
+        QString poste = query.value(0).toString();
+        double salaire = query.value(1).toDouble();
+        sommeSalaires[poste] += salaire;
+        nombreEmployes[poste] += 1;
     }
+
+    QBarSeries *series = new QBarSeries();
+    QStringList categories;
+
+    for (auto it = sommeSalaires.begin(); it != sommeSalaires.end(); ++it) {
+        QBarSet *set = new QBarSet(it.key());
+        *set << it.value();  // Somme des salaires pour chaque poste
+        set->setColor(QColor::fromHsv(QRandomGenerator::global()->bounded(360), 255, 255)); // Couleurs dynamiques
+        series->append(set);
+        categories << it.key();
+    }
+
+    QChart *chart1 = new QChart();
+    chart1->addSeries(series);
+    chart1->setTitle("Somme des salaires par poste");
+    chart1->setAnimationOptions(QChart::SeriesAnimations);  // ✅ Animation fluide sur les séries
+    chart1->legend()->setVisible(true);
+    chart1->legend()->setAlignment(Qt::AlignBottom);
+
+    QBarCategoryAxis *axisX = new QBarCategoryAxis();
+    axisX->append(categories);
+    chart1->addAxis(axisX, Qt::AlignBottom);
+    series->attachAxis(axisX);
+
+    QValueAxis *axisY = new QValueAxis();
+    axisY->setTitleText("Total Salaires (en DT)");
+    chart1->addAxis(axisY, Qt::AlignLeft);
+    series->attachAxis(axisY);
+
+    QChartView *chartView1 = new QChartView(chart1);
+    chartView1->setRenderHint(QPainter::Antialiasing);
+
+    // Ajoute le graphique dans le layout horizontal
+    hLayout->addWidget(chartView1);
+
+    // =========================== 2️⃣ Diagramme Circulaire des Sexes (avec animation) ===========================
+    int hommes = 0, femmes = 0;
+    QSqlQuery querySexe("SELECT sexe FROM employe");
+    while (querySexe.next()) {
+        if (querySexe.value(0).toString().toLower() == "homme")
+            hommes++;
+        else
+            femmes++;
+    }
+
+    QPieSeries *pieSeries = new QPieSeries();
+    pieSeries->append("Hommes", hommes);
+    pieSeries->append("Femmes", femmes);
+
+    QPieSlice *hommeSlice = pieSeries->slices().at(0);
+    hommeSlice->setLabel(QString("Hommes (%1)").arg(hommes));
+    hommeSlice->setBrush(Qt::blue);
+    hommeSlice->setLabelVisible(true);
+    hommeSlice->setExploded(true); // ✅ ANIMATION : Partie légèrement sortie
+
+    QPieSlice *femmeSlice = pieSeries->slices().at(1);
+    femmeSlice->setLabel(QString("Femmes (%1)").arg(femmes));
+    femmeSlice->setBrush(Qt::red);
+    femmeSlice->setLabelVisible(true);
+
+    // Animation sur le survol des parts du diagramme circulaire
+    QObject::connect(hommeSlice, &QPieSlice::hovered, [hommeSlice](bool state) {
+        hommeSlice->setExploded(state); // ✅ Animation lors du survol
+    });
+
+    QObject::connect(femmeSlice, &QPieSlice::hovered, [femmeSlice](bool state) {
+        femmeSlice->setExploded(state);
+    });
+
+    QChart *chart2 = new QChart();
+    chart2->addSeries(pieSeries);
+    chart2->setTitle("Répartition des employés par sexe");
+    chart2->setAnimationOptions(QChart::SeriesAnimations);  // ✅ ANIMATION fluide sur les séries
+
+    QChartView *chartView2 = new QChartView(chart2);
+    chartView2->setRenderHint(QPainter::Antialiasing);
+
+    // Ajoute le graphique dans le layout horizontal
+    hLayout->addWidget(chartView2);
 }
 
 void MainWindow::changerCouleurBouton() {
