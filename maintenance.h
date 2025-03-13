@@ -7,6 +7,8 @@
 #include <QDebug>
 #include <QSqlQueryModel>
 #include <QSqlTableModel>
+#include "ui_mainwindow.h"
+
 
 class Maintenance {
 private:
@@ -47,8 +49,13 @@ public:
 
     // CRUD
     bool ajouter();
+    static bool employeeExiste(int id);
+    static bool espaceExiste(int id);
     QSqlTableModel* getModel();
     QSqlQueryModel* afficher();
+    bool supprimer(int id);
+    void afficherDetails(int id, Ui::MainWindow *ui);
+    bool update(int id, QString type, QString description, double cout, QString statut, QString date_resolution, int id_employe, int id_espace) ;
 };
 
 #endif // MAINTENANCE_H

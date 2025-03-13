@@ -27,6 +27,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         employe.h employe.cpp
         connection.h connection.cpp
         maintenance.cpp maintenance.h
+        img.qrc
 
     )
 else()

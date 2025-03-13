@@ -1,44 +1,40 @@
 <RCC>
     <qresource prefix="/">
-        <file>../../Desktop/img/11 (2).png</file>
-        <file>../../Desktop/img/1904660-email-envelope-letter-mail-message-post-send_122510 (1).png</file>
-        <file>../../Desktop/img/add-image-photo-icon.png</file>
-        <file>../../Desktop/img/brightness_icon_128445.png</file>
-        <file>../../Desktop/img/-brightness-3_90399.png</file>
-        <file>../../Desktop/img/calendar_date_day_event_month_schedule_time_icon_123230.png</file>
-        <file>../../Desktop/img/calendar-with-a-clock-time-tools_icon-icons.com_56831.png</file>
-        <file>../../Desktop/img/chatbot-icon-simple-style-vector-removebg-preview.png</file>
-        <file>../../Desktop/img/Design sans titre (3).png</file>
-        <file>../../Desktop/img/ecommerce_home_market_mart_shop_shopping_store_icon_123207.png</file>
-        <file>../../Desktop/img/employee_group_solid_icon_235378.png</file>
-        <file>../../Desktop/img/face-id-icon-facial-recognition-system-vector-31106439-removebg-preview.png</file>
-        <file>../../Desktop/img/fb_icon-icons.com_65434.png</file>
-        <file>../../Desktop/img/graph-5_icon-icons.com_58023.png</file>
-        <file>../../Desktop/img/history-glyph-icon-vector.jpg</file>
-        <file>../../Desktop/img/Instagram_New_icon-icons.com_69008.png</file>
-        <file>../../Desktop/img/investment_asset_management_worker_employee_welfare_icon_210504.png</file>
-        <file>../../Desktop/img/istockphoto-1474007937-170667a-removebg-preview.png</file>
-        <file>../../Desktop/img/logo_final.jpg</file>
-        <file>../../Desktop/img/logo_final-removebg-preview (1).ico</file>
-        <file>../../Desktop/img/logo_final-removebg-preview.ico</file>
-        <file>../../Desktop/img/logo_final-removebg-preview.png</file>
-        <file>../../Desktop/img/modern-design-icon-of-progress-chart-vector.jpg</file>
-        <file>../../Desktop/img/OIP__11_-removebg-preview.png</file>
-        <file>../../Desktop/img/pdf_icon-icons.com_64181 (1).png</file>
-        <file>../../Desktop/img/pdf_icon-icons.com_64181.png</file>
-        <file>../../Desktop/img/pdf-file-type-symbol_icon-icons.com_57657.png</file>
-        <file>../../Desktop/img/searchmagnifierinterfacesymbol1_79893.png</file>
-        <file>../../Desktop/img/sidebar_utilities_18421.png</file>
-        <file>../../Desktop/img/sort-ascending_icon-icons.com_73158.png</file>
-        <file>../../Desktop/img/validated_buyer_user_apply_done_icon_177174 (1).png</file>
-        <file>../../Desktop/img/website_maintenance_settings_window_alert_icon_193897 (1).png</file>
-        <file>../../Desktop/img/zoom_zooming_detective_searching_engine_search_icon_256413.png</file>
-        <file>../../Downloads/360_F_565224180_QNRiRQkf9Fw0dKRoZGwUknmmfk51SuSS-removebg-preview.png</file>
-        <file>../../Downloads/360_F_565224180_QNRiRQkf9Fw0dKRoZGwUknmmfk51SuSS.jpg</file>
-        <file>../../Downloads/add-image-photo-icon.png</file>
-        <file>../../Downloads/face-id-icon-facial-recognition-system-vector-31106439-removebg-preview.png</file>
-        <file>../../Downloads/OIP__11_-removebg-preview.png</file>
-        <file>../../Downloads/istockphoto-1474007937-170667a-removebg-preview.png</file>
-        <file>../../Downloads/istockphoto-1474007937-170667a.jpg</file>
+        <file>../projet c++/img/.png</file>
+        <file>../projet c++/img/11 (2).png</file>
+        <file>../projet c++/img/360_F_565224180_QNRiRQkf9Fw0dKRoZGwUknmmfk51SuSS-removebg-preview.png</file>
+        <file>../projet c++/img/1904660-email-envelope-letter-mail-message-post-send_122510 (1).png</file>
+        <file>../projet c++/img/4124799-finance-report-graph-analysis-graph-report-sale-report-stock-report_113890.png</file>
+        <file>../projet c++/img/1491254405-plusaddmoredetail_82972.png</file>
+        <file>../projet c++/img/1491254488-chartflexibledatestatstatistics_82950.png</file>
+        <file>../projet c++/img/ai_artificial_intelligence_robot_chip_brain_technology_icon_179495.png</file>
+        <file>../projet c++/img/artificial_intelligence-ai-head-robot-512-removebg-preview.png</file>
+        <file>../projet c++/img/brightness_icon_128445.png</file>
+        <file>../projet c++/img/-brightness-3_90399.png</file>
+        <file>../projet c++/img/calendar_date_day_event_month_schedule_time_icon_123230.png</file>
+        <file>../projet c++/img/Design sans titre (3).png</file>
+        <file>../projet c++/img/ecommerce_home_market_mart_shop_shopping_store_icon_123207.png</file>
+        <file>../projet c++/img/employee_group_solid_icon_235378.png</file>
+        <file>../projet c++/img/excel_office_4658.png</file>
+        <file>../projet c++/img/export.sql</file>
+        <file>../projet c++/img/fb_icon-icons.com_65434.png</file>
+        <file>../projet c++/img/Instagram_New_icon-icons.com_69008.png</file>
+        <file>../projet c++/img/investment_asset_management_worker_employee_welfare_icon_210504.png</file>
+        <file>../projet c++/img/logo_final.jpg</file>
+        <file>../projet c++/img/logo_final-removebg-preview (1).ico</file>
+        <file>../projet c++/img/logo_final-removebg-preview.ico</file>
+        <file>../projet c++/img/logo_final-removebg-preview.png</file>
+        <file>../projet c++/img/pdf-file-outlined-interface-symbol_icon-icons.com_57528.png</file>
+        <file>../projet c++/img/robot-round-head_icon-icons.com_55274.png</file>
+        <file>../projet c++/img/sidebar_utilities_18421.png</file>
+        <file>../projet c++/img/sms-speech-bubble_icon-icons.com_72541.png</file>
+        <file>../projet c++/img/tel.png</file>
+        <file>../projet c++/img/validated_buyer_user_apply_done_icon_177174 (1).png</file>
+        <file>../projet c++/img/website_maintenance_settings_window_alert_icon_193897 (1).png</file>
+        <file>../projet c++/img/1623971-removebg-preview.png</file>
+        <file>../projet c++/img/3079026-removebg-preview.png</file>
+        <file>../projet c++/img/4986021-removebg-preview.png</file>
+        <file>../projet c++/img/5973800-removebg-preview.png</file>
+        <file>../projet c++/img/9321345-removebg-preview.png</file>
     </qresource>
 </RCC>

@@ -50,8 +50,8 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
       <string/>
      </property>
      <property name="icon">
-      <iconset>
-       <normaloff>:/Desktop/img/ecommerce_home_market_mart_shop_shopping_store_icon_123207.png</normaloff>:/Desktop/img/ecommerce_home_market_mart_shop_shopping_store_icon_123207.png</iconset>
+      <iconset resource="img.qrc">
+       <normaloff>:/projet c++/img/5973800-removebg-preview.png</normaloff>:/projet c++/img/5973800-removebg-preview.png</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_4">
@@ -75,8 +75,8 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
       <string/>
      </property>
      <property name="icon">
-      <iconset>
-       <normaloff>:/Desktop/img/sidebar_utilities_18421.png</normaloff>:/Desktop/img/sidebar_utilities_18421.png</iconset>
+      <iconset resource="img.qrc">
+       <normaloff>:/projet c++/img/4986021-removebg-preview.png</normaloff>:/projet c++/img/4986021-removebg-preview.png</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_5">
@@ -100,8 +100,8 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
       <string/>
      </property>
      <property name="icon">
-      <iconset>
-       <normaloff>:/Desktop/img/website_maintenance_settings_window_alert_icon_193897 (1).png</normaloff>:/Desktop/img/website_maintenance_settings_window_alert_icon_193897 (1).png</iconset>
+      <iconset resource="img.qrc">
+       <normaloff>:/projet c++/img/3079026-removebg-preview.png</normaloff>:/projet c++/img/3079026-removebg-preview.png</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_6">
@@ -125,8 +125,8 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
       <string/>
      </property>
      <property name="icon">
-      <iconset>
-       <normaloff>:/Desktop/img/investment_asset_management_worker_employee_welfare_icon_210504.png</normaloff>:/Desktop/img/investment_asset_management_worker_employee_welfare_icon_210504.png</iconset>
+      <iconset resource="img.qrc">
+       <normaloff>:/projet c++/img/9321345-removebg-preview.png</normaloff>:/projet c++/img/9321345-removebg-preview.png</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_3">
@@ -175,7 +175,7 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
      </property>
      <property name="icon">
       <iconset>
-       <normaloff>:/Desktop/img/validated_buyer_user_apply_done_icon_177174 (1).png</normaloff>:/Desktop/img/validated_buyer_user_apply_done_icon_177174 (1).png</iconset>
+       <normaloff>:/projet c++/img/WhatsApp Image 2025-03-11 à 22.53.11_b40e588c.jpg</normaloff>:/projet c++/img/WhatsApp Image 2025-03-11 à 22.53.11_b40e588c.jpg</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_locataire">
@@ -199,8 +199,8 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
       <string/>
      </property>
      <property name="icon">
-      <iconset>
-       <normaloff>:/Desktop/img/calendar_date_day_event_month_schedule_time_icon_123230.png</normaloff>:/Desktop/img/calendar_date_day_event_month_schedule_time_icon_123230.png</iconset>
+      <iconset resource="img.qrc">
+       <normaloff>:/projet c++/img/1623971-removebg-preview.png</normaloff>:/projet c++/img/1623971-removebg-preview.png</iconset>
      </property>
     </widget>
     <widget class="QStackedWidget" name="stackedWidget">
@@ -966,8 +966,8 @@ border-radius: 20px; /* Ajuste selon le degré d'arrondi souhaité */
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>30</y>
-         <width>791</width>
+         <y>19</y>
+         <width>831</width>
          <height>81</height>
         </rect>
        </property>
@@ -983,11 +983,11 @@ border-radius: 25px; /* Ajuste selon le degré d'arrondi souhaité */
         <string/>
        </property>
       </widget>
-      <widget class="QPushButton" name="ajout_3">
+      <widget class="QPushButton" name="ajout_maintenance">
        <property name="geometry">
         <rect>
          <x>730</x>
-         <y>130</y>
+         <y>119</y>
          <width>111</width>
          <height>41</height>
         </rect>
@@ -1014,9 +1014,9 @@ border-radius: 20px; /* Ajuste selon le degré d'arrondi souhaité */
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>180</y>
+         <y>170</y>
          <width>851</width>
-         <height>471</height>
+         <height>491</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -1028,7 +1028,7 @@ border-radius: 25px; /* Ajuste selon le degré d'arrondi souhaité */
 </string>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="Ajout_4">
         <attribute name="title">
@@ -1040,7 +1040,7 @@ border-radius: 25px; /* Ajuste selon le degré d'arrondi souhaité */
            <x>40</x>
            <y>20</y>
            <width>361</width>
-           <height>401</height>
+           <height>421</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -1053,7 +1053,7 @@ border-radius: 25px; /* Ajuste selon le degré d'arrondi souhaité */
           <property name="geometry">
            <rect>
             <x>30</x>
-            <y>130</y>
+            <y>120</y>
             <width>111</width>
             <height>71</height>
            </rect>
@@ -1113,7 +1113,7 @@ background-color: rgb(227, 241, 244);
           <property name="geometry">
            <rect>
             <x>30</x>
-            <y>260</y>
+            <y>250</y>
             <width>131</width>
             <height>31</height>
            </rect>
@@ -1126,31 +1126,11 @@ font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
            <string>Cout</string>
           </property>
          </widget>
-         <widget class="QLineEdit" name="cout">
-          <property name="geometry">
-           <rect>
-            <x>170</x>
-            <y>260</y>
-            <width>181</width>
-            <height>31</height>
-           </rect>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">border:2px solid transparent;
-border-radius: 15px;
-background-color: rgb(255, 255, 255);
-background-color: rgb(227, 241, 244);
-</string>
-          </property>
-          <property name="text">
-           <string>‎</string>
-          </property>
-         </widget>
          <widget class="QLabel" name="label_63">
           <property name="geometry">
            <rect>
             <x>30</x>
-            <y>300</y>
+            <y>320</y>
             <width>131</width>
             <height>31</height>
            </rect>
@@ -1167,7 +1147,7 @@ font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
           <property name="geometry">
            <rect>
             <x>170</x>
-            <y>300</y>
+            <y>320</y>
             <width>181</width>
             <height>31</height>
            </rect>
@@ -1193,8 +1173,8 @@ background-color: rgb(227, 241, 244);
           <property name="geometry">
            <rect>
             <x>30</x>
-            <y>340</y>
-            <width>131</width>
+            <y>360</y>
+            <width>141</width>
             <height>31</height>
            </rect>
           </property>
@@ -1210,20 +1190,102 @@ font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
           <property name="geometry">
            <rect>
             <x>190</x>
-            <y>110</y>
+            <y>100</y>
             <width>141</width>
             <height>121</height>
            </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border:2px solid transparent;
+border-radius: 15px;
+background-color: rgb(255, 255, 255);
+background-color: rgb(227, 241, 244);
+</string>
           </property>
          </widget>
          <widget class="QLineEdit" name="id_employe_maintenance">
           <property name="geometry">
            <rect>
-            <x>180</x>
-            <y>340</y>
+            <x>170</x>
+            <y>360</y>
             <width>171</width>
-            <height>51</height>
+            <height>31</height>
            </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border:2px solid transparent;
+border-radius: 15px;
+background-color: rgb(255, 255, 255);
+background-color: rgb(227, 241, 244);
+</string>
+          </property>
+         </widget>
+         <widget class="QLineEdit" name="cout">
+          <property name="geometry">
+           <rect>
+            <x>170</x>
+            <y>250</y>
+            <width>171</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border:2px solid transparent;
+border-radius: 15px;
+background-color: rgb(255, 255, 255);
+background-color: rgb(227, 241, 244);
+</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="er_description">
+          <property name="geometry">
+           <rect>
+            <x>190</x>
+            <y>220</y>
+            <width>161</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border-color: transparent;
+color: rgb(255, 0, 0);</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+         <widget class="QLabel" name="er_cout">
+          <property name="geometry">
+           <rect>
+            <x>170</x>
+            <y>290</y>
+            <width>181</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border-color: transparent;
+color: rgb(255, 0, 0);</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+         <widget class="QLabel" name="er_id_employee">
+          <property name="geometry">
+           <rect>
+            <x>170</x>
+            <y>390</y>
+            <width>171</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border-color: transparent;
+color: rgb(255, 0, 0);</string>
+          </property>
+          <property name="text">
+           <string/>
           </property>
          </widget>
         </widget>
@@ -1233,7 +1295,7 @@ font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
            <x>440</x>
            <y>20</y>
            <width>361</width>
-           <height>401</height>
+           <height>421</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -1246,7 +1308,7 @@ font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
           <property name="geometry">
            <rect>
             <x>90</x>
-            <y>330</y>
+            <y>350</y>
             <width>181</width>
             <height>61</height>
            </rect>
@@ -1313,6 +1375,13 @@ font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
             <height>181</height>
            </rect>
           </property>
+          <property name="styleSheet">
+           <string notr="true">border:2px solid transparent;
+border-radius: 15px;
+background-color: rgb(255, 255, 255);
+background-color: rgb(227, 241, 244);
+</string>
+          </property>
           <property name="text">
            <string/>
           </property>
@@ -1333,7 +1402,7 @@ font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap>:/img/4124799-finance-report-graph-analysis-graph-report-sale-report-stock-report_113890.png</pixmap>
+           <pixmap resource="img.qrc">:/projet c++/img/4124799-finance-report-graph-analysis-graph-report-sale-report-stock-report_113890.png</pixmap>
           </property>
          </widget>
          <widget class="QLabel" name="label_72">
@@ -1357,7 +1426,7 @@ font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
           <property name="geometry">
            <rect>
             <x>20</x>
-            <y>280</y>
+            <y>310</y>
             <width>131</width>
             <height>31</height>
            </rect>
@@ -1374,7 +1443,7 @@ font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
           <property name="geometry">
            <rect>
             <x>160</x>
-            <y>280</y>
+            <y>310</y>
             <width>171</width>
             <height>31</height>
            </rect>
@@ -1391,10 +1460,34 @@ background-color: rgb(227, 241, 244);
           <property name="geometry">
            <rect>
             <x>170</x>
-            <y>230</y>
+            <y>240</y>
             <width>171</width>
-            <height>51</height>
+            <height>31</height>
            </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border:2px solid transparent;
+border-radius: 15px;
+background-color: rgb(255, 255, 255);
+background-color: rgb(227, 241, 244);
+</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="er_id_espace">
+          <property name="geometry">
+           <rect>
+            <x>180</x>
+            <y>270</y>
+            <width>161</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border-color: transparent;
+color: rgb(255, 0, 0);</string>
+          </property>
+          <property name="text">
+           <string/>
           </property>
          </widget>
         </widget>
@@ -1406,11 +1499,146 @@ background-color: rgb(227, 241, 244);
         <widget class="QTableView" name="tab_maintenance">
          <property name="geometry">
           <rect>
-           <x>150</x>
-           <y>70</y>
-           <width>571</width>
-           <height>321</height>
+           <x>10</x>
+           <y>20</y>
+           <width>651</width>
+           <height>401</height>
           </rect>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="ajouter_maintenance_2">
+         <property name="geometry">
+          <rect>
+           <x>700</x>
+           <y>50</y>
+           <width>111</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>351</width>
+           <height>101</height>
+          </size>
+         </property>
+         <property name="acceptDrops">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="whatsThis">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt; .XC./X&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border: 4px solid black;
+background-color: rgb(132, 194, 49);
+border-radius: 25px;
+font: 700 12pt &quot;Arial Rounded MT&quot;;
+
+</string>
+         </property>
+         <property name="text">
+          <string>actualiser</string>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>120</width>
+           <height>120</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="modifier_maintenance">
+         <property name="geometry">
+          <rect>
+           <x>700</x>
+           <y>190</y>
+           <width>111</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>351</width>
+           <height>101</height>
+          </size>
+         </property>
+         <property name="acceptDrops">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="whatsThis">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt; .XC./X&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border: 4px solid black;
+background-color: rgb(255, 170, 0);
+border-radius: 25px;
+font: 700 12pt &quot;Arial Rounded MT&quot;;
+
+</string>
+         </property>
+         <property name="text">
+          <string>Modifier</string>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>120</width>
+           <height>120</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="supprimer_maintenance">
+         <property name="geometry">
+          <rect>
+           <x>700</x>
+           <y>120</y>
+           <width>111</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>351</width>
+           <height>101</height>
+          </size>
+         </property>
+         <property name="acceptDrops">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="whatsThis">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt; .XC./X&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border: 4px solid black;
+background-color: rgb(255, 0, 0);
+border-radius: 25px;
+font: 700 12pt &quot;Arial Rounded MT&quot;;
+
+</string>
+         </property>
+         <property name="text">
+          <string>supprimer</string>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>120</width>
+           <height>120</height>
+          </size>
          </property>
         </widget>
        </widget>
@@ -1418,13 +1646,509 @@ background-color: rgb(227, 241, 244);
         <attribute name="title">
          <string>Page</string>
         </attribute>
+        <widget class="QGroupBox" name="id_employe_3">
+         <property name="geometry">
+          <rect>
+           <x>40</x>
+           <y>10</y>
+           <width>361</width>
+           <height>421</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(177, 187, 197);</string>
+         </property>
+         <property name="title">
+          <string/>
+         </property>
+         <widget class="QLabel" name="label_83">
+          <property name="geometry">
+           <rect>
+            <x>30</x>
+            <y>120</y>
+            <width>111</width>
+            <height>71</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
+font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
+          </property>
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Description &lt;/p&gt;&lt;p align=&quot;center&quot;&gt;Problème&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_84">
+          <property name="geometry">
+           <rect>
+            <x>30</x>
+            <y>60</y>
+            <width>121</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
+font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
+          </property>
+          <property name="text">
+           <string>Type</string>
+          </property>
+         </widget>
+         <widget class="QComboBox" name="up_type">
+          <property name="geometry">
+           <rect>
+            <x>170</x>
+            <y>60</y>
+            <width>181</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border:2px solid transparent;
+border-radius: 15px;
+background-color: rgb(227, 241, 244);
+</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>a</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>b</string>
+           </property>
+          </item>
+         </widget>
+         <widget class="QLabel" name="label_85">
+          <property name="geometry">
+           <rect>
+            <x>30</x>
+            <y>250</y>
+            <width>131</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
+font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
+          </property>
+          <property name="text">
+           <string>Cout</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_86">
+          <property name="geometry">
+           <rect>
+            <x>30</x>
+            <y>320</y>
+            <width>131</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
+font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
+          </property>
+          <property name="text">
+           <string>Statut</string>
+          </property>
+         </widget>
+         <widget class="QComboBox" name="up_statut_maintenance">
+          <property name="geometry">
+           <rect>
+            <x>170</x>
+            <y>320</y>
+            <width>181</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border:2px solid transparent;
+border-radius: 15px;
+background-color: rgb(227, 241, 244);
+</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>a</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>b</string>
+           </property>
+          </item>
+         </widget>
+         <widget class="QLabel" name="label_87">
+          <property name="geometry">
+           <rect>
+            <x>30</x>
+            <y>360</y>
+            <width>141</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
+font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
+          </property>
+          <property name="text">
+           <string>ID_employee</string>
+          </property>
+         </widget>
+         <widget class="QLineEdit" name="up_description">
+          <property name="geometry">
+           <rect>
+            <x>190</x>
+            <y>100</y>
+            <width>141</width>
+            <height>121</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border:2px solid transparent;
+border-radius: 15px;
+background-color: rgb(255, 255, 255);
+background-color: rgb(227, 241, 244);
+</string>
+          </property>
+         </widget>
+         <widget class="QLineEdit" name="up_id_employe_maintenance">
+          <property name="geometry">
+           <rect>
+            <x>170</x>
+            <y>360</y>
+            <width>171</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border:2px solid transparent;
+border-radius: 15px;
+background-color: rgb(255, 255, 255);
+background-color: rgb(227, 241, 244);
+</string>
+          </property>
+         </widget>
+         <widget class="QLineEdit" name="up_cout">
+          <property name="geometry">
+           <rect>
+            <x>170</x>
+            <y>250</y>
+            <width>171</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border:2px solid transparent;
+border-radius: 15px;
+background-color: rgb(255, 255, 255);
+background-color: rgb(227, 241, 244);
+</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="er_description_up">
+          <property name="geometry">
+           <rect>
+            <x>190</x>
+            <y>220</y>
+            <width>161</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border-color: transparent;
+color: rgb(255, 0, 0);</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+         <widget class="QLabel" name="er_cout_up">
+          <property name="geometry">
+           <rect>
+            <x>170</x>
+            <y>290</y>
+            <width>181</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border-color: transparent;
+color: rgb(255, 0, 0);</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+         <widget class="QLabel" name="er_id_employee_up">
+          <property name="geometry">
+           <rect>
+            <x>170</x>
+            <y>390</y>
+            <width>171</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border-color: transparent;
+color: rgb(255, 0, 0);</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_92">
+          <property name="geometry">
+           <rect>
+            <x>30</x>
+            <y>10</y>
+            <width>131</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
+font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
+          </property>
+          <property name="text">
+           <string>ID</string>
+          </property>
+         </widget>
+         <widget class="QLineEdit" name="up_id">
+          <property name="geometry">
+           <rect>
+            <x>170</x>
+            <y>10</y>
+            <width>171</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border:2px solid transparent;
+border-radius: 15px;
+background-color: rgb(255, 255, 255);
+background-color: rgb(227, 241, 244);
+</string>
+          </property>
+         </widget>
+        </widget>
+        <widget class="QGroupBox" name="groupBox_9">
+         <property name="geometry">
+          <rect>
+           <x>440</x>
+           <y>10</y>
+           <width>361</width>
+           <height>421</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(177, 187, 197);</string>
+         </property>
+         <property name="title">
+          <string/>
+         </property>
+         <widget class="QPushButton" name="update_maintenance">
+          <property name="geometry">
+           <rect>
+            <x>90</x>
+            <y>350</y>
+            <width>181</width>
+            <height>61</height>
+           </rect>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>351</width>
+            <height>101</height>
+           </size>
+          </property>
+          <property name="acceptDrops">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt; .XC./X&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border: 4px solid black;
+background-color: rgb(255, 170, 0);
+border-radius: 25px;
+font: 700 12pt &quot;Arial Rounded MT&quot;;
+
+</string>
+          </property>
+          <property name="text">
+           <string>Modifier</string>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>120</width>
+            <height>120</height>
+           </size>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_88">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>10</y>
+            <width>91</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
+font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
+          </property>
+          <property name="text">
+           <string>Analyse</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="pushButton_30">
+          <property name="geometry">
+           <rect>
+            <x>140</x>
+            <y>40</y>
+            <width>201</width>
+            <height>181</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border:2px solid transparent;
+border-radius: 15px;
+background-color: rgb(255, 255, 255);
+background-color: rgb(227, 241, 244);
+</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_89">
+          <property name="geometry">
+           <rect>
+            <x>180</x>
+            <y>50</y>
+            <width>151</width>
+            <height>161</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border:transparent;</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap resource="img.qrc">:/projet c++/img/4124799-finance-report-graph-analysis-graph-report-sale-report-stock-report_113890.png</pixmap>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_90">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>240</y>
+            <width>131</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
+font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
+          </property>
+          <property name="text">
+           <string>ID_espace</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_91">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>310</y>
+            <width>131</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
+font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
+          </property>
+          <property name="text">
+           <string>Date_resolution</string>
+          </property>
+         </widget>
+         <widget class="QDateEdit" name="up_date_resolution">
+          <property name="geometry">
+           <rect>
+            <x>160</x>
+            <y>310</y>
+            <width>171</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border:2px solid transparent;
+border-radius: 15px;
+background-color: rgb(255, 255, 255);
+background-color: rgb(227, 241, 244);
+</string>
+          </property>
+         </widget>
+         <widget class="QLineEdit" name="up_id_espace_maintenance">
+          <property name="geometry">
+           <rect>
+            <x>170</x>
+            <y>240</y>
+            <width>171</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border:2px solid transparent;
+border-radius: 15px;
+background-color: rgb(255, 255, 255);
+background-color: rgb(227, 241, 244);
+</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="er_id_espace_up">
+          <property name="geometry">
+           <rect>
+            <x>180</x>
+            <y>270</y>
+            <width>161</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">border-color: transparent;
+color: rgb(255, 0, 0);</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="tab">
+        <attribute name="title">
+         <string>Page</string>
+        </attribute>
        </widget>
       </widget>
-      <widget class="QPushButton" name="liste_6">
+      <widget class="QPushButton" name="liste_maintenance">
        <property name="geometry">
         <rect>
          <x>470</x>
-         <y>130</y>
+         <y>119</y>
          <width>111</width>
          <height>41</height>
         </rect>
@@ -1451,7 +2175,7 @@ border-radius: 20px; /* Ajuste selon le degré d'arrondi souhaité */
        <property name="geometry">
         <rect>
          <x>300</x>
-         <y>81</y>
+         <y>70</y>
          <width>221</width>
          <height>21</height>
         </rect>
@@ -1468,7 +2192,7 @@ font: 14pt &quot;Segoe Fluent Icons&quot;;</string>
        <property name="geometry">
         <rect>
          <x>340</x>
-         <y>40</y>
+         <y>29</y>
          <width>111</width>
          <height>41</height>
         </rect>
@@ -1485,7 +2209,7 @@ font: 700 22pt &quot;Arial&quot;;</string>
        <property name="geometry">
         <rect>
          <x>30</x>
-         <y>51</y>
+         <y>40</y>
          <width>41</width>
          <height>41</height>
         </rect>
@@ -1506,7 +2230,7 @@ qproperty-iconSize: 30px 30px; /* Ajuste la taille de l'icône */</string>
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>140</y>
+         <y>129</y>
          <width>171</width>
          <height>21</height>
         </rect>
@@ -1530,8 +2254,8 @@ qproperty-iconSize: 15px 15px; /* Ajuste la taille de l'icône */</string>
        <property name="geometry">
         <rect>
          <x>470</x>
-         <y>41</y>
-         <width>331</width>
+         <y>30</y>
+         <width>371</width>
          <height>51</height>
         </rect>
        </property>
@@ -1540,14 +2264,14 @@ qproperty-iconSize: 15px 15px; /* Ajuste la taille de l'icône */</string>
 font: 700 18pt &quot;Arial&quot;;</string>
        </property>
        <property name="text">
-        <string>Gestion Des employés </string>
+        <string>Gestion Des Maintenance</string>
        </property>
       </widget>
-      <widget class="QPushButton" name="stat_6">
+      <widget class="QPushButton" name="stat_maintenance">
        <property name="geometry">
         <rect>
          <x>600</x>
-         <y>130</y>
+         <y>119</y>
          <width>111</width>
          <height>41</height>
         </rect>
@@ -1568,6 +2292,33 @@ border-radius: 20px; /* Ajuste selon le degré d'arrondi souhaité */
        <property name="icon">
         <iconset>
          <normaloff>:/Desktop/img/1170667-removebg-preview.png</normaloff>:/Desktop/img/1170667-removebg-preview.png</iconset>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="exporter_maintenance">
+       <property name="geometry">
+        <rect>
+         <x>350</x>
+         <y>120</y>
+         <width>111</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(227, 241, 244);
+font: 700 9pt &quot;Segoe UI&quot;;
+border: 2px solid black ; /* Ajoute une bordure */
+border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
+border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
+qproperty-iconSize: 20px 20px; /* Ajuste la taille de l'icône */
+border-radius: 20px; /* Ajuste selon le degré d'arrondi souhaité */
+</string>
+       </property>
+       <property name="text">
+        <string>exporter</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>:/Desktop/img/570170-removebg-preview[1].png</normaloff>:/Desktop/img/570170-removebg-preview[1].png</iconset>
        </property>
       </widget>
      </widget>
@@ -3062,6 +3813,8 @@ border-radius: 20px; /* Ajuste selon le degré d'arrondi souhaité */
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
+ <resources>
+  <include location="img.qrc"/>
+ </resources>
  <connections/>
 </ui>

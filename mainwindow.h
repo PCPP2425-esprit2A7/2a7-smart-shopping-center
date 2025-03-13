@@ -29,6 +29,15 @@ private slots:
 
 
     void on_tabWidget_3_tabBarClicked(int index);
+    void on_supprimer_maintenance_clicked();
+    void on_modifier_maintenance_clicked();
+    void on_update_maintenance_clicked();
+
+    void on_liste_maintenance_clicked();
+
+    void on_ajouter_maintenance_2_clicked();
+
+    void on_exporter_maintenance_clicked();
 
 private:
     Ui::MainWindow *ui;
