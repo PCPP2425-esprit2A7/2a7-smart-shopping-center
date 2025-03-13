@@ -106,8 +106,15 @@ void Dialog::on_enregistrer_clicked()
     qDebug() << "Organisateur :" << ui->orgl->text();
     qDebug() << "Lieu :" << ui->lieul->text();  // Ajout du debug pour lieu
 
-
     // Vérification des champs obligatoires
+    if (ui->titrel->text().isEmpty() || ui->desl->text().isEmpty() || ui->catl->text().isEmpty() ||
+        ui->typl->text().isEmpty() || ui->orgl->text().isEmpty() || ui->lieul->text().isEmpty() ||
+        ui->statusl->currentText().isEmpty()) {
+        QMessageBox::warning(this, "Erreur", "Tous les champs doivent être remplis !");
+        return; // Arrêter l'exécution de la fonction si un champ est vide
+    }
+
+    // Vérification du prix (doit être un nombre positif)
     QString prixStr = QString::number(ui->prixl->value()).trimmed().replace(",", ".");
     prixStr.remove(QChar(0x200E)); // Supprimer les caractères invisibles
 
@@ -127,10 +134,24 @@ void Dialog::on_enregistrer_clicked()
         return;
     }
 
-    // Vérification de la capacité (valeur numérique)
+    // Contrôle que le prix est positif
+    if (prix <= 0) {
+        QMessageBox::warning(this, "Erreur", "Le prix doit être positif !");
+        return;
+    }
+
+    // Vérification de la capacité (doit être un nombre et supérieur à 10)
     int capacite = ui->capl->text().toInt();
-    if (capacite <= 0) {
-        QMessageBox::warning(this, "Erreur", "Veuillez entrer une capacité valide !");
+    if (capacite <= 10) {
+        QMessageBox::warning(this, "Erreur", "La capacité doit être supérieure à 10 !");
+        return;
+    }
+
+    // Vérification de la date de fin (doit être après la date de début)
+    QDate dateDebut = ui->ddl->date();
+    QDate dateFin = ui->dfl->date();
+    if (dateFin <= dateDebut) {
+        QMessageBox::warning(this, "Erreur", "La date de fin doit être supérieure à la date de début !");
         return;
     }
 
@@ -155,8 +176,3 @@ void Dialog::on_enregistrer_clicked()
         QMessageBox::critical(this, "Erreur", "Échec de la modification de l'événement.");
     }
 }
-
-
-
-
-

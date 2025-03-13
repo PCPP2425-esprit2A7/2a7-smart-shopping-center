@@ -105,7 +105,32 @@ void MainWindow::on_ajouter_button_clicked()
     QString organisateur = ui->orgl->text();
     QString lieu = ui->lieul->text(); // Ajout du champ lieu (assurez-vous que lieul existe dans l'UI)
 
-    // Créer l’objet Evenement avec le lieu ajouté
+    // Contrôle des champs obligatoires
+    if (titre.isEmpty() || description.isEmpty() || capacite <= 0 || prix <= 0 || statut.isEmpty() ||
+        categorie.isEmpty() || type.isEmpty() || organisateur.isEmpty() || lieu.isEmpty()) {
+        QMessageBox::critical(this, "Erreur", "Tous les champs doivent être remplis !");
+        return; // Arrêter l'exécution de la fonction si un champ est vide
+    }
+
+    // Contrôle de la capacité (doit être supérieure à 10)
+    if (capacite <= 10) {
+        QMessageBox::critical(this, "Erreur", "La capacité doit être supérieure à 10 !");
+        return;
+    }
+
+    // Contrôle du prix (doit être positif)
+    if (prix <= 0) {
+        QMessageBox::critical(this, "Erreur", "Le prix doit être positif !");
+        return;
+    }
+
+    // Contrôle de la date de fin (doit être après la date de début)
+    if (dateFin <= dateDebut) {
+        QMessageBox::critical(this, "Erreur", "La date de fin doit être supérieure à la date de début !");
+        return;
+    }
+
+    // Créer l’objet Evenement avec les données validées
     Evenement ev(titre, type, capacite, prix, lieu, description, dateDebut, dateFin, categorie, statut, organisateur, QString::number(1));
 
     // Appeler la méthode ajouter()
@@ -115,6 +140,7 @@ void MainWindow::on_ajouter_button_clicked()
         QMessageBox::critical(this, "Erreur", "Échec de l’ajout de l’événement !");
     }
 }
+
 
 void MainWindow::on_pushButton_choisirImage_clicked()
 {
