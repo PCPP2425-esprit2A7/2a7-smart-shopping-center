@@ -50,8 +50,8 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="qrc.qrc">
-       <normaloff>:/Desktop/img/ecommerce_home_market_mart_shop_shopping_store_icon_123207.png</normaloff>:/Desktop/img/ecommerce_home_market_mart_shop_shopping_store_icon_123207.png</iconset>
+      <iconset resource="img.qrc">
+       <normaloff>:/Desktop/img/5973800-removebg-preview.png</normaloff>:/Desktop/img/5973800-removebg-preview.png</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_4">
@@ -75,8 +75,8 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="qrc.qrc">
-       <normaloff>:/Desktop/img/sidebar_utilities_18421.png</normaloff>:/Desktop/img/sidebar_utilities_18421.png</iconset>
+      <iconset resource="img.qrc">
+       <normaloff>:/Desktop/img/1623971-removebg-preview.png</normaloff>:/Desktop/img/1623971-removebg-preview.png</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_5">
@@ -100,8 +100,8 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="qrc.qrc">
-       <normaloff>:/Desktop/img/website_maintenance_settings_window_alert_icon_193897 (1).png</normaloff>:/Desktop/img/website_maintenance_settings_window_alert_icon_193897 (1).png</iconset>
+      <iconset resource="img.qrc">
+       <normaloff>:/Desktop/img/9321345-removebg-preview.png</normaloff>:/Desktop/img/9321345-removebg-preview.png</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_6">
@@ -125,8 +125,8 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="qrc.qrc">
-       <normaloff>:/Desktop/img/investment_asset_management_worker_employee_welfare_icon_210504.png</normaloff>:/Desktop/img/investment_asset_management_worker_employee_welfare_icon_210504.png</iconset>
+      <iconset resource="img.qrc">
+       <normaloff>:/Desktop/img/4986021-removebg-preview.png</normaloff>:/Desktop/img/4986021-removebg-preview.png</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_3">
@@ -149,33 +149,8 @@ border: none; /* Supprime la bordure si nécessaire */
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="qrc.qrc">
+      <iconset resource="img.qrc">
        <normaloff>:/Desktop/img/logo_final-removebg-preview.ico</normaloff>:/Desktop/img/logo_final-removebg-preview.ico</iconset>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_11">
-     <property name="geometry">
-      <rect>
-       <x>-20</x>
-       <y>130</y>
-       <width>121</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(227, 241, 244);
-border: 2px solid; /* Ajoute une bordure */
-border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
-border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
-border-radius: 30px; /* Ajuste selon le degré d'arrondi souhaité */
-qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="qrc.qrc">
-       <normaloff>:/Desktop/img/validated_buyer_user_apply_done_icon_177174 (1).png</normaloff>:/Desktop/img/validated_buyer_user_apply_done_icon_177174 (1).png</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_7">
@@ -199,8 +174,8 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="qrc.qrc">
-       <normaloff>:/Desktop/img/calendar_date_day_event_month_schedule_time_icon_123230.png</normaloff>:/Desktop/img/calendar_date_day_event_month_schedule_time_icon_123230.png</iconset>
+      <iconset resource="img.qrc">
+       <normaloff>:/Desktop/img/3079026-removebg-preview.png</normaloff>:/Desktop/img/3079026-removebg-preview.png</iconset>
      </property>
     </widget>
     <widget class="QLabel" name="label">
@@ -234,7 +209,7 @@ border-radius: 25px; /* Ajuste selon le degré d'arrondi souhaité */
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">background : none ; 
+      <string notr="true">background : none ;
 font: 700 22pt &quot;Arial&quot;;</string>
      </property>
      <property name="text">
@@ -251,7 +226,7 @@ font: 700 22pt &quot;Arial&quot;;</string>
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">background : none ; 
+      <string notr="true">background : none ;
 font: 14pt &quot;Segoe Fluent Icons&quot;;</string>
      </property>
      <property name="text">
@@ -282,8 +257,8 @@ qproperty-iconSize: 30px 30px; /* Ajuste la taille de l'icône */</string>
     <widget class="QTabWidget" name="tabWidget">
      <property name="geometry">
       <rect>
-       <x>120</x>
-       <y>170</y>
+       <x>110</x>
+       <y>190</y>
        <width>851</width>
        <height>471</height>
       </rect>
@@ -297,7 +272,7 @@ border-radius: 25px; /* Ajuste selon le degré d'arrondi souhaité */
 </string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="Ajout">
       <attribute name="title">
@@ -309,7 +284,7 @@ border-radius: 25px; /* Ajuste selon le degré d'arrondi souhaité */
        </property>
        <property name="geometry">
         <rect>
-         <x>30</x>
+         <x>50</x>
          <y>30</y>
          <width>361</width>
          <height>401</height>
@@ -463,7 +438,7 @@ border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */
          </rect>
         </property>
         <property name="styleSheet">
-         <string notr="true">border:  transparent ; 
+         <string notr="true">border:  transparent ;
 font: 700 12pt &quot;Arial Rounded MT&quot;;
 background : none ;</string>
         </property>
@@ -637,7 +612,7 @@ border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */
 </string>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton_16">
+       <widget class="QPushButton" name="pushButton_pdp2">
         <property name="geometry">
          <rect>
           <x>290</x>
@@ -654,8 +629,8 @@ border : transparent ;</string>
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="qrc.qrc">
-          <normaloff>:/Downloads/istockphoto-1474007937-170667a-removebg-preview.png</normaloff>:/Downloads/istockphoto-1474007937-170667a-removebg-preview.png</iconset>
+         <iconset resource="img.qrc">
+          <normaloff>:/Desktop/img/istockphoto-1474007937-170667a-removebg-preview.png</normaloff>:/Desktop/img/istockphoto-1474007937-170667a-removebg-preview.png</iconset>
         </property>
        </widget>
        <widget class="QComboBox" name="sexe">
@@ -682,7 +657,7 @@ border : transparent ;</string>
       <widget class="QGroupBox" name="groupBox_6">
        <property name="geometry">
         <rect>
-         <x>420</x>
+         <x>450</x>
          <y>60</y>
          <width>281</width>
          <height>331</height>
@@ -732,8 +707,8 @@ border: 2px solid black ; /* Ajoute une bordure */
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="qrc.qrc">
-          <normaloff>:/Downloads/add-image-photo-icon.png</normaloff>:/Downloads/add-image-photo-icon.png</iconset>
+         <iconset resource="img.qrc">
+          <normaloff>:/Desktop/img/add-image-photo-icon.png</normaloff>:/Desktop/img/add-image-photo-icon.png</iconset>
         </property>
        </widget>
        <widget class="QPushButton" name="pushButton_choisirImage">
@@ -798,7 +773,7 @@ font: 700 10pt &quot;Arial Rounded MT&quot;;</string>
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="qrc.qrc">
+         <iconset resource="img.qrc">
           <normaloff>:/Downloads/artificial_intelligence_ai_robot_technology_icon_179494.png</normaloff>:/Downloads/artificial_intelligence_ai_robot_technology_icon_179494.png</iconset>
         </property>
        </widget>
@@ -811,10 +786,10 @@ font: 700 10pt &quot;Arial Rounded MT&quot;;</string>
       <widget class="QTableView" name="tableView">
        <property name="geometry">
         <rect>
-         <x>30</x>
-         <y>40</y>
-         <width>611</width>
-         <height>311</height>
+         <x>20</x>
+         <y>20</y>
+         <width>621</width>
+         <height>401</height>
         </rect>
        </property>
       </widget>
@@ -897,7 +872,7 @@ font: 700 10pt &quot;Arial Rounded MT&quot;;</string>
         <string/>
        </property>
       </widget>
-      <widget class="QPushButton" name="pushButton_13">
+      <widget class="QPushButton" name="pushButton_exporterPDF">
        <property name="geometry">
         <rect>
          <x>720</x>
@@ -919,7 +894,7 @@ qproperty-iconSize: 25px 25px; /* Ajuste la taille de l'icône */
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="qrc.qrc">
+        <iconset resource="img.qrc">
          <normaloff>:/Desktop/img/pdf-file-type-symbol_icon-icons.com_57657.png</normaloff>:/Desktop/img/pdf-file-type-symbol_icon-icons.com_57657.png</iconset>
        </property>
       </widget>
@@ -945,11 +920,11 @@ qproperty-iconSize: 25px 25px; /* Ajuste la taille de l'icône */
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="qrc.qrc">
+        <iconset resource="img.qrc">
          <normaloff>:/Desktop/img/1170667-removebg-preview.png</normaloff>:/Desktop/img/1170667-removebg-preview.png</iconset>
        </property>
       </widget>
-      <widget class="QPushButton" name="pushButton_15">
+      <widget class="QPushButton" name="boutonTrier">
        <property name="geometry">
         <rect>
          <x>720</x>
@@ -970,7 +945,7 @@ qproperty-iconSize: 25px 25px; /* Ajuste la taille de l'icône */</string>
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="qrc.qrc">
+        <iconset resource="img.qrc">
          <normaloff>:/Desktop/img/sort-ascending_icon-icons.com_73158.png</normaloff>:/Desktop/img/sort-ascending_icon-icons.com_73158.png</iconset>
        </property>
       </widget>
@@ -979,9 +954,9 @@ qproperty-iconSize: 25px 25px; /* Ajuste la taille de l'icône */</string>
       <zorder>afficher</zorder>
       <zorder>pushButton_modifier</zorder>
       <zorder>pushButton_supprimer</zorder>
-      <zorder>pushButton_13</zorder>
+      <zorder>pushButton_exporterPDF</zorder>
       <zorder>pushButton_14</zorder>
-      <zorder>pushButton_15</zorder>
+      <zorder>boutonTrier</zorder>
      </widget>
      <widget class="QWidget" name="stat_2">
       <attribute name="title">
@@ -999,7 +974,7 @@ qproperty-iconSize: 25px 25px; /* Ajuste la taille de l'icône */</string>
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">background : none ; 
+      <string notr="true">background : none ;
 font: 700 18pt &quot;Arial&quot;;</string>
      </property>
      <property name="text">
@@ -1029,7 +1004,7 @@ border-radius: 20px; /* Ajuste selon le degré d'arrondi souhaité */
       <string>Liste</string>
      </property>
      <property name="icon">
-      <iconset resource="qrc.qrc">
+      <iconset resource="img.qrc">
        <normaloff>:/Desktop/img/570170-removebg-preview[1].png</normaloff>:/Desktop/img/570170-removebg-preview[1].png</iconset>
      </property>
     </widget>
@@ -1056,7 +1031,7 @@ border-radius: 20px; /* Ajuste selon le degré d'arrondi souhaité */
       <string>Statistiques</string>
      </property>
      <property name="icon">
-      <iconset resource="qrc.qrc">
+      <iconset resource="img.qrc">
        <normaloff>:/Desktop/img/1170667-removebg-preview.png</normaloff>:/Desktop/img/1170667-removebg-preview.png</iconset>
      </property>
     </widget>
@@ -1080,19 +1055,19 @@ border-radius: 20px; /* Ajuste selon le degré d'arrondi souhaité */
 </string>
      </property>
      <property name="text">
-      <string>Ajouter 
+      <string>Ajouter
  employe</string>
      </property>
      <property name="icon">
-      <iconset resource="qrc.qrc">
+      <iconset resource="img.qrc">
        <normaloff>:/Desktop/img/18926930-conception-d-icone-de-formulaire-gratuit-vectoriel-removebg-preview[1].png</normaloff>:/Desktop/img/18926930-conception-d-icone-de-formulaire-gratuit-vectoriel-removebg-preview[1].png</iconset>
      </property>
     </widget>
     <widget class="QComboBox" name="comboBox">
      <property name="geometry">
       <rect>
-       <x>120</x>
-       <y>130</y>
+       <x>110</x>
+       <y>140</y>
        <width>191</width>
        <height>22</height>
       </rect>
@@ -1122,6 +1097,31 @@ qproperty-iconSize: 15px 15px; /* Ajuste la taille de l'icône */</string>
       </property>
      </item>
     </widget>
+    <widget class="QPushButton" name="pushButton_11">
+     <property name="geometry">
+      <rect>
+       <x>-30</x>
+       <y>130</y>
+       <width>131</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(227, 241, 244);
+border: 2px solid; /* Ajoute une bordure */
+border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
+border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
+border-radius: 30px; /* Ajuste selon le degré d'arrondi souhaité */
+qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="img.qrc">
+       <normaloff>:/Desktop/img/employe.png</normaloff>:/Desktop/img/employe.png</iconset>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -1137,7 +1137,7 @@ qproperty-iconSize: 15px 15px; /* Ajuste la taille de l'icône */</string>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources>
-  <include location="qrc.qrc"/>
+  <include location="img.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -2,7 +2,8 @@
 #include <QApplication>
 #include <QMessageBox>
 #include "connection.h"
-
+#include <QCoreApplication>
+#include <QDebug>
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);

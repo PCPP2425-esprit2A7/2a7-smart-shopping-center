@@ -6,54 +6,76 @@
 #include <QSqlQuery>
 #include <QSqlQueryModel>
 #include <QSqlTableModel>
+#include <QPixmap> // Pour manipuler les images
+#include <QByteArray> // Pour stocker la photo de profil en binaire
+#include <QImage> // Pour convertir QByteArray en image
 
 class Employe
 {
 private:
     int id;
-    QString nom, prenom, poste, email, sexe, telephone, pdp, statut;
+    QString nom, prenom, poste, email, sexe, telephone, statut;
     QDate date_embauche;
     double salaire;
+    QByteArray pdp; // Stockage de l'image en binaire
 
 public:
     QString cheminImagePDP;
-    // Constructeurs
+
+    // ✅ Constructeurs
     Employe();
     Employe(QString nom, QString prenom, QDate date_embauche, QString poste, double salaire,
-            QString email, QString sexe, QString telephone, QString pdp, QString statut);
+            QString email, QString sexe, QString telephone, QByteArray pdp, QString statut);
 
-    // Getters et Setters
+    // ✅ CRUD Operations
+    bool ajouter();
+    bool charger(int id);
+    bool modifier(int id);
+    bool supprimer(int id);
+    QSqlQueryModel* afficher();
+    bool existe(int id);
+    int compterEmployes();
+    static Employe rechercher(int id);
+
+
+    // ✅ Méthodes supplémentaires
+    bool chargerImage(int id) const;
+    bool enregistrerImage(const QPixmap &pixmap, int id);
+    QImage getImageById(int id) const;
+
+    // ✅ Getters et Setters
     int getId() const { return id; }
     void setId(int id) { this->id = id; }
+
     QString getNom() const { return nom; }
     void setNom(const QString &nom) { this->nom = nom; }
+
     QString getPrenom() const { return prenom; }
     void setPrenom(const QString &prenom) { this->prenom = prenom; }
+
     QDate getDateEmbauche() const { return date_embauche; }
     void setDateEmbauche(const QDate &date_embauche) { this->date_embauche = date_embauche; }
+
     QString getPoste() const { return poste; }
     void setPoste(const QString &poste) { this->poste = poste; }
+
     double getSalaire() const { return salaire; }
     void setSalaire(double salaire) { this->salaire = salaire; }
+
     QString getEmail() const { return email; }
     void setEmail(const QString &email) { this->email = email; }
+
     QString getSexe() const { return sexe; }
     void setSexe(const QString &sexe) { this->sexe = sexe; }
+
     QString getTelephone() const { return telephone; }
     void setTelephone(const QString &telephone) { this->telephone = telephone; }
-    QString getPdp() const { return pdp; }
-    void setPdp(const QString &pdp) { this->pdp = pdp; }
+
     QString getStatut() const { return statut; }
     void setStatut(const QString &statut) { this->statut = statut; }
 
-    // CRUD Operations
-    bool ajouter();
-    bool charger(int id);  // Déclaration de la méthode charger
-    bool modifier(int id);
-    bool supprimer(int id);
-    QSqlQueryModel* afficher();  // ✅ Vérifier que la déclaration est correcte
-    bool existe(int id);  // ✅ Déclaration de existe()
-    int compterEmployes();  // ✅ Déclaration de compterEmployes()
+    QByteArray getPdp() const { return pdp; }
+    void setPdp(const QByteArray &pdp) { this->pdp = pdp; }
 };
 
 #endif // EMPLOYE_H
