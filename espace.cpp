@@ -83,3 +83,62 @@ bool Espace::modifier(int id, const QString &nom, const QString &type, double su
 
     return query.exec();
 }
+
+// Get AI-powered space name suggestions
+QStringList Espace::getExistingSpaceNames() {
+    QStringList suggestions;
+    
+    // Common space types with variations
+    QMap<QString, QStringList> spacePatterns = {
+        {"Bureau", {
+            "Bureau individuel", "Bureau partagé", "Bureau avec vue",
+            "Bureau moderne", "Bureau classique", "Bureau exécutif",
+            "Bureau d'équipe", "Bureau de direction", "Bureau de réception"
+        }},
+        {"Magasin", {
+            "Magasin de détail", "Magasin d'exposition", "Magasin de stockage",
+            "Magasin de proximité", "Magasin spécialisé", "Magasin de luxe",
+            "Magasin de vêtements", "Magasin d'électronique", "Magasin de meubles"
+        }},
+        {"Salle", {
+            "Salle de réunion", "Salle d'exposition", "Salle de conférence",
+            "Salle de sport", "Salle polyvalente", "Salle de formation",
+            "Salle de spectacle", "Salle de banquet", "Salle de réception"
+        }},
+        {"Local", {
+            "Local commercial", "Local artisanal", "Local industriel",
+            "Local de stockage", "Local de service", "Local technique",
+            "Local administratif", "Local de production", "Local de vente"
+        }},
+        {"Zone", {
+            "Zone de production", "Zone de service", "Zone de vente",
+            "Zone administrative", "Zone technique", "Zone de stockage",
+            "Zone de réception", "Zone de livraison", "Zone de parking"
+        }},
+        {"Espace", {
+            "Espace de coworking", "Espace de stockage", "Espace de vente",
+            "Espace de réception", "Espace de détente", "Espace de travail",
+            "Espace de création", "Espace de formation", "Espace de production"
+        }}
+    };
+    
+    // Add all variations to suggestions
+    for (const auto &pattern : spacePatterns) {
+        suggestions.append(pattern);
+    }
+    
+    // Add some smart combinations
+    QStringList adjectives = {"Premium", "Elite", "Standard", "Basic", "Luxe", "Moderne", "Classique", "Industriel", "Commercial"};
+    QStringList locations = {"Centre-ville", "Périphérie", "Zone industrielle", "Zone commerciale", "Zone résidentielle"};
+    
+    for (const QString &type : spacePatterns.keys()) {
+        for (const QString &adj : adjectives) {
+            suggestions << adj + " " + type;
+        }
+        for (const QString &loc : locations) {
+            suggestions << type + " " + loc;
+        }
+    }
+    
+    return suggestions;
+}

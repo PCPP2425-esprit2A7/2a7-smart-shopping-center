@@ -49,6 +49,10 @@ public:
     void setLoyer_Mensuel(double loyer) { Loyer_Mensuel = loyer; }
     void setDate_Debut(const QDate& debut) { Date_Debut = debut; }
     void setDate_Fin(const QDate& fin) { Date_Fin = fin; }
+    void setId_locataire(int id) { ID_Locataire = id; }
+
+    // Static method to get existing space names for autocomplete
+    static QStringList getExistingSpaceNames();
 
     // CRUD Operations (Implémentées dans .cpp)
     bool ajouter();

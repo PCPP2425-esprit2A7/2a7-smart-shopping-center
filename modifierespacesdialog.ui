@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>-10</x>
-     <y>0</y>
+     <y>-10</y>
      <width>1451</width>
      <height>871</height>
     </rect>
@@ -50,14 +50,14 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
     </property>
     <property name="icon">
      <iconset resource="IMG.qrc">
-      <normaloff>:/Desktop/img/ecommerce_home_market_mart_shop_shopping_store_icon_123207.png</normaloff>:/Desktop/img/ecommerce_home_market_mart_shop_shopping_store_icon_123207.png</iconset>
+      <normaloff>:/Desktop/img/espaces.png</normaloff>:/Desktop/img/espaces.png</iconset>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_4">
     <property name="geometry">
      <rect>
-      <x>-60</x>
-      <y>580</y>
+      <x>-30</x>
+      <y>570</y>
       <width>131</width>
       <height>61</height>
      </rect>
@@ -75,13 +75,13 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
     </property>
     <property name="icon">
      <iconset resource="IMG.qrc">
-      <normaloff>:/Desktop/img/sidebar_utilities_18421.png</normaloff>:/Desktop/img/sidebar_utilities_18421.png</iconset>
+      <normaloff>:/Desktop/img/2A.png</normaloff>:/Desktop/img/2A.png</iconset>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_5">
     <property name="geometry">
      <rect>
-      <x>-50</x>
+      <x>-20</x>
       <y>500</y>
       <width>121</width>
       <height>61</height>
@@ -100,13 +100,13 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
     </property>
     <property name="icon">
      <iconset resource="IMG.qrc">
-      <normaloff>:/Desktop/img/website_maintenance_settings_window_alert_icon_193897 (1).png</normaloff>:/Desktop/img/website_maintenance_settings_window_alert_icon_193897 (1).png</iconset>
+      <normaloff>:/Desktop/img/5A.png</normaloff>:/Desktop/img/5A.png</iconset>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_6">
     <property name="geometry">
      <rect>
-      <x>-50</x>
+      <x>-30</x>
       <y>670</y>
       <width>121</width>
       <height>61</height>
@@ -125,7 +125,7 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
     </property>
     <property name="icon">
      <iconset resource="IMG.qrc">
-      <normaloff>:/Desktop/img/investment_asset_management_worker_employee_welfare_icon_210504.png</normaloff>:/Desktop/img/investment_asset_management_worker_employee_welfare_icon_210504.png</iconset>
+      <normaloff>:/Desktop/img/4A.png</normaloff>:/Desktop/img/4A.png</iconset>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_3">
@@ -155,8 +155,8 @@ border: none; /* Supprime la bordure si nécessaire */
    <widget class="QPushButton" name="pushButton_11">
     <property name="geometry">
      <rect>
-      <x>-60</x>
-      <y>260</y>
+      <x>-40</x>
+      <y>250</y>
       <width>131</width>
       <height>61</height>
      </rect>
@@ -174,13 +174,13 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
     </property>
     <property name="icon">
      <iconset resource="IMG.qrc">
-      <normaloff>:/Desktop/img/validated_buyer_user_apply_done_icon_177174 (1).png</normaloff>:/Desktop/img/validated_buyer_user_apply_done_icon_177174 (1).png</iconset>
+      <normaloff>:/Desktop/img/1A.jpg</normaloff>:/Desktop/img/1A.jpg</iconset>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_7">
     <property name="geometry">
      <rect>
-      <x>-60</x>
+      <x>-30</x>
       <y>420</y>
       <width>131</width>
       <height>61</height>
@@ -199,7 +199,7 @@ qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
     </property>
     <property name="icon">
      <iconset resource="IMG.qrc">
-      <normaloff>:/Desktop/img/calendar_date_day_event_month_schedule_time_icon_123230.png</normaloff>:/Desktop/img/calendar_date_day_event_month_schedule_time_icon_123230.png</iconset>
+      <normaloff>:/Desktop/img/3A.png</normaloff>:/Desktop/img/3A.png</iconset>
     </property>
    </widget>
    <widget class="QPushButton" name="ajout">

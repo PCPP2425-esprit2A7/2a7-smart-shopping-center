@@ -63,6 +63,25 @@ void modifierespacesDialog::on_enregistrer_clicked()
 {
     Espace espace;
 
+    // Vérifier si les champs obligatoires sont vides
+    QString nom = ui->lineEdit_Nom_2->text().trimmed();
+    QString type = ui->lineEdit_Type_2->text().trimmed();
+    QString emplacement = ui->lineEdit_Emplacement_2->text().trimmed();
+    QString statut = ui->comboBox_2->currentText();
+
+    if (nom.isEmpty() || type.isEmpty() || emplacement.isEmpty() || statut.isEmpty()) {
+        QMessageBox::warning(this, "Erreur", "Veuillez remplir tous les champs obligatoires !");
+        return;
+    }
+
+    // Vérifier si la superficie est un nombre valide et positif
+    bool okSuperficie;
+    double superficie = ui->spinBox_Superficie_2->text().toDouble(&okSuperficie);
+
+    if (!okSuperficie || superficie <= 0) {
+        QMessageBox::warning(this, "Erreur", "La superficie doit être un nombre valide et supérieur à 0 !");
+        return;
+    }
 
     // Vérifier si le champ loyer est vide
     QString loyerStr = ui->lineEdit_loyer_2->text().trimmed().replace(",", ".");
@@ -80,25 +99,26 @@ void modifierespacesDialog::on_enregistrer_clicked()
     double loyer = loyerStr.toDouble(&ok);
     qDebug() << "Valeur convertie en double :" << loyer;
 
-    if (!ok) {
-        qDebug() << "Erreur : la conversion a échoué !";
-        QMessageBox::warning(this, "Erreur", "Le loyer doit être un nombre valide !");
+    if (!ok || loyer <= 0) {
+        qDebug() << "Erreur : la conversion a échoué ou le loyer est invalide !";
+        QMessageBox::warning(this, "Erreur", "Le loyer doit être un nombre valide et supérieur à 0 !");
+        return;
+    }
+
+    // Vérifier la cohérence des dates
+    QDate dateDebut = ui->dateEdit_3->date();
+    QDate dateFin = ui->dateEdit_4->date();
+
+    if (dateDebut >= dateFin) {
+        QMessageBox::warning(this, "Erreur", "La date de fin doit être après la date de début !");
         return;
     }
 
     // Modifier l'espace
-    if (espace.modifier(espaceID,
-                        ui->lineEdit_Nom_2->text(),
-                        ui->lineEdit_Type_2->text(),
-                        ui->spinBox_Superficie_2->text().toDouble(),
-                        ui->lineEdit_Emplacement_2->text(),
-                        ui->comboBox_2->currentText(),
-                        loyer,
-                        ui->dateEdit_3->date(),
-                        ui->dateEdit_4->date())
-                        ) {
+    if (espace.modifier(espaceID, nom, type, superficie, emplacement, statut, loyer, dateDebut, dateFin)) {
         QMessageBox::information(this, "Succès", "Espace modifié avec succès !");
     } else {
         QMessageBox::critical(this, "Erreur", "Échec de la modification de l'espace.");
     }
 }
+
