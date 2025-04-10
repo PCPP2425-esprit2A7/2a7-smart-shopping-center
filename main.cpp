@@ -9,20 +9,23 @@ int main(int argc, char *argv[])
     MainWindow w;
     Connection c;
 
-    bool test=c.createconnect();
-    if(test)
-    {w.show();
-        QMessageBox::information(nullptr, QObject::tr("database is open"),
-                                 QObject::tr("connection successful.\n"
-                                             "Click Cancel to exit."), QMessageBox::Cancel);
-
+    bool test = c.createconnect();
+    if (test) {
+        w.show();
+        QMessageBox::information(nullptr, 
+            QObject::tr("Connexion réussie"),
+            QObject::tr("La connexion à la base de données a été établie avec succès.\n"
+                       "Cliquez sur OK pour continuer."), 
+            QMessageBox::Ok);
+    } else {
+        QMessageBox::critical(nullptr, 
+            QObject::tr("Erreur de connexion"),
+            QObject::tr("Impossible de se connecter à la base de données.\n"
+                       "Erreur : %1\n"
+                       "Cliquez sur OK pour quitter.").arg(c.getLastError()),
+            QMessageBox::Ok);
+        return -1;
     }
-    else
-        QMessageBox::critical(nullptr, QObject::tr("database is not open"),
-                              QObject::tr("connection failed.\n"
-                                          "Click Cancel to exit."), QMessageBox::Cancel);
-
-
 
     return a.exec();
 }

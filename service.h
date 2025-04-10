@@ -23,15 +23,15 @@ private:
 
 public:
     Service();
-    Service( QString, QString, double, QString, QString, QString, QString, int);  // Modifié pour inclure id_espace
+    Service( QString, QString, double, QString, QString, QString, QString, int);
 
     // CRUD Methods
     bool ajouter();
     QSqlQueryModel* afficher();
-    bool supprimer(int);
+    bool supprimer(int id);
     bool loadById(int id);
     bool modifier(int id, const QString &nom, const QString &description, double cout,
-                  const QString &frequence, const QString &statut, const QString &dateDebut, const QString &dateFin);
+                  const QString &frequence, const QString &statut, const QString &dateDebut, const QString &dateFin,int id_espace);
 
 
     // Getters & Setters

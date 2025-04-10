@@ -2,7 +2,6 @@
 #include "./ui_mainwindow.h"
 #include "service.h"
 #include <QDebug>
-#include "modifierservicedialog.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSqlQuery>
@@ -17,6 +16,8 @@
 #include <QSqlRecord>
 #include <QPushButton>
 #include <QEvent>
+#include <QTimer>
+#include "mailsender.h"
 
 
 HoverButton::HoverButton(QWidget *parent) : QPushButton(parent)  // ✅ Implémentation correcte
@@ -52,18 +53,47 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Cacher la barre des onglets pour forcer l'utilisation des boutons
     ui->tabWidget->tabBar()->hide();
-    connect(ui->afficher, &QPushButton::clicked, this, &MainWindow::afficherServices);
     connect(ui->stat, &QPushButton::clicked, this, &MainWindow::afficherStatistiques);
     connect(ui->liste, &QPushButton::clicked, this, &MainWindow::afficherServices);
     connect(ui->liste, &QPushButton::clicked, this, &MainWindow::changerCouleurBouton);
     connect(ui->form, &QPushButton::clicked, this, &MainWindow::changerCouleurBouton);
     connect(ui->stat, &QPushButton::clicked, this, &MainWindow::changerCouleurBouton);
+    connect(ui->chat, &QPushButton::clicked, this, &MainWindow::changerCouleurBouton);
     connect(ui->save_stat, &QPushButton::clicked, this, &MainWindow::changerCouleurBouton);
+    connect(ui->btnTrierServices, &QPushButton::clicked, this, &MainWindow::trierServices);
+    connect(ui->comboBox_StatutFiltre, &QComboBox::currentTextChanged, this, &MainWindow::filtrerServicesParStatut);
+    connect(ui->lineEdit_Recherche, &QLineEdit::textChanged, this, &MainWindow::rechercherService);
+    connect(ui->sendButton, &QPushButton::clicked, this, &MainWindow::envoyerRequete);
+    connect(ui->btnGenererDescription, &QPushButton::clicked, this, &MainWindow::genererDescriptionIA);
+    connect(ui->lineEdit_id, &QLineEdit::textChanged, this, &MainWindow::on_lineEdit_id_textChanged);
+    connect(ui->lineEdit_id_2, &QLineEdit::textChanged, this, &MainWindow::on_lineEdit_id_textChanged2);
+
+
+    openAIClient = new OpenAIClient();
+
+    // Connexion au signal pour obtenir la requête SQL générée
+    connect(openAIClient, &OpenAIClient::chatbotResponse, this, [](const QString &reponse) {
+        qDebug() << "Réponse du chatbot : " << reponse;
+    });
+    connect(ui->btnEnvoyer, &QPushButton::clicked, this, [=]() {
+        QString question = ui->lineEditQuestion->toPlainText().trimmed();
+        openAIClient->envoyerMessageChatbot(question);
+        ui->lineEditQuestion->clear();
+    });
+    connect(openAIClient, &OpenAIClient::chatbotResponse, this, [=](const QString &reponse) {
+        ui->textBrowserReponse->append(QString("<div class='reponse'>Bot : %1</div>").arg(reponse));
+    });
+
+    ui->lineEdit_Recherche->setPlaceholderText("🔎 Rechercher un service...");
+
+
       setUpNavigationButtons();
-    // Connexion des boutons pour changer d'onglet
+    connect(openAIClient, &OpenAIClient::descriptionGeneree, this, &MainWindow::afficherDescription);
+
     connect(ui->liste, &QPushButton::clicked, this, [=]() {
         ui->tabWidget->setCurrentIndex(0);
         qDebug() << "Passage à l'onglet Ajout";
+
     });
 
     connect(ui->form, &QPushButton::clicked, this, [=]() {
@@ -75,11 +105,136 @@ MainWindow::MainWindow(QWidget *parent)
         ui->tabWidget->setCurrentIndex(2);
         qDebug() << "Passage à l'onglet Statistiques";
     });
+    connect(ui->chat, &QPushButton::clicked, this, [=]() {
+        ui->tabWidget->setCurrentIndex(4);
+        qDebug() << "Passage à l'onglet Statistiques";
+        ui->textBrowserReponse->clear();
+    });
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+
+void MainWindow::afficherDescription(const QString &description) {
+
+    QTimer *timer = new QTimer(this);
+    int *index = new int(0); // Stocke la position actuelle du texte
+
+    connect(timer, &QTimer::timeout, this, [=]() mutable {
+        if (*index < description.length()) {
+            ui->textEdit_Description_2->insertPlainText(QString(description[*index]));
+            (*index)++;
+        } else {
+            timer->stop();
+            delete index;
+            timer->deleteLater();
+        }
+    });
+
+    timer->start(20);  // Vitesse d'affichage (50 ms par caractère)
+}
+
+void MainWindow::genererDescriptionIA() {
+    QString nom = ui->lineEdit_Nom_2->text().trimmed();
+    QString statut = ui->comboBox_Statut_2->currentText();
+    QString frequence = ui->comboBox_Frequence_2->currentText();
+    QString dateDebut = ui->dateEdit_Debut_2->date().toString("dd/MM/yyyy");
+    QString dateFin = ui->dateEdit_Fin_2->date().toString("dd/MM/yyyy");
+    QString espace = ui->lineEdit_id->text().trimmed(); // Nom de l'espace associé
+    QString cout = ui->lineEdit_Cout_2->text().trimmed();
+
+    // Vérification des champs obligatoires
+    if (nom.isEmpty()) {
+        QMessageBox::warning(this, "Erreur", "Veuillez entrer un nom de service.");
+        return;
+    }
+    if (espace.isEmpty()) {
+        QMessageBox::warning(this, "Erreur", "Veuillez entrer le nom de l'espace associé.");
+        return;
+    }
+
+    QString prompt = QString(
+                         "Génère une description  pour un service nommé '%1'. "
+                         "Ce service a le statut '%2', se répète avec la fréquence '%3', "
+                         "est prévu du %4 au %5, coûte %6 euros et est associé à l'espace '%7'."
+                         ).arg(nom).arg(statut).arg(frequence).arg(dateDebut).arg(dateFin).arg(cout).arg(espace);
+
+    openAIClient->envoyerRequeteDescription(prompt);
+}
+
+
+void MainWindow::envoyerRequete()
+{
+    QString question = ui->requete->toPlainText().trimmed(); // Prendre la question et enlever les espaces inutiles
+    if (question.isEmpty()) {
+        QMessageBox::warning(this, "Erreur", "Veuillez entrer une requête.");
+        return;
+    }
+
+    QMessageBox::information(this, "Information", "Envoi de la requête à OpenAI...");
+
+    openAIClient = new OpenAIClient();
+
+    // Connexion au signal pour obtenir la requête SQL générée
+    connect(openAIClient, &OpenAIClient::requeteSQLPr, this, &MainWindow::executerRequeteSQL);
+
+    // Envoyer la requête à OpenAI
+    openAIClient->envoyerRequete(question);
+}
+
+void MainWindow::executerRequeteSQL(const QString &sqlQuery)
+{
+    if (sqlQuery.isEmpty()) {
+        QMessageBox::critical(this, "Erreur", "La requête SQL générée est vide !");
+        return;
+    }
+
+
+    QSqlQuery query;
+    if (!query.exec(sqlQuery)) {
+        QMessageBox::critical(this, "Erreur SQL", "L'exécution de la requête SQL a échoué.\n" + query.lastError().text());
+        return;
+    }
+
+    // Mettre à jour la table avec les résultats
+    QSqlQueryModel *model = new QSqlQueryModel();
+    model->setQuery(query);
+    if (model->lastError().isValid()) {
+        QMessageBox::critical(this, "Erreur", "Erreur lors du chargement des données : " + model->lastError().text());
+        delete model;
+        return;
+    }
+
+    ui->tableView->setModel(model);
+    qDebug() << "Résultats affichés avec succès.";
+
+    // Appliquer un style visuel
+    ui->tableView->setStyleSheet(
+        "QTableView {"
+        "   background-color: #f5f5f5;"
+        "   border: 1px solid #ccc;"
+        "   gridline-color: #ccc;"
+        "   selection-background-color: #A3C1DA;"
+        "   selection-color: white;"
+        "   font: bold 12px;"
+        "}"
+        "QTableView::item {"
+        "   padding: 10px;"
+        "   border-bottom: 1px solid #ddd;"
+        "}"
+        "QTableView::item:selected {"
+        "   background-color: #6fa3ef;"
+        "}"
+        "QHeaderView::section {"
+        "   background-color: #2e3d4e;"
+        "   color: white;"
+        "   padding: 5px;"
+        "   border: 1px solid #aaa;"
+        "}"
+        );
 }
 
 void MainWindow::on_ajouter_2_clicked()
@@ -108,17 +263,29 @@ void MainWindow::on_ajouter_2_clicked()
         return;
     }
 
-    // Vérifier la longueur de la description
-    if (description.length() > 255) {
-        QMessageBox::warning(this, "Erreur", "La description est trop longue (max 255 caractères) !");
+
+
+    // Vérifier et convertir le coût
+    bool okCout;
+    double cout = coutStr.toDouble(&okCout);
+
+    // Conversion de l'ID en utilisant une variable bool distincte
+    QString idText = ui->lineEdit_id->text().trimmed();
+    idText.remove(QChar(0x200E)); // Supprimer le caractère parasite
+    idText.remove(QChar(0x200F)); // Supprimer d'autres caractères invisibles
+
+    bool okId;
+    int id_espace = idText.toInt(&okId);
+
+    qDebug() << "ID Entré après nettoyage :" << idText;
+    qDebug() << "Conversion réussie ?" << okId << ", ID obtenu :" << id_espace;
+
+    if (!okId || id_espace <= 0) {
+        QMessageBox::warning(this, "Erreur", "L'ID de l'espace doit être un entier valide et positif !");
         return;
     }
 
-    // Vérifier et convertir le coût
-    bool ok;
-    double cout = coutStr.toDouble(&ok);
-
-    if (!ok || cout <= 0) {
+    if (!okCout || cout <= 0) {
         QMessageBox::warning(this, "Erreur", "Le coût doit être un nombre valide et positif !");
         return;
     }
@@ -130,7 +297,7 @@ void MainWindow::on_ajouter_2_clicked()
     }
 
     // Création du service et tentative d'ajout
-    Service s(nom, description, cout, frequence, statut, dateDebut.toString("dd-MM-yyyy"), dateFin.toString("dd-MM-yyyy"), 1);
+    Service s(nom, description, cout, frequence, statut, dateDebut.toString("dd-MM-yyyy"), dateFin.toString("dd-MM-yyyy"), id_espace);
 
     if (s.ajouter()) {
         QMessageBox::information(this, "Succès", "Service ajouté avec succès !");
@@ -143,6 +310,7 @@ void MainWindow::on_ajouter_2_clicked()
         ui->comboBox_Frequence_2->setCurrentIndex(0);
         ui->dateEdit_Debut_2->setDate(QDate::currentDate());
         ui->dateEdit_Fin_2->setDate(QDate::currentDate());
+        ui->lineEdit_id->clear();
 
     } else {
         QMessageBox::critical(this, "Erreur", "Échec de l'ajout du service !");
@@ -184,28 +352,10 @@ void MainWindow::afficherServices() {
         qDebug() << "Erreur lors du chargement des services.";
     }
 }
-void MainWindow::supprimerService(int idService)
-{
-    // Créer une requête SQL pour supprimer un service
-    QSqlQuery query;
-    query.prepare("DELETE FROM SERVICE WHERE id = :id");
-    query.bindValue(":id", idService);  // Remplacer ":id" par l'ID du service
 
-    // Exécuter la requête
-    if (query.exec()) {
-        // Si la suppression réussit, afficher un message
-        QMessageBox::information(this, "Succès", "Le service a été supprimé avec succès.");
-
-        // Rafraîchir la liste des services pour refléter la suppression
-        afficherServices();
-    } else {
-        // Si la suppression échoue, afficher un message d'erreur
-        QMessageBox::critical(this, "Erreur", "Échec de la suppression : " + query.lastError().text());
-    }
-}
 
 void MainWindow::on_deleteButton_clicked()
-{
+{   Service service;
     // Récupérer l'ID du service sélectionné dans la QTableView
     QItemSelectionModel *select = ui->tableView->selectionModel();
     QModelIndexList selectedRows = select->selectedRows();
@@ -218,91 +368,146 @@ void MainWindow::on_deleteButton_clicked()
     // Récupérer l'ID du service depuis la première colonne de la ligne sélectionnée
     int idService = selectedRows.first().data().toInt();  // Exemple avec la première colonne qui contient l'ID
 
-    // Appeler la fonction pour supprimer le service
-    supprimerService(idService);
+
+    if( service.supprimer(idService))
+    { QMessageBox::information(this, "Succès", "Le service est supprimé");
+    afficherServices();}
+
 }
-
-void MainWindow::on_modifyButton_clicked()
-{
-    QItemSelectionModel *select = ui->tableView->selectionModel();
-    QModelIndexList selectedRows = select->selectedRows();
-
-    if (selectedRows.isEmpty()) {
-        QMessageBox::warning(this, "Erreur", "Veuillez sélectionner un service à modifier.");
-        return;
-    }
-
-    // Vérifier que l'ID est valide
-    int idService = selectedRows.first().data().toInt();
-    if (idService <= 0) {
-        QMessageBox::warning(this, "Erreur", "ID invalide pour le service.");
-        return;
-    }
-
-    // Ouvrir la fenêtre de modification en passant l'ID du service
-    ModifierServiceDialog dialog(idService, this);
-    dialog.exec();  // Cette fonction bloquera l'exécution jusqu'à la fermeture de la fenêtre
-}
-
 
 
 
 void MainWindow::on_pdf_clicked()
 {
-    QString filePath = QFileDialog::getSaveFileName(this, "Enregistrer le PDF", "", "PDF Files (*.pdf)");
-    if (filePath.isEmpty()) return;
-
-    QPdfWriter pdfWriter(filePath);
-    pdfWriter.setPageSize(QPageSize::A4);
-    pdfWriter.setResolution(300);
-    QPainter painter(&pdfWriter);
-    painter.setFont(QFont("Arial", 10));
-
-    int pageWidth = pdfWriter.width();
-    int startX = 50;
-    int startY = 80;
-    int rowHeight = 40;  // Hauteur des lignes ajustée
-    int colWidths[] = {50, 100, 200, 80, 80, 100, 80}; // Largeur des colonnes ajustée
-
-    QSqlQuery query("SELECT * FROM SERVICE");
-    QSqlRecord record = query.record();
-    int columnCount = record.count();
-
-    // Titre du document
-    painter.setFont(QFont("Arial", 16, QFont::Bold));
-    painter.drawText(startX, startY - 30, "Liste des Services");
-
-    // Dessiner l'en-tête du tableau
-    painter.setBrush(Qt::lightGray);
-    painter.setPen(Qt::black);
-    int colStartX = startX;
-
-    for (int i = 0; i < columnCount; i++) {
-        painter.drawRect(colStartX, startY, colWidths[i], rowHeight);
-        painter.drawText(colStartX + 5, startY + 25, record.fieldName(i));
-        colStartX += colWidths[i];
+    QString filePath = QFileDialog::getSaveFileName(this, "Exporter en PDF", "", "PDF Files (*.pdf)");
+    if (filePath.isEmpty()) {
+        return;
     }
 
-    startY += rowHeight;
-    painter.setFont(QFont("Arial", 10));
-    painter.setBrush(Qt::NoBrush);
+    QPdfWriter pdfWriter(filePath);
+    pdfWriter.setPageSize(QPageSize(QPageSize::A4));
+    pdfWriter.setResolution(300);
+    pdfWriter.setTitle("Liste des eservices");
 
-    // Dessiner les lignes du tableau
-    while (query.next()) {
-        colStartX = startX;
-        for (int i = 0; i < columnCount; i++) {
-            QString data = query.value(i).toString();
-            QRect rect(colStartX, startY, colWidths[i], rowHeight);
-            painter.drawRect(rect);
-            painter.drawText(rect.adjusted(5, 5, -5, -5), Qt::AlignLeft | Qt::TextWordWrap, data);
-            colStartX += colWidths[i];
+    QPainter painter(&pdfWriter);
+
+    // ✅ Marges ajustées pour un meilleur espacement
+    int marginLeft = 80;
+    int marginTop = 100;
+    int x = marginLeft;
+    int y = marginTop;
+
+    // ✅ Titre du document
+    QString title = "Liste des servicess";
+    QRect rectTitle(marginLeft, y, pdfWriter.width() - (marginLeft * 2), 80);
+    painter.setFont(QFont("Helvetica", 18, QFont::Bold));
+    painter.setPen(Qt::darkBlue);
+    painter.drawText(rectTitle, Qt::AlignCenter, title);
+    y += 90;
+
+    // ✅ Dimensions des lignes et colonnes
+    int rowHeight = 40;
+    int maxColsPerPage = 7;
+
+    int colCount = ui->tableView->model()->columnCount();
+
+    // ✅ Exclure la colonne contenant l'image de profil (pdp)
+    int photoIndex = -1;
+    for (int i = 0; i < colCount; ++i) {
+        if (ui->tableView->model()->headerData(i, Qt::Horizontal).toString().toLower().contains("pdp")) {
+            photoIndex = i;
+            break;
         }
-        startY += rowHeight;
+    }
+
+    int adjustedColCount = (photoIndex != -1) ? colCount - 1 : colCount;
+    int colsToShow = qMin(maxColsPerPage, adjustedColCount);
+
+    // ✅ Largeur ajustée des colonnes pour éviter les chevauchements
+    int colWidth = (pdfWriter.width() - (2 * marginLeft) - (colsToShow * 5)) / colsToShow;
+
+    // ✅ Dessiner les en-têtes du tableau
+    painter.setFont(QFont("Helvetica", 12, QFont::Bold));
+    painter.setPen(Qt::black);
+    painter.setBrush(QColor(200, 200, 200)); // Fond gris clair pour différencier
+
+    for (int i = 0, j = 0; i < colCount; ++i) {
+        if (i == photoIndex) continue;
+        if (j >= colsToShow) break;
+
+        painter.drawRect(x, y, colWidth, rowHeight);
+        painter.drawText(QRect(x + 5, y, colWidth - 10, rowHeight), Qt::AlignCenter,
+                         ui->tableView->model()->headerData(i, Qt::Horizontal).toString());
+        x += colWidth + 5;
+        j++;
+    }
+
+    y += rowHeight + 5;
+    x = marginLeft;
+
+    // ✅ Remplissage des données
+    painter.setFont(QFont("Helvetica", 10));
+    int rowCount = ui->tableView->model()->rowCount();
+
+    for (int row = 0; row < rowCount; ++row) {
+        QColor rowColor = (row % 2 == 0) ? QColor(245, 245, 245) : QColor(255, 255, 255);
+        painter.setBrush(rowColor);
+
+        for (int col = 0, j = 0; col < colCount; ++col) {
+            if (col == photoIndex) continue;
+            if (j >= colsToShow) break;
+
+            painter.setPen(QColor(120, 120, 120)); // Bordures plus discrètes
+            painter.drawRect(x, y, colWidth, rowHeight);
+
+            QString data = ui->tableView->model()->data(ui->tableView->model()->index(row, col)).toString();
+
+            // ✅ Tronquer proprement le texte long avec "..."
+            data = data.left(colWidth / 10) + (data.length() > colWidth / 10 ? "..." : "");
+
+            // ✅ Alignement du texte en fonction du type de données
+            Qt::Alignment alignment = (data.toDouble() || data.toInt())
+                                          ? Qt::AlignRight | Qt::AlignVCenter
+                                          : Qt::AlignLeft | Qt::AlignVCenter;
+
+            painter.drawText(QRect(x + 5, y, colWidth - 10, rowHeight), alignment, data);
+            x += colWidth + 5;
+            j++;
+        }
+
+        x = marginLeft;
+        y += rowHeight + 2;
+
+        // ✅ Gérer le saut de page et répéter l’en-tête
+        if (y > pdfWriter.height() - marginTop - 50) {
+            pdfWriter.newPage();
+            y = marginTop;
+
+            // ✅ Répétition de l'en-tête après le saut de page
+            painter.setFont(QFont("Helvetica", 12, QFont::Bold));
+            painter.setPen(Qt::black);
+            painter.setBrush(QColor(200, 200, 200));
+
+            x = marginLeft;
+            for (int i = 0, j = 0; i < colCount; ++i) {
+                if (i == photoIndex) continue;
+                if (j >= colsToShow) break;
+
+                painter.drawRect(x, y, colWidth, rowHeight);
+                painter.drawText(QRect(x + 5, y, colWidth - 10, rowHeight),
+                                 Qt::AlignCenter, ui->tableView->model()->headerData(i, Qt::Horizontal).toString());
+                x += colWidth + 5;
+                j++;
+            }
+
+            y += rowHeight + 5;
+            x = marginLeft;
+        }
     }
 
     painter.end();
-    QMessageBox::information(this, "Succès", "Le fichier PDF a été généré avec succès !");
 
+    QMessageBox::information(this, "Succès", "Le fichier PDF a été généré avec succès !");
 }
 
 void MainWindow::afficherStatistiques() {
@@ -317,27 +522,42 @@ void MainWindow::afficherStatistiques() {
     std::vector<double> couts;
     std::vector<QString> noms;
 
-    // Récupérer les résultats de la requête et les ajouter aux vecteurs
     while (query.next()) {
-        QString nom = query.value(0).toString();  // Nom du service
-        double cout = query.value(1).toDouble();  // Le coût du service
+        QString nom = query.value(0).toString();
+        double cout = query.value(1).toDouble();
         noms.push_back(nom);
         couts.push_back(cout);
     }
 
-    // Créer un graphique circulaire (Pie Chart)
-    QPieSeries *pieSeries = new QPieSeries();
-    for (int i = 0; i < couts.size(); ++i) {
-        pieSeries->append(noms[i], couts[i]);  // Ajouter le service et son coût
+    if (noms.empty()) {
+        QMessageBox::warning(this, "Aucune donnée", "Aucun service trouvé pour les statistiques.");
+        return;
     }
+
+    // ** Création du graphique circulaire **
+    QPieSeries *pieSeries = new QPieSeries();
+    for (int i = 0; i < noms.size(); ++i) {
+        QPieSlice *slice = pieSeries->append(noms[i], couts[i]);
+        slice->setLabel(QString("%1\n%2 €").arg(noms[i]).arg(couts[i]));  // Ajout du label
+        slice->setLabelVisible(true);
+        slice->setExploded(true); // Effet d'explosion pour une meilleure visibilité
+        slice->setPen(QPen(Qt::black));
+    }
+
     QChart *pieChart = new QChart();
     pieChart->addSeries(pieSeries);
-    pieChart->setTitle("Statistiques des Coûts - Circulaire");
+    pieChart->setTitle("Répartition des Coûts par Service");
+    pieChart->legend()->setAlignment(Qt::AlignRight);
+    pieChart->setAnimationOptions(QChart::SeriesAnimations);
 
-    // Créer un graphique à barres verticales (Bar Chart)
-    QBarSet *set = new QBarSet("Coût");
+    QChartView *pieChartView = new QChartView(pieChart);
+    pieChartView->setRenderHint(QPainter::Antialiasing);
+    pieChartView->setFixedSize(600, 500);
+
+    // ** Création du graphique à barres **
+    QBarSet *set = new QBarSet("Coût (€)");
     for (double cout : couts) {
-        *set << cout;  // Ajouter les coûts au bar set
+        *set << cout;
     }
 
     QBarSeries *barSeries = new QBarSeries();
@@ -345,46 +565,42 @@ void MainWindow::afficherStatistiques() {
 
     QChart *barChart = new QChart();
     barChart->addSeries(barSeries);
-    barChart->setTitle("Statistiques des Coûts - Barres");
+    barChart->setTitle("Coûts des Services");
+    barChart->setAnimationOptions(QChart::SeriesAnimations); // ✅ Animation activée
 
-    // Configuration des axes pour le graphique à barres verticales
-    QValueAxis *axisX = new QValueAxis();
-    axisX->setTitleText("Coût");
-    axisX->setLabelFormat("%d");
-    barChart->addAxis(axisX, Qt::AlignBottom);  // L'axe des X (coût)
-
-    QBarCategoryAxis *axisY = new QBarCategoryAxis();
-    QStringList nomsList;
-    for (const QString& nom : noms) {
-        nomsList.append(nom);
-    }
-    axisY->append(nomsList);  // Ajouter les noms des services à l'axe Y
-    axisY->setTitleText("Services");
-    barChart->addAxis(axisY, Qt::AlignLeft);  // L'axe des Y (services)
-
-    barSeries->attachAxis(axisX);
+    QValueAxis *axisY = new QValueAxis();
+    axisY->setTitleText("Coût (€)");
+    axisY->setLabelFormat("%.2f");
+    barChart->addAxis(axisY, Qt::AlignLeft);
     barSeries->attachAxis(axisY);
 
-    // Créer un QChartView pour afficher les graphiques
-    QChartView *pieChartView = new QChartView(pieChart);
-    pieChartView->setRenderHint(QPainter::Antialiasing);
+    QBarCategoryAxis *axisX = new QBarCategoryAxis();
+   // axisX->append(QStringList::fromVector(QVector<QString>::fromStdVector(noms)));
+    axisX->setTitleText("Services");
+    barChart->addAxis(axisX, Qt::AlignBottom);
+    barSeries->attachAxis(axisX);
 
     QChartView *barChartView = new QChartView(barChart);
     barChartView->setRenderHint(QPainter::Antialiasing);
+    barChartView->setFixedSize(600, 500);
 
-    // Fixer une taille pour les graphiques (par exemple, 400x300)
-    pieChartView->setFixedSize(600, 550);  // Taille du graphique circulaire
-    barChartView->setFixedSize(600, 550);  // Taille du graphique à barres
+    // ** Mise à jour de l'affichage dans l'onglet des statistiques **
+    QWidget *statistiquesTab = ui->tabWidget->widget(2);
 
-    // Ajouter les graphiques côte à côte dans un layout horizontal
-    QWidget *statistiquesTab = ui->tabWidget->widget(2);  // Accéder à l'onglet des statistiques
-    QHBoxLayout *layout = new QHBoxLayout(statistiquesTab);  // Utiliser QHBoxLayout pour l'affichage horizontal
+    // Supprimer l'ancien layout s'il existe
+    if (statistiquesTab->layout()) {
+        QLayoutItem *item;
+        while ((item = statistiquesTab->layout()->takeAt(0)) != nullptr) {
+            delete item->widget();
+            delete item;
+        }
+        delete statistiquesTab->layout();
+    }
 
-    // Ajouter les graphiques (circulaire et à barres) au layout
+    // Ajouter les graphiques dans un layout horizontal
+    QHBoxLayout *layout = new QHBoxLayout(statistiquesTab);
     layout->addWidget(pieChartView);
     layout->addWidget(barChartView);
-
-    // Rafraîchir l'onglet des statistiques
     statistiquesTab->setLayout(layout);
 }
 
@@ -412,7 +628,7 @@ void MainWindow::changerCouleurBouton() {
     if (!button) return;
 
     // Liste de tous les boutons
-    QList<QPushButton*> boutons = {ui->stat, ui->form, ui->liste, ui->save_stat}; // Ajoute tous tes boutons ici
+    QList<QPushButton*> boutons = {ui->stat, ui->form, ui->liste, ui->save_stat, ui->chat}; // Ajoute tous tes boutons ici
 
     // Réinitialiser le style de tous les boutons
     for (QPushButton* btn : boutons) {
@@ -468,7 +684,7 @@ void MainWindow::setUpNavigationButtons()
         hoverButton->setStyleSheet("QPushButton {"
                                    "background-color: rgb(227, 241, 244);"
                                    "border: 2px solid black;"
-                                   "border-radius: 50px;"
+                                   "border-radius: 30px;"
                                    "qproperty-iconSize: 52px 52px;"
                                    "}");
 
@@ -489,7 +705,7 @@ void MainWindow::onEnterNavigationButton()
     QPushButton* button = qobject_cast<QPushButton*>(sender());
     if (button) {
         QPoint currentPos = button->pos();
-        QPoint maxPos = currentPos + QPoint(70, 0); // Limite max
+        QPoint maxPos = currentPos + QPoint(50, 0); // Limite max
 
         // Vérifier que le bouton ne dépasse pas la limite
         if (button->x() < maxPos.x()) {
@@ -508,7 +724,7 @@ void MainWindow::onLeaveNavigationButton()
     QPushButton* button = qobject_cast<QPushButton*>(sender());
     if (button) {
         QPoint currentPos = button->pos();
-        QPoint minPos = currentPos - QPoint(70, 0); // Limite min
+        QPoint minPos = currentPos - QPoint(50, 0); // Limite min
 
         // Vérifier que le bouton ne dépasse pas la limite
         if (button->x() > minPos.x()) {
@@ -519,5 +735,268 @@ void MainWindow::onLeaveNavigationButton()
             animation->setEndValue(minPos);
             animation->start();
         }
+    }
+}
+void MainWindow::on_modifyButton_clicked()
+{
+    QItemSelectionModel *select = ui->tableView->selectionModel();
+    QModelIndexList selectedRows = select->selectedRows();
+
+    if (selectedRows.isEmpty()) {
+        QMessageBox::warning(this, "Erreur", "Veuillez sélectionner un service à modifier.");
+        return;
+    }
+
+    // Vérifier que l'ID est valide
+    int idService = selectedRows.first().data().toInt();
+    if (idService <= 0) {
+        QMessageBox::warning(this, "Erreur", "ID invalide pour le service.");
+        return;
+    }
+
+    // Passer l'ID sélectionné au formulaire de modification (exemple : un QLineEdit)
+    ///ui->lineEdit_idService->setText(QString::number(idService));
+    idServiceAModifier = idService;
+
+    // Aller à l'onglet d'indice 4
+    ui->tabWidget->setCurrentIndex(3);
+    loadServiceDetails(idService);
+
+
+}
+
+void MainWindow::loadServiceDetails(int id)
+{
+    Service service;
+    if (service.loadById(id)) {  // Charger les détails du service sélectionné
+        ui->lineEdit_Nom->setText(service.getNom());
+        ui->textEdit_Description->setPlainText(service.getDescription());
+        ui->lineEdit_Cout->setText(QString::number(service.getCout()));
+        ui->comboBox_Frequence->setCurrentText(service.getFrequence());
+        ui->comboBox_Statut->setCurrentText(service.getStatut());
+        ui->dateEdit_Debut->setDate(QDate::fromString(service.getDateDebut(), "DD-MM-YY"));
+        ui->dateEdit_Fin->setDate(QDate::fromString(service.getDateFin(), "DD-MM-YY"));
+        ui->lineEdit_id_2->setText(QString::number(service.getIdEspace())); // Ajout de l'ID espace
+    } else {
+        QMessageBox::warning(this, "Erreur", "Impossible de charger les détails du service.");
+    }
+}
+
+
+
+void MainWindow::on_saveButton_clicked()
+{
+    Service service;
+    QString nom = ui->lineEdit_Nom->text().trimmed();
+    QString description = ui->textEdit_Description->toPlainText().trimmed();
+    QString statut = ui->comboBox_Statut->currentText();
+    QString frequence = ui->comboBox_Frequence->currentText();
+    QDate dateDebut = ui->dateEdit_Debut->date();
+    QDate dateFin = ui->dateEdit_Fin->date();
+
+    // Récupérer et nettoyer le champ coût
+    QString coutStr = ui->lineEdit_Cout->text().trimmed().replace(",", ".");
+    coutStr.remove(QChar(0x200E)); // Supprimer les caractères invisibles
+
+    // Récupérer et nettoyer l'ID espace
+    QString idEspaceStr = ui->lineEdit_id_2->text().trimmed();
+    idEspaceStr.remove(QChar(0x200E)); // Supprimer les caractères invisibles
+
+    // Vérifier que tous les champs obligatoires sont remplis
+    if (nom.isEmpty() || description.isEmpty() || coutStr.isEmpty() || idEspaceStr.isEmpty()) {
+        QMessageBox::warning(this, "Erreur", "Veuillez remplir tous les champs obligatoires !");
+        return;
+    }
+
+    // Vérifier la longueur du nom
+    if (nom.length() > 50) {
+        QMessageBox::warning(this, "Erreur", "Le nom ne doit pas dépasser 50 caractères !");
+        return;
+    }
+
+
+
+
+    // Vérifier et convertir le coût
+    bool ok;
+    double cout = coutStr.toDouble(&ok);
+    if (!ok || cout <= 0) {
+        QMessageBox::warning(this, "Erreur", "Le coût doit être un nombre valide et positif !");
+        return;
+    }
+
+    // Vérifier et convertir l'ID espace
+    int idEspace = idEspaceStr.toInt(&ok);
+    if (!ok || idEspace <= 0) {
+        QMessageBox::warning(this, "Erreur", "L'ID de l'espace doit être un entier valide et positif !");
+        return;
+    }
+
+    // Vérifier que la date de fin est postérieure à la date de début
+    if (dateFin < dateDebut) {
+        QMessageBox::warning(this, "Erreur", "La date de fin doit être postérieure à la date de début !");
+        return;
+    }
+
+    // Modifier le service avec l'ID espace
+    if (service.modifier(idServiceAModifier, nom, description, cout, frequence, statut,
+                         dateDebut.toString("dd-MM-yyyy"), dateFin.toString("dd-MM-yyyy"), idEspace)) {
+        QMessageBox::information(this, "Succès", "Service modifié avec succès !");
+        afficherServices();
+    } else {
+        QMessageBox::critical(this, "Erreur", "Échec de la modification du service.");
+    }
+    QString nouveauStatut = ui->comboBox_Statut->currentText(); // Supposons que c'est un QComboBox
+
+
+
+    if (nouveauStatut.toLower() == "suspendu") {
+        qDebug() << "Le service est suspendu, envoi de l'e-mail en cours...";
+
+        MailSender mail;
+        mail.sendEmail("jouiniridha200@gmail.com",
+                       "Alerte : Service Suspendu",
+                       "Le service ID " + QString::number(idServiceAModifier) + " a été suspendu.");
+
+        qDebug() << "Email envoyé ?";
+    }
+
+}
+
+void MainWindow::trierServices() {
+    // Vérifier si une colonne est sélectionnée
+    int columnIndex = ui->tableView->currentIndex().column();
+
+    if (columnIndex < 0) {
+        QMessageBox::warning(this, "Tri impossible", "Veuillez choisir une colonne à trier !");
+        return;
+    }
+
+    qDebug() << "Tri en cours sur la colonne : " << columnIndex;
+
+    // Vérifier si un proxyModel existe déjà
+    QSortFilterProxyModel *proxyModel = qobject_cast<QSortFilterProxyModel*>(ui->tableView->model());
+    if (!proxyModel) {
+        // Création du proxyModel si nécessaire
+        proxyModel = new QSortFilterProxyModel(this);
+        proxyModel->setSourceModel(ui->tableView->model()); // Assurez-vous que `serviceModel` est le modèle de la table des services
+        proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+        ui->tableView->setModel(proxyModel);
+    }
+
+    // Appliquer le tri sur la colonne sélectionnée
+    proxyModel->sort(columnIndex, Qt::AscendingOrder);
+    qDebug() << "Tri effectué sur la colonne : " << columnIndex;
+}
+
+void MainWindow::filtrerServicesParStatut(const QString &statut) {
+    // Vérifier si un proxyModel existe déjà
+    QSortFilterProxyModel *proxyModel = qobject_cast<QSortFilterProxyModel*>(ui->tableView->model());
+
+    if (!proxyModel) {
+        proxyModel = new QSortFilterProxyModel(this);
+        proxyModel->setSourceModel(ui->tableView->model());  // Remplace `ui->tableView->model()` par le vrai modèle de données
+        proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+        ui->tableView->setModel(proxyModel);
+    }
+
+    // Appliquer le filtre sur la colonne du statut (colonne 3, à adapter si nécessaire)
+    int statutColumnIndex = 3;
+
+    if (statut == "Tous") {
+        proxyModel->setFilterRegularExpression(QRegularExpression(".*", QRegularExpression::CaseInsensitiveOption));
+    } else {
+        proxyModel->setFilterRegularExpression(QRegularExpression("^" + QRegularExpression::escape(statut) + "$",
+                                                                  QRegularExpression::CaseInsensitiveOption));
+    }
+
+    proxyModel->setFilterKeyColumn(statutColumnIndex);
+}
+
+void MainWindow::rechercherService(const QString &searchText) {
+    // Vérifier si un proxyModel existe déjà
+    QSortFilterProxyModel *proxyModel = qobject_cast<QSortFilterProxyModel*>(ui->tableView->model());
+
+    if (!proxyModel) {
+        proxyModel = new QSortFilterProxyModel(this);
+        proxyModel->setSourceModel(ui->tableView->model());  // Assure-toi que `serviceModel` est le modèle principal
+        proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+        ui->tableView->setModel(proxyModel);
+    }
+
+    // Filtrer par nom ou ID (Supposons que Nom = colonne 1 et ID = colonne 0)
+    proxyModel->setFilterKeyColumn(-1);  // Permet de filtrer sur plusieurs colonnes
+    proxyModel->setFilterRegularExpression(QRegularExpression(searchText, QRegularExpression::CaseInsensitiveOption));
+}
+void MainWindow::on_lineEdit_id_textChanged(const QString &text)
+{
+    if (!QSqlDatabase::database().isOpen()) {
+        qDebug() << "Erreur : La base de données n'est pas connectée !";
+        return;
+    }
+
+    QString idStr = ui->lineEdit_id->text().trimmed().remove(QChar(0x200E)); // Nettoyage ID
+    qDebug() << "ID Saisi après nettoyage:" << idStr;
+
+    bool ok;
+    int id_espace = idStr.toInt(&ok);
+    qDebug() << "ID converti :" << id_espace << ", Conversion réussie ?" << ok;
+
+    if (!ok || id_espace <= 0) {
+        qDebug() << "ID invalide";
+        ui->nom_espace->setText("ID inexistant");
+        return;
+    }
+
+    QSqlQuery query;
+    query.prepare("SELECT nom FROM ESPACE WHERE id = :id");
+    query.bindValue(":id", id_espace);
+
+    if (!query.exec()) {
+        qDebug() << "Erreur SQL :" << query.lastError().text();
+        return;
+    }
+
+    if (query.next()) {
+        QString nomEspace = query.value(0).toString();
+        qDebug() << "Nom de l'espace récupéré :" << nomEspace;
+        ui->nom_espace->setText(nomEspace);
+    } else {
+        qDebug() << "Aucun espace trouvé pour cet ID.";
+        ui->nom_espace->setText("ID inexistant");
+    }
+}
+
+
+void MainWindow::on_lineEdit_id_textChanged2(const QString &text)
+{
+    bool ok;
+    int id_espace = text.trimmed().toInt(&ok);
+
+    qDebug() << "ID saisi :" << text;
+    qDebug() << "ID converti :" << id_espace;
+    qDebug() << "Conversion réussie ?" << ok;
+
+    if (ok && id_espace > 0) {
+        QSqlQuery query;
+        query.prepare("SELECT nom FROM ESPACE WHERE id = :id");
+        query.bindValue(":id", id_espace);
+
+        if (!query.exec()) {
+            qDebug() << "Erreur SQL :" << query.lastError().text();
+            return;
+        }
+
+        if (query.next()) {
+            QString nomEspace = query.value(0).toString();
+            qDebug() << "Nom de l'espace récupéré :" << nomEspace;
+            ui->nom_espace_2->setText(nomEspace);
+        } else {
+            qDebug() << "Aucun espace trouvé pour cet ID.";
+            ui->nom_espace_2->setText("ID inexistant");
+        }
+    } else {
+        qDebug() << "ID invalide";
+        ui->nom_espace_2->setText("ID inexistant");
     }
 }
