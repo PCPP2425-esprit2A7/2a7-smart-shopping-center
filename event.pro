@@ -1,7 +1,9 @@
 QT += core gui sql \
        pdf \
        printsupport \
-       charts
+       charts \
+       network
+
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -16,13 +18,15 @@ SOURCES += \
     dialog.cpp \
     event.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    openaiclient.cpp
 
 HEADERS += \
     connexion.h \
     dialog.h \
     event.h \
-    mainwindow.h
+    mainwindow.h \
+    openaiclient.h
 
 FORMS += \
     dialog.ui \

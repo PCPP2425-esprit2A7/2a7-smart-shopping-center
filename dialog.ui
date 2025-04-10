@@ -124,25 +124,6 @@ font: 700 8pt &quot;Arial Rounded MT&quot;;
       <string>Lieu</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="desl">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>70</y>
-       <width>241</width>
-       <height>111</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(227, 241, 244);
-border: 1px solid noir ; /* Ajoute une bordure */
-border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
-border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
-border-radius: 25px; /* Ajuste selon le degré d'arrondi souhaité */
-
-</string>
-     </property>
-    </widget>
     <widget class="QLabel" name="dd_3">
      <property name="geometry">
       <rect>
@@ -592,6 +573,24 @@ border: 1px solid noir ; /* Ajoute une bordure */</string>
      <property name="icon">
       <iconset resource="img.qrc">
        <normaloff>:/Downloads/7823496-removebg-preview.png</normaloff>:/Downloads/7823496-removebg-preview.png</iconset>
+     </property>
+    </widget>
+    <widget class="QTextEdit" name="desl">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>80</y>
+       <width>361</width>
+       <height>121</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(227, 241, 244);
+border: 1px solid noir ; /* Ajoute une bordure */
+border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
+border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
+border-radius: 25px; /* Ajuste selon le degré d'arrondi souhaité */
+</string>
      </property>
     </widget>
    </widget>

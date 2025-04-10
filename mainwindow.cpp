@@ -23,19 +23,33 @@
 #include <QChartView>
 #include <QVBoxLayout>
 #include <QFuture>
+#include <QSqlTableModel>
+
+
 
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);  // Initialisation de l'interface
+    ui->setupUi(this);
+    model = new QSqlTableModel(this);
+    model->setTable("evenements"); // Remplace "evenements" par le nom correct de ta table
+    model->select();
+    ui->tableView->setModel(model);
+    // Initialisation de l'interface
     //statModel = new QSqlQueryModel(this);
     afficherEvenement();
+
     //connect(ui->pushButton_choisirImage, &QPushButton::clicked, this, &MainWindow::on_pushButton_choisirImage_clicked);
-    connect(ui->btnRefresh, &QPushButton::clicked, this, &MainWindow::afficherEvenement);
+    connect(ui->liste, &QPushButton::clicked, this, &MainWindow::afficherEvenement);
     connect(ui->btnDialog, &QPushButton::clicked, this, &MainWindow::on_btnDialog_clicked);
     connect(ui->stat, &QPushButton::clicked, this, &MainWindow::afficherStatistiques);
+    connect(ui->btn_trierDate, &QPushButton::clicked, this, &MainWindow::on_btn_trierDate_clicked);
+    connect(ui->searchText, &QLineEdit::textChanged, this, &MainWindow::rechercherevenement);
+
+
+
 
 
 
@@ -57,6 +71,22 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->tabWidget->setCurrentIndex(2);
         qDebug() << "Passage à l'onglet Statistiques";
     });
+    connect(ui->chatbot, &QPushButton::clicked, this, [=]() {
+        ui->tabWidget->setCurrentIndex(3);
+        qDebug() << "Passage à l'onglet Statistiques";
+    });
+    openAIClient = new OpenAIClient(this);
+    connect(openAIClient, &OpenAIClient::reponseRecue, this, [](const QString &reponse) {
+        qDebug() << "Réponse du chatbot : " << reponse;
+    });
+    connect(ui->btnEnvoyer, &QPushButton::clicked, this, [=]() {
+        QString question = ui->lineEditQuestion->text();
+        openAIClient->envoyerRequete(question);
+    });
+    connect(openAIClient, &OpenAIClient::reponseRecue, this, [=](const QString &reponse) {
+        ui->textBrowserReponse->append("Chatbot : " + reponse);
+    });
+
 
     // Ajouter le style aux boutons et gérer l'effet hover
     QString buttonStyle =
@@ -92,9 +122,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_ajouter_button_clicked()
 {
+
     // Récupérer les valeurs des champs
     QString titre = ui->titrel->text();
-    QString description = ui->desl->text(); // Utiliser text() pour QLineEdit
+    //QString description = ui->deslwew->text(); // Utiliser text() pour QLineEdit
+    QString description = ui->desl->toPlainText(); // Utiliser toPlainText() pour QTextEdit
     QDate dateDebut = ui->ddl->date();
     QDate dateFin = ui->dfl->date();
     int capacite = ui->capl->text().toInt(); // Utiliser text() et convertir en entier
@@ -103,11 +135,11 @@ void MainWindow::on_ajouter_button_clicked()
     QString categorie = ui->catl->text(); // Utiliser text() pour QLineEdit
     QString type = ui->typl->text();  // Utiliser text() pour QLineEdit
     QString organisateur = ui->orgl->text();
-    QString lieu = ui->lieul->text(); // Ajout du champ lieu (assurez-vous que lieul existe dans l'UI)
+    int id_espace = ui->lieul->text().toInt(); // Ajout du champ lieu (assurez-vous que lieul existe dans l'UI)
 
     // Contrôle des champs obligatoires
     if (titre.isEmpty() || description.isEmpty() || capacite <= 0 || prix <= 0 || statut.isEmpty() ||
-        categorie.isEmpty() || type.isEmpty() || organisateur.isEmpty() || lieu.isEmpty()) {
+        categorie.isEmpty() || type.isEmpty() || organisateur.isEmpty() || id_espace < 0) {
         QMessageBox::critical(this, "Erreur", "Tous les champs doivent être remplis !");
         return; // Arrêter l'exécution de la fonction si un champ est vide
     }
@@ -131,7 +163,7 @@ void MainWindow::on_ajouter_button_clicked()
     }
 
     // Créer l’objet Evenement avec les données validées
-    Evenement ev(titre, type, capacite, prix, lieu, description, dateDebut, dateFin, categorie, statut, organisateur, QString::number(1));
+    Evenement ev(titre, type, capacite, prix, description, dateDebut, dateFin, categorie, statut, organisateur, id_espace);
 
     // Appeler la méthode ajouter()
     if (ev.ajouter()) {
@@ -260,20 +292,20 @@ QList<QList<QString>> MainWindow::getEventData() {
     QList<QList<QString>> eventData;
 
     // Récupérer toutes les colonnes sauf "AFFICHE"
-    QSqlQuery query("SELECT  TITRE, CAPACITE, PRIX, DESCRIPTION, DATE_DEB, DATE_FIN, STATUT, ORGANISATEUR,  LIEU FROM EVENEMENT");
+    QSqlQuery query("SELECT  TITRE, CAPACITE, PRIX, DESCRIPTION, DATE_DEB, DATE_FIN, STATUT, ORGANISATEUR,  ID_ESPACE FROM EVENEMENT");
 
     while (query.next()) {
         QList<QString> rowData;
         rowData
-                << query.value("TITRE").toString()
-                << query.value("CAPACITE").toString()
-                << query.value("PRIX").toString()
-                << query.value("DESCRIPTION").toString()
-                << query.value("DATE_DEB").toString()
-                << query.value("DATE_FIN").toString()
-                << query.value("STATUT").toString()
-                << query.value("ORGANISATEUR").toString()
-                << query.value("LIEU").toString();
+            << query.value("TITRE").toString()
+            << query.value("CAPACITE").toString()
+            << query.value("PRIX").toString()
+            << query.value("DESCRIPTION").toString()
+            << query.value("DATE_DEB").toString()
+            << query.value("DATE_FIN").toString()
+            << query.value("STATUT").toString()
+            << query.value("ORGANISATEUR").toString()
+            << query.value("ID_ESPACE").toString();
         eventData.append(rowData);
     }
     // Vérification des données récupérées
@@ -333,7 +365,7 @@ void MainWindow::on_pdf_clicked()
     painter.setPen(Qt::black);
     painter.setBrush(QColor(230, 230, 230));
 
-    QStringList headers = { "Titre", "Capacité", "Prix", "Description", "Date Début", "Date Fin",  "Statut", "Organisateur", "Lieu"};
+    QStringList headers = { "Titre", "Capacité", "Prix", "Description", "Date Début", "Date Fin",  "Statut", "Organisateur", "id_espace"};
 
     for (int i = 0; i < colsToShow; ++i) {
         painter.drawRect(x, y, colWidth, rowHeight);
@@ -492,4 +524,142 @@ void MainWindow::afficherStatistiques() {
     layout->addWidget(barChartView);
 
     statistiquesTab->setLayout(layout);
+}
+
+void MainWindow::on_historique_clicked()
+{
+    QString filePath = QFileDialog::getSaveFileName(this, "Exporter l'historique en PDF", "", "PDF Files (*.pdf)");
+    if (filePath.isEmpty()) {
+        return;
+    }
+
+    QPdfWriter pdfWriter(filePath);
+    pdfWriter.setPageSize(QPageSize(QPageSize::A4));
+    pdfWriter.setPageOrientation(QPageLayout::Portrait);
+    pdfWriter.setResolution(300);
+    pdfWriter.setTitle("Historique des événements");
+
+    QPainter painter(&pdfWriter);
+
+    QList<QList<QString>> eventData = getEventData(); // Récupérer les données des événements
+    QList<QList<QString>> filteredData;
+
+    for (const auto &row : eventData) {
+        if (row.size() >= 7 && row[6] == "terminé") { // Vérifier que l'événement est terminé
+            filteredData.append({row[0], row[6]}); // Ajouter seulement le titre et le statut
+        }
+    }
+
+    if (filteredData.isEmpty()) {
+        QMessageBox::warning(this, "Erreur", "Aucun événement terminé à exporter.");
+        return;
+    }
+
+    int marginLeft = 100;
+    int marginTop = 120;
+    int x = marginLeft;
+    int y = marginTop;
+
+    // Dessiner le titre du PDF
+    QString title = "Historique des événements";
+    QRect rectTitle(marginLeft, y, pdfWriter.width() - (marginLeft * 2), 50);
+    painter.setFont(QFont("Helvetica", 14, QFont::Bold));
+    painter.setPen(Qt::darkBlue);
+    painter.drawText(rectTitle, Qt::AlignCenter, title);
+    y += 80;
+
+    int rowHeight = 50;
+    int colWidth = (pdfWriter.width() - (2 * marginLeft)) / 2;
+
+    // Dessiner l'en-tête
+    painter.setFont(QFont("Helvetica", 10, QFont::Bold));
+    painter.setPen(Qt::black);
+    painter.setBrush(QColor(230, 230, 230));
+
+    QStringList headers = {"Titre", "Statut"};
+    for (int i = 0; i < 2; ++i) {
+        painter.drawRect(x, y, colWidth, rowHeight);
+        painter.drawText(QRect(x + 2, y, colWidth - 4, rowHeight), Qt::AlignCenter, headers[i]);
+        x += colWidth;
+    }
+
+    y += rowHeight + 5;
+    x = marginLeft;
+
+    // Dessiner les données
+    painter.setFont(QFont("Helvetica", 9));
+    painter.setPen(Qt::black);
+
+    for (const auto &row : filteredData) {
+        painter.setBrush(Qt::white);
+        for (int i = 0; i < 2; ++i) {
+            painter.drawRect(x, y, colWidth, rowHeight);
+            painter.drawText(QRect(x + 2, y, colWidth - 4, rowHeight), Qt::AlignLeft | Qt::AlignVCenter, row[i]);
+            x += colWidth;
+        }
+        x = marginLeft;
+        y += rowHeight;
+    }
+
+    painter.end();
+    QMessageBox::information(this, "Succès", "Le fichier PDF a été généré avec succès !");
+}
+
+
+void MainWindow::on_btn_trierDate_clicked() {
+    // Récupérer l'index de la colonne sélectionnée
+    int columnIndex = ui->tableView->currentIndex().column();
+
+    // Vérifier si aucune colonne n'est sélectionnée
+    if (columnIndex < 0) {
+        QMessageBox::warning(this, "Tri impossible", "Veuillez choisir une colonne à trier !");
+        return; // Arrêter la fonction si aucune colonne n'est sélectionnée
+    }
+
+    qDebug() << "Tri en cours sur la colonne : " << columnIndex;
+
+    // Vérifier si un proxyModel existe déjà
+    QSortFilterProxyModel *proxyModel = qobject_cast<QSortFilterProxyModel *>(ui->tableView->model());
+    if (!proxyModel) {
+        // Si aucun proxyModel n'existe, on en crée un
+        proxyModel = new QSortFilterProxyModel(this);
+        proxyModel->setSourceModel(ui->tableView->model());
+        proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+        ui->tableView->setModel(proxyModel); // Appliquer le proxyModel à tableView
+    }
+
+    // Appliquer le tri sur la colonne sélectionnée (par exemple, tri croissant)
+    proxyModel->sort(columnIndex, Qt::AscendingOrder);
+    qDebug() << "Tri effectué sur la colonne : " << columnIndex;
+
+    // Afficher un message de confirmation
+    QMessageBox::information(this, "Tri effectué", "Les événements ont été triés !");
+}
+
+
+void MainWindow::rechercherevenement() {
+    QString searchText = ui->searchText->text().trimmed(); // Récupérer le texte de la QLineEdit
+
+    // Vérifier si un proxyModel existe déjà
+    QSortFilterProxyModel *proxyModel = qobject_cast<QSortFilterProxyModel*>(ui->tableView->model());
+
+    if (!proxyModel) {
+        proxyModel = new QSortFilterProxyModel(this);
+        proxyModel->setSourceModel(ui->tableView->model());  // Assure-toi que serviceModel est le modèle principal
+        proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+        proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+        proxyModel->setFilterRole(Qt::DisplayRole);
+        ui->tableView->setModel(proxyModel);
+    }
+
+    // Obtenir les index des colonnes visibles ID et Titre
+    int colId = ui->tableView->horizontalHeader()->logicalIndex(0);
+    int colTitre = ui->tableView->horizontalHeader()->logicalIndex(1);
+
+    // Appliquer le filtre sur plusieurs colonnes
+    proxyModel->setFilterKeyColumn(-1);  // Active la recherche sur toutes les colonnes
+
+    // Utiliser une expression régulière pour filtrer l'ID et le Titre
+    QRegularExpression regex(searchText, QRegularExpression::CaseInsensitiveOption);
+    proxyModel->setFilterRegularExpression(regex);
 }

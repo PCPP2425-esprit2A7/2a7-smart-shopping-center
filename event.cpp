@@ -10,22 +10,21 @@ bool Evenement::ajouter()
     QSqlQuery query;
 
     // Préparation de la requête SQL avec l'ajout de LIEU
-    query.prepare("INSERT INTO evenement (TITRE, DESCRIPTION, DATE_DEB, DATE_FIN, ID_ESPACE, CAPACITE, STATUT, CATEGORIE, TYPE, PRIX, ORGANISATEUR, LIEU) "
-                  "VALUES (:titre, :description, :date_debut, :date_fin, :id_espace, :capacite, :statut, :categorie, :type, :prix, :organisateur, :lieu)");
+    query.prepare("INSERT INTO evenement (TITRE, DESCRIPTION, DATE_DEB, DATE_FIN, CAPACITE, STATUT, CATEGORIE, TYPE, PRIX, ORGANISATEUR, ID_ESPACE) "
+                  "VALUES (:titre, :description, :date_debut, :date_fin, :capacite, :statut, :categorie, :type, :prix, :organisateur, :id_espace)");
 
     // Binding des valeurs aux paramètres
     query.bindValue(":titre", titre);
     query.bindValue(":description", description);
     query.bindValue(":date_debut", date_debut);
     query.bindValue(":date_fin", date_fin);
-    query.bindValue(":id_espace", 1);  // lieu sous forme d'ID (ex: espace dans le mall)
     query.bindValue(":capacite", capacite);
     query.bindValue(":statut", statut);
     query.bindValue(":categorie", categorie);
     query.bindValue(":type", type);
     query.bindValue(":prix", prix);
     query.bindValue(":organisateur", organisateur);
-    query.bindValue(":lieu", lieu); // Ajout du champ lieu
+    query.bindValue(":id_espace", id_espace); // Ajout du champ lieu
 
     // Exécution de la requête
     if (query.exec()) {
@@ -65,7 +64,7 @@ bool Evenement::loadById(int id)
     qDebug() << "Chargement de l'événement avec ID :" << id;
 
     QSqlQuery query;
-    query.prepare("SELECT TITRE, TYPE, CAPACITE, PRIX, DESCRIPTION, DATE_DEB, DATE_FIN, CATEGORIE, STATUT, ORGANISATEUR, LIEU "
+    query.prepare("SELECT TITRE, TYPE, CAPACITE, PRIX, DESCRIPTION, DATE_DEB, DATE_FIN, CATEGORIE, STATUT, ORGANISATEUR, ID_ESPACE "
                   "FROM YOUSSEF.EVENEMENT WHERE ID = :id");
     query.bindValue(":id", id);
 
@@ -86,7 +85,7 @@ bool Evenement::loadById(int id)
         setCategorie(query.value("CATEGORIE").toString());
         setStatut(query.value("STATUT").toString());
         setOrganisateur(query.value("ORGANISATEUR").toString());
-        setLieu(query.value("LIEU").toString()); // Ajout du champ lieu
+        setid_espace(query.value("ID_ESPACE").toInt()); // Ajout du champ lieu
 
         qDebug() << "Événement chargé avec succès !";
         return true;
@@ -99,7 +98,7 @@ bool Evenement::loadById(int id)
 bool Evenement::modifier(int id, const QString &titre, const QString &type, int capacite, double prix,
                          const QString &description, const QString &dateDebut,
                          const QString &dateFin, const QString &categorie, const QString &statut,
-                         const QString &organisateur, const QString &lieu) // Ajout de lieu en paramètre
+                         const QString &organisateur, const int &id_espace) // Ajout de lieu en paramètre
 {
     QSqlQuery query;
 
@@ -110,12 +109,13 @@ bool Evenement::modifier(int id, const QString &titre, const QString &type, int 
                   "\"CAPACITE\" = :capacite, "
                   "\"PRIX\" = :prix, "
                   "\"DESCRIPTION\" = :description, "
-                  "\"DATE_DEB\" = TO_DATE(:dateDebut, 'DD-MM-YY'), "
-                  "\"DATE_FIN\" = TO_DATE(:dateFin, 'DD-MM-YY'), "
+                  "\"DATE_DEB\" = TO_DATE(:dateDebut, 'YYYY-MM-DD'), "
+                  "\"DATE_FIN\" = TO_DATE(:dateFin, 'YYYY-MM-DD'), "
                   "\"CATEGORIE\" = :categorie, "
                   "\"STATUT\" = :statut, "
                   "\"ORGANISATEUR\" = :organisateur, "
-                  "\"LIEU\" = :lieu " // Ajout du champ lieu
+                  "\"ID_ESPACE\" = :id_espace " // Supprimer l'espace
+                   // Ajout du champ lieu
                   "WHERE \"ID\" = :id");
 
     // Lier les valeurs aux paramètres
@@ -130,7 +130,7 @@ bool Evenement::modifier(int id, const QString &titre, const QString &type, int 
     query.bindValue(":categorie", categorie);
     query.bindValue(":statut", statut);
     query.bindValue(":organisateur", organisateur);
-    query.bindValue(":lieu", lieu); // Ajout du bindValue pour lieu
+    query.bindValue(":id_espace", id_espace); // Ajout du bindValue pour lieu
 
     // Exécuter la requête et vérifier le résultat
     if (!query.exec()) {

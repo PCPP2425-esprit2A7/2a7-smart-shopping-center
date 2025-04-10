@@ -29,13 +29,13 @@ void Dialog::loadEventDetails()
         ui->typl->setText(event.getType());
         ui->capl->setText(QString::number(event.getCapacite()));
         ui->prixl->setValue(event.getPrix());
-        ui->desl->setText(event.getDescription());
+        ui->desl->setPlainText(event.getDescription());
         ui->ddl->setDate(event.getDateDebut());
         ui->dfl->setDate(event.getDateFin());
         ui->catl->setText(event.getCategorie());
         ui->statusl->setCurrentText(event.getStatut());
         ui->orgl->setText(event.getOrganisateur());
-        ui->lieul->setText(event.getLieu());
+        ui->lieul->setText(QString::number(event.getid_espace()));
 
         // ✅ Vérification et chargement de l'affiche
         QString affichePath = event.getAffiche(); // Récupérer l'affiche en QString
@@ -48,17 +48,17 @@ void Dialog::loadEventDetails()
                 ui->pushButton_affiche->setIcon(QIcon(pixmap));
                 ui->pushButton_affiche->setIconSize(QSize(150, 150));
           } else {
-                qDebug() << "❌ Erreur : Impossible de charger l'image depuis le chemin spécifié :" << affichePath;
+                qDebug() << " Erreur : Impossible de charger l'image depuis le chemin spécifié :" << affichePath;
             }
         } else {
-            qDebug() << "⚠ Aucune donnée d'image disponible.";
+            qDebug() << " Aucune donnée d'image disponible.";
         }
     } else {
-        QMessageBox::warning(this, "Erreur", "❌ Impossible de charger les détails de l'événement.");
+        QMessageBox::warning(this, "Erreur", " Impossible de charger les détails de l'événement.");
     }
 }
 
-// 🔥 Bouton "Modifier Photo"
+//  Bouton "Modifier Photo"
 void Dialog::on_modifier_affiche_clicked()
 {
     Evenement event;
@@ -67,18 +67,18 @@ void Dialog::on_modifier_affiche_clicked()
     if (!filePath.isEmpty()) {
         QPixmap pixmap(filePath);
         if (!pixmap.isNull()) {
-            // 🔥 Mettre à jour l'aperçu de l'image dans le bouton
+            //  Mettre à jour l'aperçu de l'image dans le bouton
             ui->pushButton_affiche->setIcon(QIcon(pixmap));
             ui->pushButton_affiche->setIconSize(QSize(150, 150));
 
 
-            // 🔥 Convertir l'image en QByteArray pour la sauvegarde
+            //  Convertir l'image en QByteArray pour la sauvegarde
             QByteArray byteArray;
             QBuffer buffer(&byteArray);
             buffer.open(QIODevice::WriteOnly);
             pixmap.save(&buffer, "PNG");
 
-            // 🔥 Stocker le QByteArray dans l'objet evenement
+            //  Stocker le QByteArray dans l'objet evenement
             event.setAffiche(byteArray);
         } else {
             QMessageBox::warning(this, "Erreur", "Impossible de charger l'image sélectionnée.");
@@ -98,16 +98,16 @@ void Dialog::on_enregistrer_clicked()
     qDebug() << "Type :" << ui->typl->text();
     qDebug() << "Capacité :" << ui->capl->text();
     qDebug() << "Prix :" << ui->prixl->value();
-    qDebug() << "Description :" << ui->desl->text();
+    qDebug() << "Description :" << ui->desl->toPlainText();
     qDebug() << "Date début brute :" << ui->ddl->date().toString();
     qDebug() << "Date fin brute :" << ui->dfl->date().toString();
     qDebug() << "Catégorie :" << ui->catl->text();
     qDebug() << "Statut :" << ui->statusl->currentText();
     qDebug() << "Organisateur :" << ui->orgl->text();
-    qDebug() << "Lieu :" << ui->lieul->text();  // Ajout du debug pour lieu
+    qDebug() << "id_espace :" << ui->lieul->text();  // Ajout du debug pour lieu
 
     // Vérification des champs obligatoires
-    if (ui->titrel->text().isEmpty() || ui->desl->text().isEmpty() || ui->catl->text().isEmpty() ||
+    if (ui->titrel->text().isEmpty() || ui->desl->toPlainText().isEmpty() || ui->catl->text().isEmpty() ||
         ui->typl->text().isEmpty() || ui->orgl->text().isEmpty() || ui->lieul->text().isEmpty() ||
         ui->statusl->currentText().isEmpty()) {
         QMessageBox::warning(this, "Erreur", "Tous les champs doivent être remplis !");
@@ -146,6 +146,7 @@ void Dialog::on_enregistrer_clicked()
         QMessageBox::warning(this, "Erreur", "La capacité doit être supérieure à 10 !");
         return;
     }
+    int lieu = ui->lieul->text().toInt();
 
     // Vérification de la date de fin (doit être après la date de début)
     QDate dateDebut = ui->ddl->date();
@@ -161,13 +162,13 @@ void Dialog::on_enregistrer_clicked()
                            ui->typl->text(),
                            capacite,
                            prix,
-                           ui->desl->text(),
+                           ui->desl->toPlainText(),
                            ui->ddl->date().toString("dd-MM-yy"),  // Format de date pour Oracle
                            ui->dfl->date().toString("dd-MM-yy"),  // Format de date pour Oracle
                            ui->catl->text(),
                            ui->statusl->currentText(),
                            ui->orgl->text(),
-                           ui->lieul->text()))  // Ajout du lieu dans modifier()
+                           lieu))  // Ajout du lieu dans modifier()
     {
         QMessageBox::information(this, "Succès", "Événement modifié avec succès !");
     }
