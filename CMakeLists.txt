@@ -1,75 +1,65 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(espace VERSION 0.1 LANGUAGES CXX)
-
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
+project(espace VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# ✅ Find Qt components, including Charts and 3D modules
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Sql Charts 3DCore 3DRender 3DExtras)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql Charts 3DCore 3DRender 3DExtras)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
 
-set(PROJECT_SOURCES
-        main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
-        espace.h
-        espace.cpp
-        connection.h
-        connection.cpp
-        IMG.qrc
-        modifierespacesdialog.h
-        modifierespacesdialog.cpp
-        modifierespacesdialog.ui
+find_package(Qt6 COMPONENTS Core Gui Widgets Sql Network Charts 3DCore 3DExtras 3DRender 3DInput 3DLogic REQUIRED)
 
-
-
+set(SOURCES
+    main.cpp
+    mainwindow.cpp
+    espace.cpp
+    modifierespacesDialog.cpp
+    dimensionsdialog.cpp
+    espace3dview.cpp
+    clickablerectitem.cpp
+    connection.cpp
 )
 
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(espace
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-    )
-else()
-    if(ANDROID)
-        add_library(espace SHARED
-            ${PROJECT_SOURCES}
-        )
-    else()
-        add_executable(espace
-            ${PROJECT_SOURCES}
-        )
-    endif()
-endif()
-
-# ✅ Link QtCharts and Qt3D modules along with other libraries
-target_link_libraries(espace PRIVATE 
-    Qt${QT_VERSION_MAJOR}::Widgets 
-    Qt${QT_VERSION_MAJOR}::Sql 
-    Qt${QT_VERSION_MAJOR}::Charts
-    Qt${QT_VERSION_MAJOR}::3DCore
-    Qt${QT_VERSION_MAJOR}::3DRender
-    Qt${QT_VERSION_MAJOR}::3DExtras
+set(HEADERS
+    mainwindow.h
+    espace.h
+    modifierespacesDialog.h
+    dimensionsdialog.h
+    espace3dview.h
+    clickablerectitem.h
+    connection.h
 )
 
-set_target_properties(espace PROPERTIES
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
+set(FORMS
+    mainwindow.ui
+    modifierespacesDialog.ui
+    DimensionsDialog.ui
 )
 
-include(GNUInstallDirs)
-install(TARGETS espace
-    BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+set(RESOURCES
+    IMG.qrc
+    resources.qrc
 )
 
-if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(espace)
-endif()
+add_executable(espace
+    ${SOURCES}
+    ${HEADERS}
+    ${FORMS}
+    ${RESOURCES}
+)
+
+target_link_libraries(espace PRIVATE
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Widgets
+    Qt6::Sql
+    Qt6::Network
+    Qt6::Charts
+    Qt6::3DCore
+    Qt6::3DExtras
+    Qt6::3DRender
+    Qt6::3DInput
+    Qt6::3DLogic
+)

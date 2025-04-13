@@ -1189,6 +1189,30 @@ border-radius: 30px; /* Ajuste selon le degré d'arrondi souhaité */</string>
        <normaloff>:/Desktop/img/18926930-conception-d-icone-de-formulaire-gratuit-vectoriel-removebg-preview.png</normaloff>:/Desktop/img/18926930-conception-d-icone-de-formulaire-gratuit-vectoriel-removebg-preview.png</iconset>
      </property>
     </widget>
+    <widget class="QPushButton" name="map">
+     <property name="geometry">
+      <rect>
+       <x>720</x>
+       <y>138</y>
+       <width>71</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(227, 241, 244);
+border: 2px solid; /* Ajoute une bordure */
+border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
+border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
+border-radius: 25px; /* Ajuste selon le degré d'arrondi souhaité */qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'icône */</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="IMG.qrc">
+       <normaloff>:/Desktop/img/map.png</normaloff>:/Desktop/img/map.png</iconset>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

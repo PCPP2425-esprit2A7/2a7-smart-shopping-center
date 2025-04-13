@@ -1,177 +1,156 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QMessageBox>
-#include <QSqlQueryModel>
-#include <QPushButton>
 #include "espace.h"
 #include "modifierespacesDialog.h"
-#include <QPdfWriter>
-#include <QPageSize>
-#include <QPageLayout>
-#include <QPainter>
+#include "dimensionsdialog.h"
+#include "espace3dview.h"
+#include "clickablerectitem.h"
+#include <QMessageBox>
+#include <QDir>
+#include <QDebug>
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QSqlRecord>
+#include <QSqlTableModel>
+#include <QPushButton>
+#include <QCompleter>
+#include <QLineEdit>
+#include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QGraphicsRectItem>
+#include <QGraphicsTextItem>
 #include <QFileDialog>
 #include <QHBoxLayout>
-#include <QPropertyAnimation>
 #include <QVBoxLayout>
-#include <QtCharts>
-#include <QPieSeries>
-#include <QChartView>
+#include <QLayout>
+#include <QLayoutItem>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QRegularExpression>
 #include <QtCharts/QChartView>
 #include <QtCharts/QChart>
 #include <QtCharts/QPieSeries>
-#include <QtCharts/QPieSlice>
 #include <QtCharts/QBarSeries>
 #include <QtCharts/QBarSet>
 #include <QtCharts/QValueAxis>
 #include <QtCharts/QBarCategoryAxis>
-#include <QSqlTableModel>
-#include <QCompleter>
-#include <QLineEdit>
-#include <QStringListModel>
-#include <QGraphicsScene>
-#include <QGraphicsEllipseItem>
-#include <QGraphicsTextItem>
-#include <QGraphicsItemGroup>
-#include <QGraphicsDropShadowEffect>
-#include <QParallelAnimationGroup>
-#include <QTimer>
-#include <QTableWidget>
-#include <QTableWidgetItem>
-#include <QAbstractItemView>
-#include <QSqlError>
-
+#include <QPdfWriter>
+#include <QPainter>
+#include <QDesktopServices>
+#include <QUrl>
+const QString OPENAI_API_KEY = "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";
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);  // <--- Cette ligne est OBLIGATOIRE
+    ui->setupUi(this);
+    networkManager = new QNetworkAccessManager(this);
 
-
-
-    // ui->tabWidget->tabBar()->hide();
+    // Initialize the QCompleter
+    completer = new QCompleter(this);
+    completer = new QCompleter(this);
+    completer->setCompletionMode(QCompleter::PopupCompletion);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    ui->lineEdit_Nom->setCompleter(completer);
+    // Connect UI actions (buttons)
+    ui->tabWidget->tabBar()->hide();
 
     connect(ui->liste, &QPushButton::clicked, this, [=]() {
         ui->tabWidget->setCurrentIndex(1);
-        qDebug() << "Passage à l'onglet Liste";
     });
-
     connect(ui->ajout, &QPushButton::clicked, this, [=]() {
         ui->tabWidget->setCurrentIndex(0);
-        qDebug() << "Retour à l'onglet Ajout";
     });
-
     connect(ui->stat_2, &QPushButton::clicked, this, [=]() {
         ui->tabWidget->setCurrentIndex(2);
         on_stat_2_clicked();
     });
-
-    // Connect the research button
     connect(ui->research, &QPushButton::clicked, this, &MainWindow::on_research_clicked);
+    connect(ui->map, &QPushButton::clicked, this, &MainWindow::on_map_clicked);
     connect(ui->lineEdit_id_locataire, &QLineEdit::editingFinished, this, &MainWindow::on_id_locataire_entered);
-    setupAutocomplete();
     afficherEspaces();
 }
 
-MainWindow::~MainWindow()
-{
-    delete ui;
+MainWindow::~MainWindow() {
+    delete ui;  // Deleting the UI pointer or other cleanup code
 }
-
-void MainWindow::setupAutocomplete()
-{
-    // Create completer with existing space names
-    completer = new QCompleter(Espace::getExistingSpaceNames());
-    completer->setCaseSensitivity(Qt::CaseInsensitive);
-    completer->setFilterMode(Qt::MatchContains);
-    
-    // Set up the line edit with completer
-    ui->lineEdit_Nom->setCompleter(completer);
-    
-    // Connect text changed signal
-    connect(ui->lineEdit_Nom, &QLineEdit::textChanged,
-            this, &MainWindow::on_lineEdit_Nom_textChanged);
-}
-
 void MainWindow::on_lineEdit_Nom_textChanged(const QString &text)
 {
-    // Get all general suggestions
-    QStringList allSuggestions = Espace::getExistingSpaceNames();
-    QStringList filteredNames;
-    
-    // If text is empty, show all suggestions
-    if (text.isEmpty()) {
-        filteredNames = allSuggestions;
-    } else {
-        // Filter suggestions based on input
-        for (const QString &name : allSuggestions) {
-            if (name.contains(text, Qt::CaseInsensitive)) {
-                filteredNames.append(name);
-            }
-        }
-        
-        // Add intelligent suggestions based on the input
-        if (text.length() >= 2) {
-            QStringList smartSuggestions;
-            
-            // Analyze the input text for patterns
-            QString lowerText = text.toLower();
-            
-            // Check for specific keywords and provide relevant suggestions
-            if (lowerText.contains("bureau")) {
-                smartSuggestions << "Bureau individuel" << "Bureau partagé" << "Bureau avec vue"
-                               << "Bureau moderne" << "Bureau classique" << "Bureau exécutif";
-            } else if (lowerText.contains("mag")) {
-                smartSuggestions << "Magasin de détail" << "Magasin d'exposition" << "Magasin de stockage"
-                               << "Magasin de proximité" << "Magasin spécialisé" << "Magasin de luxe";
-            } else if (lowerText.contains("sal")) {
-                smartSuggestions << "Salle de réunion" << "Salle d'exposition" << "Salle de conférence"
-                               << "Salle de sport" << "Salle polyvalente" << "Salle de formation";
-            } else if (lowerText.contains("loc")) {
-                smartSuggestions << "Local commercial" << "Local artisanal" << "Local industriel"
-                               << "Local de stockage" << "Local de service" << "Local technique";
-            } else if (lowerText.contains("zon")) {
-                smartSuggestions << "Zone de production" << "Zone de service" << "Zone de vente"
-                               << "Zone administrative" << "Zone technique" << "Zone de stockage";
-            } else if (lowerText.contains("esp")) {
-                smartSuggestions << "Espace de coworking" << "Espace de stockage" << "Espace de vente"
-                               << "Espace de réception" << "Espace de détente" << "Espace de travail";
-            }
-            
-            // Add location-based suggestions if text contains location keywords
-            if (lowerText.contains("centr") || lowerText.contains("ville")) {
-                smartSuggestions << "Local Centre-ville" << "Bureau Centre-ville" << "Magasin Centre-ville"
-                               << "Espace Centre-ville" << "Zone Centre-ville";
-            } else if (lowerText.contains("indus")) {
-                smartSuggestions << "Zone industrielle" << "Local industriel" << "Espace industriel"
-                               << "Bureau industriel" << "Magasin industriel";
-            }
-            
-            // Add premium/quality-based suggestions
-            if (lowerText.contains("lux") || lowerText.contains("prem")) {
-                smartSuggestions << "Bureau Premium" << "Magasin de luxe" << "Local Premium"
-                               << "Espace Elite" << "Zone Premium";
-            }
-            
-            // Add dynamic combinations based on what's already typed
-            QStringList words = text.split(" ", Qt::SkipEmptyParts);
-            if (words.size() >= 2) {
-                QString lastWord = words.last();
-                QStringList adjectives = {"Premium", "Elite", "Standard", "Basic", "Luxe", "Moderne", "Classique"};
-                for (const QString &adj : adjectives) {
-                    smartSuggestions << lastWord + " " + adj;
-                }
-            }
-            
-            // Add smart suggestions to filtered names
-            filteredNames.append(smartSuggestions);
-        }
+    if (text.length() >= 1) {
+        getAISuggestions(text);
     }
-    
-    // Update the completer model
-    completer->setModel(new QStringListModel(filteredNames));
 }
 
+void MainWindow::getAISuggestions(const QString &inputText)
+{
+    QNetworkRequest request(QUrl("https://api.openai.com/v1/chat/completions"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setRawHeader("Authorization", "Bearer " + OPENAI_API_KEY.toUtf8());
+
+    QJsonObject message;
+    message["role"] = "user";
+    message["content"] = QString("Donne-moi 5 suggestions de noms pour un espace immobilier à partir de ce mot : \"%1\". Sépare chaque suggestion par une nouvelle ligne.").arg(inputText);
+
+    QJsonArray messages;
+    messages.append(message);
+
+    QJsonObject json;
+    json["model"] = "gpt-3.5-turbo";
+    json["messages"] = messages;
+    json["max_tokens"] = 150;
+    json["temperature"] = 0.7;
+
+    QNetworkReply *reply = networkManager->post(request, QJsonDocument(json).toJson());
+
+    connect(reply, &QNetworkReply::finished, this, [=]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            QByteArray response = reply->readAll();
+            QJsonDocument jsonResponse = QJsonDocument::fromJson(response);
+            
+            if (jsonResponse.isObject()) {
+                QJsonObject obj = jsonResponse.object();
+                if (obj.contains("choices")) {
+                    QJsonArray choices = obj["choices"].toArray();
+                    if (!choices.isEmpty()) {
+                        QJsonObject choice = choices[0].toObject();
+                        if (choice.contains("message")) {
+                            QString suggestion = choice["message"].toObject()["content"].toString().trimmed();
+                            
+                            // Debug
+                            qDebug() << "Suggestion reçue de l'API:\n" << suggestion;
+                            
+                            // Nettoyage et séparation
+                            QStringList suggestionsList = suggestion.split("\n", Qt::SkipEmptyParts);
+                            for (QString &s : suggestionsList) {
+                                s = s.trimmed();
+                                // Remove any numbering or bullet points using QRegularExpression
+                                s = s.remove(QRegularExpression("^[0-9]+\\.\\s*"));
+                                s = s.remove(QRegularExpression("^-\\s*"));
+                            }
+                            
+                            // Filter out empty strings
+                            suggestionsList.removeAll("");
+                            
+                            if (!suggestionsList.isEmpty()) {
+                                completer->setModel(new QStringListModel(suggestionsList, this));
+                                completer->complete();
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            qDebug() << "Erreur OpenAI: " << reply->errorString();
+            qDebug() << "Réponse complète: " << reply->readAll();
+        }
+        reply->deleteLater();
+    });
+}
 // Function to display spaces
 void MainWindow::afficherEspaces()
 {
@@ -310,6 +289,7 @@ void MainWindow::on_pushButton_15_clicked()
         QMessageBox::critical(this, "Erreur", "Échec de l'ajout de l'espace !");
     }
 }
+
 void MainWindow::on_id_locataire_entered()
 {
     QString idLocataireStr = ui->lineEdit_id_locataire->text().trimmed();
@@ -338,7 +318,6 @@ void MainWindow::on_id_locataire_entered()
         ui->lineEdit_Nom_3->setText("Aucun locataire trouvé avec cet ID");
     }
 }
-
 
 // Function to delete an Espace
 void MainWindow::on_supprimer_clicked()
@@ -391,25 +370,28 @@ void MainWindow::on_modifier_clicked()
 
 void MainWindow::on_exporterPDF_clicked()
 {
+    // Demander à l'utilisateur où enregistrer le PDF
     QString filePath = QFileDialog::getSaveFileName(this, "Exporter en PDF", "", "PDF Files (*.pdf)");
     if (filePath.isEmpty()) {
         return;
     }
 
+    // Configurer le PDF Writer
     QPdfWriter pdfWriter(filePath);
     pdfWriter.setPageSize(QPageSize(QPageSize::A4));
     pdfWriter.setResolution(300);
-    pdfWriter.setTitle("Liste desespaces");
+    pdfWriter.setTitle("Liste des espaces");
 
+    // Initialiser le painter pour dessiner sur le PDF
     QPainter painter(&pdfWriter);
 
-    // ✅ Marges larges pour éviter l'effet de compression
+    // Marges larges pour éviter l'effet de compression
     int marginLeft = 100;
     int marginTop = 120;
     int x = marginLeft;
     int y = marginTop;
 
-    // ✅ Titre clair et centré
+    // Titre clair et centré
     QString title = "Liste des espaces";
     QRect rectTitle(marginLeft, y, pdfWriter.width() - (marginLeft * 2), 80);
     painter.setFont(QFont("Helvetica", 20, QFont::Bold));
@@ -417,13 +399,13 @@ void MainWindow::on_exporterPDF_clicked()
     painter.drawText(rectTitle, Qt::AlignCenter, title);
     y += 100;
 
-    // ✅ Hauteur de ligne fixe + colonne max à afficher par page
+    // Hauteur de ligne fixe + colonne max à afficher par page
     int rowHeight = 50;
     int maxColsPerPage = 7;
 
     int colCount = ui->tableView->model()->columnCount();
 
-    // ✅ Exclure la colonne "pdp"
+    // Exclure la colonne "pdp" si elle existe
     int photoIndex = -1;
     for (int i = 0; i < colCount; ++i) {
         if (ui->tableView->model()->headerData(i, Qt::Horizontal).toString().toLower().contains("pdp")) {
@@ -434,13 +416,13 @@ void MainWindow::on_exporterPDF_clicked()
 
     int adjustedColCount = (photoIndex != -1) ? colCount - 1 : colCount;
 
-    // ✅ Gestion du nombre de colonnes affichées par page
+    // Gestion du nombre de colonnes affichées par page
     int colsToShow = qMin(maxColsPerPage, adjustedColCount);
 
-    // ✅ Largeur des colonnes équilibrée
+    // Largeur des colonnes équilibrée
     int colWidth = (pdfWriter.width() - (2 * marginLeft) - (colsToShow * 10)) / colsToShow;
 
-    // ✅ En-têtes (fond gris clair + bordures nettes)
+    // En-têtes (fond gris clair + bordures nettes)
     painter.setFont(QFont("Helvetica", 12, QFont::Bold));
     painter.setPen(Qt::black);
     painter.setBrush(QColor(230, 230, 230));
@@ -450,7 +432,7 @@ void MainWindow::on_exporterPDF_clicked()
 
         if (j >= colsToShow) break;
 
-        // ✅ Bordure nette et épaisse
+        // Bordure nette et épaisse
         painter.drawRect(x, y, colWidth, rowHeight);
         painter.drawText(QRect(x + 5, y, colWidth - 10, rowHeight),
                          Qt::AlignCenter, ui->tableView->model()->headerData(i, Qt::Horizontal).toString());
@@ -461,7 +443,7 @@ void MainWindow::on_exporterPDF_clicked()
     y += rowHeight + 10;
     x = marginLeft;
 
-    // ✅ Contenu du tableau (alternance de couleurs)
+    // Contenu du tableau (alternance de couleurs)
     painter.setFont(QFont("Helvetica", 10));
     painter.setPen(Qt::black);
     int rowCount = ui->tableView->model()->rowCount();
@@ -474,16 +456,16 @@ void MainWindow::on_exporterPDF_clicked()
             if (col == photoIndex) continue;
             if (j >= colsToShow) break;
 
-            // ✅ Bordure nette avec une couleur foncée
+            // Bordure nette avec une couleur foncée
             painter.setPen(QColor(150, 150, 150));
             painter.drawRect(x, y, colWidth, rowHeight);
 
             QString data = ui->tableView->model()->data(ui->tableView->model()->index(row, col)).toString();
 
-            // ✅ Tronquer le texte proprement avec "..."
+            // Tronquer le texte proprement avec "..."
             data = data.left(colWidth / 10) + (data.length() > colWidth / 10 ? "..." : "");
 
-            // ✅ Texte aligné (texte à gauche, nombres à droite)
+            // Texte aligné (texte à gauche, nombres à droite)
             Qt::Alignment alignment = (data.toDouble() || data.toInt())
                                           ? Qt::AlignRight | Qt::AlignVCenter
                                           : Qt::AlignLeft | Qt::AlignVCenter;
@@ -496,7 +478,7 @@ void MainWindow::on_exporterPDF_clicked()
         x = marginLeft;
         y += rowHeight;
 
-        // ✅ Saut de page automatique + répétition de l'en-tête
+        // Saut de page automatique + répétition de l'en-tête
         if (y > pdfWriter.height() - marginTop) {
             pdfWriter.newPage();
             y = marginTop;
@@ -525,7 +507,12 @@ void MainWindow::on_exporterPDF_clicked()
 
     painter.end();
 
-    QMessageBox::information(this, "Succès", "Le fichier PDF a été généré avec succès !");
+    // Ouvrir le PDF automatiquement avec l'application par défaut
+    if (!QDesktopServices::openUrl(QUrl::fromLocalFile(filePath))) {
+        QMessageBox::warning(this, "Avertissement", "Le PDF a été généré mais n'a pas pu être ouvert automatiquement.");
+    } else {
+        QMessageBox::information(this, "Succès", "Le fichier PDF a été généré et ouvert avec succès !");
+    }
 }
 
 void MainWindow::on_tri_activated(int index)
@@ -769,5 +756,329 @@ void MainWindow::on_stat_2_clicked()
     tab->setLayout(layout);
 }
 
+void MainWindow::on_map_clicked()
+{
+    qDebug() << "Bouton map cliqué";
 
+    // Vérifier si l'onglet de carte existe déjà
+    for (int i = 0; i < ui->tabWidget->count(); ++i) {
+        if (ui->tabWidget->tabText(i) == "Carte") {
+            qDebug() << "Onglet carte trouvé, passage à l'onglet";
+            ui->tabWidget->setCurrentIndex(i);
+            return;
+        }
+    }
 
+    qDebug() << "Création d'un nouvel onglet carte";
+    showMapView();
+}
+
+void MainWindow::showMapView()
+{
+    qDebug() << "Début de showMapView()";
+
+    // Création de l'onglet carte
+    QWidget *mapTab = new QWidget();
+    QVBoxLayout *mapLayout = new QVBoxLayout(mapTab);
+
+    // Création de la ComboBox pour sélectionner un espace
+    QComboBox *spaceSelector = new QComboBox();
+    spaceSelector->addItem("🔍 Rechercher un espace");
+    spaceSelector->setMinimumWidth(300);
+    mapLayout->addWidget(spaceSelector, 0, Qt::AlignLeft);
+
+    // Création de la scène
+    QGraphicsScene *scene = new QGraphicsScene(this);
+    scene->setSceneRect(0, 0, 1500, 1000);
+
+    // Vue graphique avec paramètres de zoom améliorés
+    QGraphicsView *view = new QGraphicsView(scene);
+    view->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+    view->setResizeAnchor(QGraphicsView::AnchorUnderMouse);
+    view->viewport()->installEventFilter(this);  // Pour intercepter les événements de molette
+    view->setRenderHint(QPainter::Antialiasing);
+    view->setBackgroundBrush(QBrush(QColor(240, 248, 255)));
+    view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);  // Changé pour permettre le défilement
+    view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    view->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+
+    // Ajout des boutons de zoom
+    QHBoxLayout *zoomLayout = new QHBoxLayout();
+    QPushButton *zoomInBtn = new QPushButton("Zoom +");
+    QPushButton *zoomOutBtn = new QPushButton("Zoom -");
+    QPushButton *resetZoomBtn = new QPushButton("Reset Zoom");
+
+    zoomLayout->addWidget(zoomOutBtn);
+    zoomLayout->addWidget(resetZoomBtn);
+    zoomLayout->addWidget(zoomInBtn);
+    mapLayout->addLayout(zoomLayout);
+
+    mapLayout->addWidget(view);
+
+    // Connexions pour les boutons de zoom
+    connect(zoomInBtn, &QPushButton::clicked, [view]() {
+        view->scale(1.2, 1.2);
+    });
+
+    connect(zoomOutBtn, &QPushButton::clicked, [view]() {
+        view->scale(1.0/1.2, 1.0/1.2);
+    });
+
+    connect(resetZoomBtn, &QPushButton::clicked, [view, scene]() {
+        view->resetTransform();
+        view->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+    });
+
+    // [RESTE DU CODE ORIGINAL POUR LA CRÉATION DES ZONES ET ESPACES...]
+    // Dessiner les zones A, B, C, D
+    QMap<QString, QRectF> zones;
+    zones["A"] = QRectF(100, 100, 600, 400);
+    zones["B"] = QRectF(750, 100, 600, 400);
+    zones["C"] = QRectF(100, 550, 600, 400);
+    zones["D"] = QRectF(750, 550, 600, 400);
+
+    // Couleurs des zones avec transparence
+    QMap<QString, QColor> zoneColors = {
+        {"A", QColor(230, 230, 250, 50)},
+        {"B", QColor(255, 228, 225, 50)},
+        {"C", QColor(240, 255, 240, 50)},
+        {"D", QColor(255, 250, 205, 50)}
+    };
+
+    // Dessiner les zones et leurs labels
+    for (const QString &zone : zones.keys()) {
+        QGraphicsRectItem *zoneRect = new QGraphicsRectItem(zones[zone]);
+        zoneRect->setBrush(QBrush(zoneColors[zone]));
+        zoneRect->setPen(QPen(Qt::black, 2, Qt::DashLine));
+        scene->addItem(zoneRect);
+
+        QGraphicsTextItem *zoneLabel = new QGraphicsTextItem("Zone " + zone);
+        zoneLabel->setFont(QFont("Arial", 16, QFont::Bold));
+        zoneLabel->setDefaultTextColor(Qt::darkBlue);
+        zoneLabel->setPos(zones[zone].x() + 10, zones[zone].y() + 10);
+        scene->addItem(zoneLabel);
+    }
+
+    // Couleurs par type d'espace
+    QMap<QString, QColor> typeColors = {
+        {"Boutique de vêtements", QColor(255, 182, 193)},
+        {"Restaurant", QColor(152, 251, 152)},
+        {"Fast-food", QColor(255, 160, 122)},
+        {"Supermarché", QColor(135, 206, 235)},
+        {"Bijouterie", QColor(255, 215, 0)},
+        {"Électronique", QColor(147, 112, 219)},
+        {"Librairie", QColor(222, 184, 135)},
+        {"Cosmétiques", QColor(255, 192, 203)},
+        {"Cinéma", QColor(70, 130, 180)},
+        {"Salle de jeux", QColor(255, 140, 0)}
+    };
+
+    // Récupérer les espaces
+    QSqlQuery query;
+    if (!query.exec("SELECT ID, NOM, TYPE, STATUT, EMPLACEMENT FROM ESPACE")) {
+        QMessageBox::critical(this, "Erreur", "Échec de la récupération des espaces: " + query.lastError().text());
+        return;
+    }
+
+    QMap<QString, ClickableRectItem*> espaceRects;
+    QMap<QString, int> espaceCountPerZone;
+
+    while (query.next()) {
+        int id = query.value("ID").toInt();
+        QString nom = query.value("NOM").toString();
+        QString type = query.value("TYPE").toString();
+        QString statut = query.value("STATUT").toString();
+        QString emplacement = query.value("EMPLACEMENT").toString().toUpper();
+
+        if (!zones.contains(emplacement)) {
+            emplacement = "A";
+        }
+
+        QColor color = typeColors.value(type, QColor(200, 200, 200));
+        if (statut.toLower() == "occupe") color = color.darker(125);
+
+        // Position dans la zone
+        if (!espaceCountPerZone.contains(emplacement)) {
+            espaceCountPerZone[emplacement] = 0;
+        }
+        int countInZone = espaceCountPerZone[emplacement]++;
+        int col = countInZone % 4;
+        int row = countInZone / 4;
+
+        qreal xPos = zones[emplacement].x() + 20 + col * 150;
+        qreal yPos = zones[emplacement].y() + 50 + row * 120;
+
+        // Rectangle pour l'espace
+        ClickableRectItem *rect = new ClickableRectItem();
+        rect->setRect(0, 0, 140, 100);
+        rect->setBrush(QBrush(color));
+        rect->setPen(QPen(Qt::black, 2));
+        rect->setPos(xPos, yPos);
+
+        // Connect signals
+        connect(rect, &ClickableRectItem::hoverEntered, [rect]() {
+            rect->setPen(QPen(Qt::red, 3));
+        });
+        
+        connect(rect, &ClickableRectItem::hoverLeft, [rect]() {
+            rect->setPen(QPen(Qt::black, 2));
+        });
+        
+        connect(rect, &ClickableRectItem::clicked, [this, name = nom]() {
+            show3DView(name);
+        });
+
+        // Nom de l'espace (centré)
+        QString displayedName = nom.length() > 15 ? nom.left(12) + "..." : nom;
+        QGraphicsTextItem *title = new QGraphicsTextItem(displayedName);
+        title->setFont(QFont("Arial", 9, QFont::Bold));
+        title->setDefaultTextColor(Qt::black);
+        title->setPos(xPos + (140 - title->boundingRect().width()) / 2, yPos + 5);
+
+        // Informations de base
+        QGraphicsTextItem *info = new QGraphicsTextItem(QString("ID: %1\nType: %2").arg(id).arg(type));
+        info->setFont(QFont("Arial", 7));
+        info->setDefaultTextColor(Qt::black);
+        info->setPos(xPos + 5, yPos + 25);
+
+        // Bouton de statut
+        QString statusColor = (statut.toLower() == "occupe") ? "#e74c3c" : "#2ecc71";
+        QString statusText = (statut.toLower() == "occupe") ? "Occupé" : "Libre";
+
+        QGraphicsRectItem *statusBox = new QGraphicsRectItem(xPos + 15, yPos + 68, 80, 20);
+        statusBox->setBrush(QColor(statusColor));
+        statusBox->setPen(QPen(Qt::black, 1));
+
+        QGraphicsTextItem *statusBtn = new QGraphicsTextItem(statusText);
+        statusBtn->setFont(QFont("Arial", 8, QFont::Bold));
+        statusBtn->setDefaultTextColor(Qt::white);
+        statusBtn->setPos(xPos + 15 + (80 - statusBtn->boundingRect().width()) / 2, yPos + 70);
+
+        scene->addItem(rect);
+        scene->addItem(title);
+        scene->addItem(info);
+        scene->addItem(statusBox);
+        scene->addItem(statusBtn);
+
+        espaceRects[nom] = rect;
+        spaceSelector->addItem(nom + " (Zone " + emplacement + ")");
+    }
+
+    // Légende améliorée
+    int legendX = 100;
+    int legendY = 980;  // En bas de la carte
+    QGraphicsRectItem *legendBg = new QGraphicsRectItem(legendX, legendY, 800, 40 + typeColors.size() * 25);
+    legendBg->setBrush(QBrush(QColor(255, 255, 255, 200)));
+    legendBg->setPen(QPen(Qt::black, 1));
+    scene->addItem(legendBg);
+
+    QGraphicsTextItem *legendTitle = new QGraphicsTextItem("🗺️ Légende");
+    legendTitle->setFont(QFont("Arial", 12, QFont::Bold));
+    legendTitle->setPos(60, 25);
+    scene->addItem(legendTitle);
+
+    int lx = 60, ly = 50;
+    for (auto it = typeColors.begin(); it != typeColors.end(); ++it) {
+        QGraphicsRectItem *colorBox = new QGraphicsRectItem(0, 0, 15, 15);
+        colorBox->setBrush(it.value());
+        colorBox->setPen(QPen(Qt::black));
+        colorBox->setPos(lx, ly);
+        scene->addItem(colorBox);
+
+        QGraphicsTextItem *text = new QGraphicsTextItem(it.key());
+        text->setFont(QFont("Arial", 8));
+        text->setPos(lx + 20, ly - 3);
+        scene->addItem(text);
+
+        ly += 20;
+    }
+
+    // Légende des statuts
+    QGraphicsRectItem *occupiedBox = new QGraphicsRectItem(lx, ly, 80, 20);
+    occupiedBox->setBrush(QColor("#e74c3c"));
+    occupiedBox->setPen(QPen(Qt::black, 1));
+    scene->addItem(occupiedBox);
+
+    QGraphicsTextItem *occupiedText = new QGraphicsTextItem("Occupé");
+    occupiedText->setFont(QFont("Arial", 8, QFont::Bold));
+    occupiedText->setDefaultTextColor(Qt::white);
+    occupiedText->setPos(lx + (80 - occupiedText->boundingRect().width()) / 2, ly + 2);
+    scene->addItem(occupiedText);
+
+    QGraphicsRectItem *freeBox = new QGraphicsRectItem(lx + 100, ly, 80, 20);
+    freeBox->setBrush(QColor("#2ecc71"));
+    freeBox->setPen(QPen(Qt::black, 1));
+    scene->addItem(freeBox);
+
+    QGraphicsTextItem *freeText = new QGraphicsTextItem("Libre");
+    freeText->setFont(QFont("Arial", 8, QFont::Bold));
+    freeText->setDefaultTextColor(Qt::white);
+    freeText->setPos(lx + 100 + (80 - freeText->boundingRect().width()) / 2, ly + 2);
+    scene->addItem(freeText);
+
+    // Centrer sur l'espace choisi
+    connect(spaceSelector, &QComboBox::currentIndexChanged,
+            this, [=](int index) {
+                if (index > 0) {
+                    QString selectedName = spaceSelector->currentText().split(" (Zone")[0];
+                    if (espaceRects.contains(selectedName)) {
+                        QGraphicsRectItem *selected = espaceRects[selectedName];
+                        view->centerOn(selected);
+
+                        // Reset toutes les bordures
+                        for (QGraphicsRectItem *rect : espaceRects) {
+                            rect->setPen(QPen(Qt::black, 2));
+                        }
+
+                        // Mettre en évidence l'espace sélectionné
+                        selected->setPen(QPen(Qt::red, 3));
+                    }
+                }
+            });
+
+    // Ajouter l'onglet
+    int mapTabIndex = ui->tabWidget->addTab(mapTab, "🗺️ Carte");
+    ui->tabWidget->setCurrentIndex(mapTabIndex);
+}
+
+void MainWindow::show3DView(const QString &spaceName)
+{
+    // Show dimensions dialog
+    DimensionsDialog dialog(this);
+    if (dialog.exec() == QDialog::Accepted) {
+        float largeur = dialog.getLargeur();
+        float hauteur = dialog.getHauteur();
+        float profondeur = dialog.getProfondeur();
+
+        // Create and show 3D view
+        Espace3DView *view3D = new Espace3DView(largeur, hauteur, profondeur);
+        view3D->setWindowTitle("Vue 3D - " + spaceName);
+        view3D->resize(800, 600);
+        view3D->show();
+    }
+}
+
+bool MainWindow::eventFilter(QObject *watched, QEvent *event)
+{
+    QGraphicsView *view = findChild<QGraphicsView*>();
+    if (!view || watched != view->viewport()) {
+        return QMainWindow::eventFilter(watched, event);
+    }
+
+    if (event->type() == QEvent::Wheel) {
+        QWheelEvent *wheelEvent = static_cast<QWheelEvent*>(event);
+
+        // Déterminer le facteur de zoom
+        double factor = (wheelEvent->angleDelta().y() > 0) ? 1.1 : 1.0/1.1;
+
+        // Limiter le zoom min/max
+        if (view->transform().m11() * factor > 5.0 || view->transform().m11() * factor < 0.3) {
+            return true;
+        }
+
+        // Appliquer le zoom
+        view->scale(factor, factor);
+        return true;
+    }
+    return QMainWindow::eventFilter(watched, event);
+}
