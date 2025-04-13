@@ -42,7 +42,7 @@
 #include <QPainter>
 #include <QDesktopServices>
 #include <QUrl>
-const QString OPENAI_API_KEY = "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";
+//const QString OPENAI_API_KEY = "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";
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
