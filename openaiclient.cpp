@@ -6,6 +6,7 @@
 
 OpenAIClient::OpenAIClient(QObject *parent) : QObject(parent) {
     manager = new QNetworkAccessManager(this);
+    // Remplace par la clé OpenAI
     connect(manager, &QNetworkAccessManager::finished, this, &OpenAIClient::onReplyFinished);
 }
 

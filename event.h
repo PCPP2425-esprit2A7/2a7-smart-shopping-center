@@ -5,6 +5,7 @@
 #include <QDate>
 #include <QSqlQuery>
 #include <QSqlQueryModel>
+#include <QSqlError>
 
 class Evenement
 {
@@ -90,6 +91,33 @@ public:
                   const QString &description, const QString &dateDebut,
                   const QString &dateFin, const QString &categorie, const QString &statut,
                   const QString &organisateur ,const int &id_espace);
+    QSqlQuery getEvenementByDate(const QDate& date)
+    {
+        QSqlQuery query;
+        query.prepare("SELECT * FROM EVENEMENT WHERE DATE_DEB = :date");
+        query.bindValue(":date", date); // QDate sera converti automatiquement
+
+        if (!query.exec()) {
+            qDebug() << "Erreur SQL:" << query.lastError().text();
+        }
+
+
+        return query;
+    }
+    /*QSqlQuery getEvenementID(int id)
+    {
+        QSqlQuery query;
+        query.prepare("SELECT * FROM EVENEMENT WHERE ID = :id");
+        query.bindValue(":id", id); // QDate sera converti automatiquement
+
+        if (!query.exec()) {
+            qDebug() << "Erreur SQL:" << query.lastError().text();
+        }
+
+
+        return query;
+    }*/
+
 
 
 };

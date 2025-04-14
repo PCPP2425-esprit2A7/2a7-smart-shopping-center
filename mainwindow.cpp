@@ -24,7 +24,16 @@
 #include <QVBoxLayout>
 #include <QFuture>
 #include <QSqlTableModel>
-
+#include <QTableWidget>
+#include "connexion.h"
+#include <QPrinter>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QCheckBox>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QFile>
+#include <QTextStream>
 
 
 
@@ -33,13 +42,17 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    Connection c;
+    c.createconnect();
+    tablewidget=new QTableWidget();
     model = new QSqlTableModel(this);
     model->setTable("evenements"); // Remplace "evenements" par le nom correct de ta table
     model->select();
     ui->tableView->setModel(model);
     // Initialisation de l'interface
     //statModel = new QSqlQueryModel(this);
-    afficherEvenement();
+
+    //afficherEvenement();
 
     //connect(ui->pushButton_choisirImage, &QPushButton::clicked, this, &MainWindow::on_pushButton_choisirImage_clicked);
     connect(ui->liste, &QPushButton::clicked, this, &MainWindow::afficherEvenement);
@@ -48,7 +61,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->btn_trierDate, &QPushButton::clicked, this, &MainWindow::on_btn_trierDate_clicked);
     connect(ui->searchText, &QLineEdit::textChanged, this, &MainWindow::rechercherevenement);
 
-
+    // Initialiser le modèle pour afficher les événements dans le QListView
+    eventModel = new QStringListModel(this);// listViewEvents doit être l'objet QListView dans ton UI
 
 
 
@@ -75,6 +89,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->tabWidget->setCurrentIndex(3);
         qDebug() << "Passage à l'onglet Statistiques";
     });
+
     openAIClient = new OpenAIClient(this);
     connect(openAIClient, &OpenAIClient::reponseRecue, this, [](const QString &reponse) {
         qDebug() << "Réponse du chatbot : " << reponse;
@@ -84,7 +99,18 @@ MainWindow::MainWindow(QWidget *parent) :
         openAIClient->envoyerRequete(question);
     });
     connect(openAIClient, &OpenAIClient::reponseRecue, this, [=](const QString &reponse) {
-        ui->textBrowserReponse->append("Chatbot : " + reponse);
+
+
+        QString stylesheet="background-color: rgb(205, 239, 255); border-radius: 12px; padding-left: 6px;color:  rgb(17, 35, 51);font-size: 15px;font-family: Arial;";
+        QString stylesheet2="background-color: rgb(227, 241, 244); border-radius: 12px; padding-left: 6px;color: rgb(17, 35, 51);font-size: 15px;font-family: Arial;";
+        ui->listWidget->setFrameShape(QFrame::NoFrame);
+        addLabelToRightInListWidget(ui->listWidget, "\n"+ui->lineEditQuestion->text()+"\n",stylesheet,true,200);
+        ui->lineEditQuestion->clear();
+        addLabelToRightInListWidget(ui->listWidget,"\n"+reponse+"\n",stylesheet2,false,400);
+        ui->listWidget->scrollToItem(ui->listWidget->item(ui->listWidget->count() - 1), QAbstractItemView::PositionAtBottom);
+
+
+
     });
 
 
@@ -100,14 +126,163 @@ MainWindow::MainWindow(QWidget *parent) :
         "border-radius: 30px; "
         "} "
         "QPushButton:hover { "
-        "background-color: transparent; "
+        "background-color: rgb(197, 203, 255); "
         "}";
 
+
+
+    Evenement ev;
+    QSqlQueryModel* model = ev.afficher();
+
+    if (model) {
+        ui->tableView->setModel(model);}
+
+       copyTableViewToTableWidget(ui->tableView, tablewidget);
     // Appliquer le style à chaque bouton
     ui->liste->setStyleSheet(buttonStyle);
     ui->ajout->setStyleSheet(buttonStyle);
     ui->stat->setStyleSheet(buttonStyle);
     ui->pushButton_choisirImage->setStyleSheet(buttonStyle);
+
+
+
+
+    for(int i=0;i<tablewidget->rowCount();i++)tablewidget->setRowHeight(i,100);
+    for(int i=0;i<tablewidget->columnCount();i++)tablewidget->setColumnWidth(i,180);
+    tablewidget->horizontalHeader()->setFixedHeight(170);
+    currentdate=QDate::currentDate();
+    ui->groupBox_6moez_2->hide();
+    connect(ui->calendrier, &QPushButton::clicked, this, [=]() {
+        ui->calendrier_2->clearContents();
+        int verif=0;
+        QDate datee=currentdate;
+        QDate firstDayOfMonth(currentdate.year(), currentdate.month(), 1);
+        QDate datelable(currentdate);
+        ui->label->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_4->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_5->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_6->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_7->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_9->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_10->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_15moez_2->setText(QString::number( currentdate.month())+"/"+QString::number( currentdate.year()));
+        for(int i=0;i<ui->calendrier_2->rowCount();i++)
+        {
+            for(int j=0;j<ui->calendrier_2->columnCount();j++)
+            {   QLabel *label3 = new QLabel(firstDayOfMonth.toString("dd"));
+                label3->setFixedSize(70, 30);
+                label3->setAlignment(Qt::AlignCenter);
+                QWidget *container = new QWidget();
+
+                // Créer un QVBoxLayout (vertical)
+                QVBoxLayout *layout = new QVBoxLayout(container);
+                //layout->addStretch();
+                layout->addWidget(label3); // Espace flexible avant le label
+
+                    // L'espace flexible après le label
+
+                // Réinitialiser les marges du layout pour éviter l'espace inutile
+                layout->setContentsMargins(0, 0, 0, 0);
+
+                container->setLayout(layout);
+
+                // Appliquer le style complet au container
+                container->setStyleSheet(R"(
+    background-color: rgba(255, 182, 193, 0.3);  /* Rose bébé transparent */
+    border: none;                               /* Aucune bordure */
+    border-radius: 12px;                        /* Coins arrondis */
+    padding: 8px 12px;                          /* Espace intérieur */
+    color: #4a3c3c;                             /* Texte doux */
+)");
+
+
+
+
+                label3->setStyleSheet(
+                    "border: none;"
+                    "background-color :transparent; "  // Couleur de fond
+
+                    );
+                // Insérer le widget dans la cellule
+                ui->calendrier_2->setCellWidget(i, j, container);
+                ui->calendrier_2->setItem(i,j,new QTableWidgetItem("      "+firstDayOfMonth.toString("dd")));
+
+                qDebug()<<"verif est"<<verif;
+                if(verif>0)verif--;
+                for(int k=0;k<tablewidget->rowCount();k++)
+                {
+                    //qDebug()<<"date est "<< QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd");
+
+                    if(QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd")==firstDayOfMonth || verif>0)
+                    {
+
+
+
+                        if(verif==0)verif=QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd").daysTo(QDate::fromString(tablewidget->item(k,8)->text().split("T").first(), "yyyy-MM-dd"))+1;
+
+
+                        QLabel *label2 = new QLabel(firstDayOfMonth.toString("dd"));
+
+                        QDate date=firstDayOfMonth;
+                        Evenement ev;
+                        query = ev.getEvenementByDate(date);
+                        while(!query.next()){date=date.addDays(-1);query = ev.getEvenementByDate(date);}
+                        QLabel *label = new QLabel(query.value("TITRE").toString());
+                        label->setAlignment(Qt::AlignCenter); // Centrer le texte dans le QLabel
+                        label2->setAlignment(Qt::AlignCenter);
+                        // Taille plus petite que la cellule
+                        label->setFixedSize(140, 30);  // Change selon ton besoin
+                        label2->setFixedSize(70, 30);
+                        // Conteneur pour centrer le label sans changer la cellule
+                        QWidget *container = new QWidget();
+
+                        // Créer un QVBoxLayout (vertical)
+                        QVBoxLayout *layout = new QVBoxLayout(container);
+
+                        // Ajoute un espace flexible pour pousser le label vers le bas
+
+
+                        layout->addStretch();
+                        layout->addWidget(label2); // Espace flexible avant le label
+                        layout->addWidget(label);       // Le label sera en bas
+                            // L'espace flexible après le label
+
+                        // Réinitialiser les marges du layout pour éviter l'espace inutile
+                        layout->setContentsMargins(0, 0, 0, 0);
+
+                        container->setLayout(layout);
+
+                        // Appliquer le style complet au container
+                        container->setStyleSheet(R"(
+    background-color: rgba(255, 182, 193, 0.3);  /* Rose bébé transparent */
+    border: none;                               /* Aucune bordure */
+    border-radius: 12px;                        /* Coins arrondis */
+    padding: 8px 12px;                          /* Espace intérieur */
+    color: #4a3c3c;                             /* Texte doux */
+)");
+
+
+
+                        label->setStyleSheet(
+                            "background-color: rgba(173, 216, 230, 0.3); margin-right:10px;border: none; "  // Couleur de fond
+
+                            );
+                        label2->setStyleSheet(
+                            "border: none;"
+                            "background-color :transparent; "  // Couleur de fond
+
+                            );
+                        // Insérer le widget dans la cellule
+                        ui->calendrier_2->setCellWidget(i, j, container);
+            }
+        }
+
+       firstDayOfMonth=firstDayOfMonth.addDays(1);}
+
+    }
+
+
+    });
 
 }
 
@@ -223,6 +398,7 @@ void MainWindow::afficherEvenement() {
     } else {
         qDebug() << "Erreur lors du chargement des services.";
     }
+    copyTableViewToTableWidget(ui->tableView,tablewidget);
 
 }
 
@@ -663,3 +839,1171 @@ void MainWindow::rechercherevenement() {
     QRegularExpression regex(searchText, QRegularExpression::CaseInsensitiveOption);
     proxyModel->setFilterRegularExpression(regex);
 }
+
+void MainWindow::on_dateSelect_dateChanged(const QDate &date)
+{
+    updateEventList(date);
+}
+
+void MainWindow::updateEventList(const QDate &date)
+{
+    // Vérifier si des événements existent pour la date sélectionnée
+    if (evenementsParDate.contains(date)) {
+        QStringList events = evenementsParDate[date];
+        eventModel->setStringList(events);  // Mettre à jour le modèle avec les événements
+    } else {
+        eventModel->setStringList(QStringList() << "Aucun événement pour cette date");
+    }
+}
+
+
+
+
+void MainWindow::on_flechedroite_clicked()
+{
+
+    ui->calendrier_2->clearContents();
+    currentdate=currentdate.addMonths(1);
+    //ui->calendrier_2->clearContents();
+    int verif=0;
+    QDate datee=currentdate;
+    QDate firstDayOfMonth(currentdate.year(), currentdate.month(), 1);
+    QDate datelable(currentdate);
+    ui->label->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_4->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_5->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_6->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_7->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_9->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_10->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_15moez_2->setText(QString::number( currentdate.month())+"/"+QString::number( currentdate.year()));
+    for(int i=0;i<ui->calendrier_2->rowCount();i++)
+    {
+        for(int j=0;j<ui->calendrier_2->columnCount();j++)
+        {   QLabel *label3 = new QLabel(firstDayOfMonth.toString("dd"));
+            label3->setFixedSize(70, 30);
+            label3->setAlignment(Qt::AlignCenter);
+            QWidget *container = new QWidget();
+
+            // Créer un QVBoxLayout (vertical)
+            QVBoxLayout *layout = new QVBoxLayout(container);
+            //layout->addStretch();
+            layout->addWidget(label3); // Espace flexible avant le label
+
+            // L'espace flexible après le label
+
+            // Réinitialiser les marges du layout pour éviter l'espace inutile
+            layout->setContentsMargins(0, 0, 0, 0);
+
+            container->setLayout(layout);
+
+            // Appliquer le style complet au container
+            container->setStyleSheet(R"(
+    background-color: rgba(255, 182, 193, 0.3);  /* Rose bébé transparent */
+    border: none;                               /* Aucune bordure */
+    border-radius: 12px;                        /* Coins arrondis */
+    padding: 8px 12px;                          /* Espace intérieur */
+    color: #4a3c3c;                             /* Texte doux */
+)");
+
+
+
+
+            label3->setStyleSheet(
+                "border: none;"
+                "background-color :transparent; "  // Couleur de fond
+
+                );
+            // Insérer le widget dans la cellule
+            ui->calendrier_2->setCellWidget(i, j, container);
+            ui->calendrier_2->setItem(i,j,new QTableWidgetItem("      "+firstDayOfMonth.toString("dd")));
+
+            qDebug()<<"verif est"<<verif;
+            if(verif>0)verif--;
+            for(int k=0;k<tablewidget->rowCount();k++)
+            {
+                //qDebug()<<"date est "<< QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd");
+
+                if(QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd")==firstDayOfMonth || verif>0)
+                {
+
+
+
+                    if(verif==0)verif=QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd").daysTo(QDate::fromString(tablewidget->item(k,8)->text().split("T").first(), "yyyy-MM-dd"))+1;
+
+
+                    QLabel *label2 = new QLabel(firstDayOfMonth.toString("dd"));
+
+                    QDate date=firstDayOfMonth;
+                    Evenement ev;
+                    query = ev.getEvenementByDate(date);
+                    while(!query.next()){date=date.addDays(-1);query = ev.getEvenementByDate(date);}
+                    QLabel *label = new QLabel(query.value("TITRE").toString());
+                    label->setAlignment(Qt::AlignCenter); // Centrer le texte dans le QLabel
+                    label2->setAlignment(Qt::AlignCenter);
+                    // Taille plus petite que la cellule
+                    label->setFixedSize(140, 30);  // Change selon ton besoin
+                    label2->setFixedSize(70, 30);
+                    // Conteneur pour centrer le label sans changer la cellule
+                    QWidget *container = new QWidget();
+
+                    // Créer un QVBoxLayout (vertical)
+                    QVBoxLayout *layout = new QVBoxLayout(container);
+
+                    // Ajoute un espace flexible pour pousser le label vers le bas
+
+
+                    layout->addStretch();
+                    layout->addWidget(label2); // Espace flexible avant le label
+                    layout->addWidget(label);       // Le label sera en bas
+                        // L'espace flexible après le label
+
+                    // Réinitialiser les marges du layout pour éviter l'espace inutile
+                    layout->setContentsMargins(0, 0, 0, 0);
+
+                    container->setLayout(layout);
+
+                    // Appliquer le style complet au container
+                    container->setStyleSheet(R"(
+    background-color: rgba(255, 182, 193, 0.3);  /* Rose bébé transparent */
+    border: none;                               /* Aucune bordure */
+    border-radius: 12px;                        /* Coins arrondis */
+    padding: 8px 12px;                          /* Espace intérieur */
+    color: #4a3c3c;                             /* Texte doux */
+)");
+
+
+
+                    label->setStyleSheet(
+                        "background-color: rgba(173, 216, 230, 0.3); margin-right:10px;border: none; "  // Couleur de fond
+
+                        );
+                    label2->setStyleSheet(
+                        "border: none;"
+                        "background-color :transparent; "  // Couleur de fond
+
+                        );
+                    // Insérer le widget dans la cellule
+                    ui->calendrier_2->setCellWidget(i, j, container);
+                }
+            }
+
+            firstDayOfMonth=firstDayOfMonth.addDays(1);}
+
+    }
+
+}
+
+
+void MainWindow::on_flechegauche_clicked()
+{
+    ui->calendrier_2->clearContents();
+    currentdate=currentdate.addMonths(-1);
+    //ui->calendrier_2->clearContents();
+    int verif=0;
+    QDate datee=currentdate;
+    QDate firstDayOfMonth(currentdate.year(), currentdate.month(), 1);
+    QDate datelable(currentdate);
+    ui->label->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_4->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_5->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_6->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_7->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_9->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_10->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_15moez_2->setText(QString::number( currentdate.month())+"/"+QString::number( currentdate.year()));
+    for(int i=0;i<ui->calendrier_2->rowCount();i++)
+    {
+        for(int j=0;j<ui->calendrier_2->columnCount();j++)
+        {   QLabel *label3 = new QLabel(firstDayOfMonth.toString("dd"));
+            label3->setFixedSize(70, 30);
+            label3->setAlignment(Qt::AlignCenter);
+            QWidget *container = new QWidget();
+
+            // Créer un QVBoxLayout (vertical)
+            QVBoxLayout *layout = new QVBoxLayout(container);
+            //layout->addStretch();
+            layout->addWidget(label3); // Espace flexible avant le label
+
+            // L'espace flexible après le label
+
+            // Réinitialiser les marges du layout pour éviter l'espace inutile
+            layout->setContentsMargins(0, 0, 0, 0);
+
+            container->setLayout(layout);
+
+            // Appliquer le style complet au container
+            container->setStyleSheet(R"(
+    background-color: rgba(255, 182, 193, 0.3);  /* Rose bébé transparent */
+    border: none;                               /* Aucune bordure */
+    border-radius: 12px;                        /* Coins arrondis */
+    padding: 8px 12px;                          /* Espace intérieur */
+    color: #4a3c3c;                             /* Texte doux */
+)");
+
+
+
+
+            label3->setStyleSheet(
+                "border: none;"
+                "background-color :transparent; "  // Couleur de fond
+
+                );
+            // Insérer le widget dans la cellule
+            ui->calendrier_2->setCellWidget(i, j, container);
+            ui->calendrier_2->setItem(i,j,new QTableWidgetItem("      "+firstDayOfMonth.toString("dd")));
+
+            qDebug()<<"verif est"<<verif;
+            if(verif>0)verif--;
+            for(int k=0;k<tablewidget->rowCount();k++)
+            {
+                //qDebug()<<"date est "<< QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd");
+
+                if(QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd")==firstDayOfMonth || verif>0)
+                {
+
+
+
+                    if(verif==0)verif=QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd").daysTo(QDate::fromString(tablewidget->item(k,8)->text().split("T").first(), "yyyy-MM-dd"))+1;
+
+
+                    QLabel *label2 = new QLabel(firstDayOfMonth.toString("dd"));
+
+                    QDate date=firstDayOfMonth;
+                    Evenement ev;
+                    query = ev.getEvenementByDate(date);
+                    while(!query.next()){date=date.addDays(-1);query = ev.getEvenementByDate(date);}
+                    QLabel *label = new QLabel(query.value("TITRE").toString());
+                    label->setAlignment(Qt::AlignCenter); // Centrer le texte dans le QLabel
+                    label2->setAlignment(Qt::AlignCenter);
+                    // Taille plus petite que la cellule
+                    label->setFixedSize(140, 30);  // Change selon ton besoin
+                    label2->setFixedSize(70, 30);
+                    // Conteneur pour centrer le label sans changer la cellule
+                    QWidget *container = new QWidget();
+
+                    // Créer un QVBoxLayout (vertical)
+                    QVBoxLayout *layout = new QVBoxLayout(container);
+
+                    // Ajoute un espace flexible pour pousser le label vers le bas
+
+
+                    layout->addStretch();
+                    layout->addWidget(label2); // Espace flexible avant le label
+                    layout->addWidget(label);       // Le label sera en bas
+                        // L'espace flexible après le label
+
+                    // Réinitialiser les marges du layout pour éviter l'espace inutile
+                    layout->setContentsMargins(0, 0, 0, 0);
+
+                    container->setLayout(layout);
+
+                    // Appliquer le style complet au container
+                    container->setStyleSheet(R"(
+    background-color: rgba(255, 182, 193, 0.3);  /* Rose bébé transparent */
+    border: none;                               /* Aucune bordure */
+    border-radius: 12px;                        /* Coins arrondis */
+    padding: 8px 12px;                          /* Espace intérieur */
+    color: #4a3c3c;                             /* Texte doux */
+)");
+
+
+
+                    label->setStyleSheet(
+                        "background-color: rgba(173, 216, 230, 0.3); margin-right:10px;border: none; "  // Couleur de fond
+
+                        );
+                    label2->setStyleSheet(
+                        "border: none;"
+                        "background-color :transparent; "  // Couleur de fond
+
+                        );
+                    // Insérer le widget dans la cellule
+                    ui->calendrier_2->setCellWidget(i, j, container);
+                }
+            }
+
+            firstDayOfMonth=firstDayOfMonth.addDays(1);}
+
+    }
+}
+
+void MainWindow::on_pushButton_13moez_2_clicked()
+{
+    ui->groupBox_6moez_2->hide();
+}
+
+
+void MainWindow::on_calendrier_2_cellClicked(int row, int column)
+{
+    // Récupérer les valeurs des champs
+    ui->titrel_3->clear();
+    ui->desl_3->clear();
+    ui->ddl_3->clear();
+    ui->dfl_3->clear();
+    ui->capl_3->clear();
+    ui->prixl_3->clear();
+    ui->catl_3->clear();
+    ui->typl_3->clear();
+    ui->orgl_3->clear();
+    ui->lieul_3->clear();
+
+    ui->groupBox_6moez_2->show();
+QWidget *cellWidget = ui->calendrier_2->cellWidget(row, column);
+QList<QLabel*> labels = cellWidget->findChildren<QLabel*>();
+int nombreLabels = labels.size();
+
+
+
+
+    if ( nombreLabels == 1){
+        qDebug()<<"dateee"<< ui->calendrier_2->item(row,column)->text()+ui->label_15moez_2->text();
+        QString input = ui->calendrier_2->item(row,column)->text()+ui->label_15moez_2->text();;
+        input = input.trimmed();  // Supprimer les espaces
+
+
+        // Expression régulière : extraire jour (2 chiffres), mois (1-2 chiffres), année (4 chiffres)
+        QRegularExpression re("(\\d{1,2})(\\d{1,2})/(\\d{4})");
+        QRegularExpressionMatch match = re.match(input);
+
+        if (match.hasMatch()) {
+            int day = match.captured(1).toInt();
+            int month = match.captured(2).toInt();
+            int year = match.captured(3).toInt();
+
+            QDate date(year, month, day);
+            if (date.isValid()) {
+                QDate date(year, month, day);
+                ui->ddl_3->setDate(date);
+                qDebug() << "✅ Date valide:" << date.toString("dd/MM/yyyy");
+            } else {
+                qDebug() << "❌ Date invalide après conversion";
+            }
+        } else {
+            qDebug() << "❌ Format non reconnu";
+        }
+
+
+
+
+
+              // "2025"
+
+            /*QDate date(year, month, day);
+            ui->ddl_3->setDate(date);*/}
+
+    else
+    {
+        QString input = ui->calendrier_2->item(row,column)->text()+ui->label_15moez_2->text();;
+        input = input.trimmed();  // Supprimer les espaces
+
+
+
+        // Expression régulière : extraire jour (2 chiffres), mois (1-2 chiffres), année (4 chiffres)
+        QRegularExpression re("(\\d{1,2})(\\d{1,2})/(\\d{4})");
+        QRegularExpressionMatch match = re.match(input);
+
+        if (match.hasMatch()) {
+            int day = match.captured(1).toInt();
+            int month = match.captured(2).toInt();
+            int year = match.captured(3).toInt();
+
+            QDate date(year, month, day);
+            if (date.isValid()) {
+                QDate date(year, month, day);
+                Evenement ev;
+                query = ev.getEvenementByDate(date);
+                while(!query.next()){date=date.addDays(-1);query = ev.getEvenementByDate(date);}
+                ui->titrel_3->setText(query.value("TITRE").toString());
+                ui->desl_3->setPlainText(query.value("DESCRIPTION").toString());
+                ui->ddl_3->setDate(query.value("DATE_DEB").toDate());
+                ui->dfl_3->setDate(query.value("DATE_FIN").toDate());
+                ui->capl_3->setText(query.value("CAPACITE").toString());
+                ui->prixl_3->setValue(query.value("PRIX").toDouble());
+                ui->statusl_3->setCurrentText(query.value("STATUT").toString());
+                ui->catl_3->setText(query.value("CATEGORIE").toString());
+                ui->typl_3->setText(query.value("TYPE").toString());
+                ui->orgl_3->setText(query.value("ORGANISATEUR").toString());
+                ui->lieul_3->setText(query.value("ID_ESPACE").toString());
+                qDebug() << "✅ Date valide:" << date.toString("dd/MM/yyyy");
+            } else {
+                qDebug() << "❌ Date invalide après conversion";
+            }
+        } else {
+            qDebug() << "❌ Format non reconnu";
+        }
+
+        /*QRegularExpression re("^[A-Za-z]+(\\d{2})(\\d{1})/(\\d{4})$"); // Jour : 2 chiffres, Mois : 1 chiffre
+        QRegularExpressionMatch match = re.match(input);
+
+        if (match.hasMatch()) {
+            int day = match.captured(1).toInt();     // "12"
+            int month = match.captured(2).toInt();   // "4"
+            int year = match.captured(3).toInt();    // "2025"
+
+            QDate date(year, month, day);
+            Evenement ev;
+            query = ev.getEvenementByDate(date);
+            while(!query.next()){date=date.addDays(-1);query = ev.getEvenementByDate(date);}
+            ui->titrel_3->setText(query.value("TITRE").toString());
+            ui->desl_3->setPlainText(query.value("DESCRIPTION").toString());
+            ui->ddl_3->setDate(query.value("DATE_DEB").toDate());
+            ui->dfl_3->setDate(query.value("DATE_FIN").toDate());
+            ui->capl_3->setText(query.value("CAPACITE").toString());
+            ui->prixl_3->setValue(query.value("PRIX").toDouble());
+            ui->statusl_3->setCurrentText(query.value("STATUT").toString());
+            ui->catl_3->setText(query.value("CATEGORIE").toString());
+            ui->typl_3->setText(query.value("TYPE").toString());
+            ui->orgl_3->setText(query.value("ORGANISATEUR").toString());
+            ui->lieul_3->setText(query.value("ID_ESPACE").toString());
+
+            if (date.isValid()) {
+                qDebug() << "✅ Date convertie :" << date.toString("dd/MM/yyyy");
+            } else {
+                qDebug() << "❌ Date invalide";
+            }
+        } else {
+            qDebug() << "❌ Format non reconnu";
+        }*/
+
+    }
+
+
+
+
+}
+
+
+void MainWindow::on_planifier_clicked()
+{
+    ui->groupBox_6moez_2->hide();
+    QString titre = ui->titrel_3->text();
+    //QString description = ui->deslwew->text(); // Utiliser text() pour QLineEdit
+    QString description = ui->desl_3->toPlainText(); // Utiliser toPlainText() pour QTextEdit
+    QDate dateDebut = ui->ddl_3->date();
+    QDate dateFin = ui->dfl_3->date();
+    int capacite = ui->capl_3->text().toInt(); // Utiliser text() et convertir en entier
+    double prix = ui->prixl_3->value();
+    QString statut = ui->statusl_3->currentText();
+    QString categorie = ui->catl_3->text(); // Utiliser text() pour QLineEdit
+    QString type = ui->typl_3->text();  // Utiliser text() pour QLineEdit
+    QString organisateur = ui->orgl_3->text();
+    int id_espace = ui->lieul_3->text().toInt(); // Ajout du champ lieu (assurez-vous que lieul existe dans l'UI)
+
+    // Contrôle des champs obligatoires
+    if (titre.isEmpty() || description.isEmpty() || capacite <= 0 || prix <= 0 || statut.isEmpty() ||
+        categorie.isEmpty() || type.isEmpty() || organisateur.isEmpty() || id_espace < 0) {
+        QMessageBox::critical(this, "Erreur", "Tous les champs doivent être remplis !");
+        return; // Arrêter l'exécution de la fonction si un champ est vide
+    }
+
+    // Contrôle de la capacité (doit être supérieure à 10)
+    if (capacite <= 10) {
+        QMessageBox::critical(this, "Erreur", "La capacité doit être supérieure à 10 !");
+        return;
+    }
+
+    // Contrôle du prix (doit être positif)
+    if (prix <= 0) {
+        QMessageBox::critical(this, "Erreur", "Le prix doit être positif !");
+        return;
+    }
+
+    // Contrôle de la date de fin (doit être après la date de début)
+    if (dateFin <= dateDebut) {
+        QMessageBox::critical(this, "Erreur", "La date de fin doit être supérieure à la date de début !");
+        return;
+    }
+
+    // Créer l’objet Evenement avec les données validées
+    Evenement ev(titre, type, capacite, prix, description, dateDebut, dateFin, categorie, statut, organisateur, id_espace);
+
+    // Appeler la méthode ajouter()
+    if (ev.ajouter()) {
+        QMessageBox::information(this, "Succès", "Événement ajouté avec succès !");
+        afficherEvenement();
+        ui->calendrier_2->clearContents();
+        //currentdate=currentdate.addMonths(-1);
+        //ui->calendrier_2->clearContents();
+        int verif=0;
+        QDate datee=currentdate;
+        QDate firstDayOfMonth(currentdate.year(), currentdate.month(), 1);
+        QDate datelable(currentdate);
+        ui->label->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_4->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_5->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_6->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_7->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_9->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_10->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_15moez_2->setText(QString::number( currentdate.month())+"/"+QString::number( currentdate.year()));
+        for(int i=0;i<ui->calendrier_2->rowCount();i++)
+        {
+            for(int j=0;j<ui->calendrier_2->columnCount();j++)
+            {   QLabel *label3 = new QLabel(firstDayOfMonth.toString("dd"));
+                label3->setFixedSize(70, 30);
+                label3->setAlignment(Qt::AlignCenter);
+                QWidget *container = new QWidget();
+
+                // Créer un QVBoxLayout (vertical)
+                QVBoxLayout *layout = new QVBoxLayout(container);
+                //layout->addStretch();
+                layout->addWidget(label3); // Espace flexible avant le label
+
+                // L'espace flexible après le label
+
+                // Réinitialiser les marges du layout pour éviter l'espace inutile
+                layout->setContentsMargins(0, 0, 0, 0);
+
+                container->setLayout(layout);
+
+                // Appliquer le style complet au container
+                container->setStyleSheet(R"(
+    background-color: rgba(255, 182, 193, 0.3);  /* Rose bébé transparent */
+    border: none;                               /* Aucune bordure */
+    border-radius: 12px;                        /* Coins arrondis */
+    padding: 8px 12px;                          /* Espace intérieur */
+    color: #4a3c3c;                             /* Texte doux */
+)");
+
+
+
+
+                label3->setStyleSheet(
+                    "border: none;"
+                    "background-color :transparent; "  // Couleur de fond
+
+                    );
+                // Insérer le widget dans la cellule
+                ui->calendrier_2->setCellWidget(i, j, container);
+                ui->calendrier_2->setItem(i,j,new QTableWidgetItem("      "+firstDayOfMonth.toString("dd")));
+
+                qDebug()<<"verif est"<<verif;
+                if(verif>0)verif--;
+                for(int k=0;k<tablewidget->rowCount();k++)
+                {
+                    //qDebug()<<"date est "<< QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd");
+
+                    if(QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd")==firstDayOfMonth || verif>0)
+                    {
+
+
+
+                        if(verif==0)verif=QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd").daysTo(QDate::fromString(tablewidget->item(k,8)->text().split("T").first(), "yyyy-MM-dd"))+1;
+
+
+                        QLabel *label2 = new QLabel(firstDayOfMonth.toString("dd"));
+
+                        QDate date=firstDayOfMonth;
+                        Evenement ev;
+                        query = ev.getEvenementByDate(date);
+                        while(!query.next()){date=date.addDays(-1);query = ev.getEvenementByDate(date);}
+                        QLabel *label = new QLabel(query.value("TITRE").toString());
+                        label->setAlignment(Qt::AlignCenter); // Centrer le texte dans le QLabel
+                        label2->setAlignment(Qt::AlignCenter);
+                        // Taille plus petite que la cellule
+                        label->setFixedSize(140, 30);  // Change selon ton besoin
+                        label2->setFixedSize(70, 30);
+                        // Conteneur pour centrer le label sans changer la cellule
+                        QWidget *container = new QWidget();
+
+                        // Créer un QVBoxLayout (vertical)
+                        QVBoxLayout *layout = new QVBoxLayout(container);
+
+                        // Ajoute un espace flexible pour pousser le label vers le bas
+
+
+                        layout->addStretch();
+                        layout->addWidget(label2); // Espace flexible avant le label
+                        layout->addWidget(label);       // Le label sera en bas
+                            // L'espace flexible après le label
+
+                        // Réinitialiser les marges du layout pour éviter l'espace inutile
+                        layout->setContentsMargins(0, 0, 0, 0);
+
+                        container->setLayout(layout);
+
+                        // Appliquer le style complet au container
+                        container->setStyleSheet(R"(
+    background-color: rgba(255, 182, 193, 0.3);  /* Rose bébé transparent */
+    border: none;                               /* Aucune bordure */
+    border-radius: 12px;                        /* Coins arrondis */
+    padding: 8px 12px;                          /* Espace intérieur */
+    color: #4a3c3c;                             /* Texte doux */
+)");
+
+
+
+                        label->setStyleSheet(
+                            "background-color: rgba(173, 216, 230, 0.3); margin-right:10px;border: none; "  // Couleur de fond
+
+                            );
+                        label2->setStyleSheet(
+                            "border: none;"
+                            "background-color :transparent; "  // Couleur de fond
+
+                            );
+                        // Insérer le widget dans la cellule
+                        ui->calendrier_2->setCellWidget(i, j, container);
+                    }
+                }
+
+                firstDayOfMonth=firstDayOfMonth.addDays(1);}
+
+        }
+
+    } else {
+        QMessageBox::critical(this, "Erreur", "Échec de l’ajout de l’événement !");
+    }
+}
+
+void MainWindow::on_supprimer_ev_clicked()
+{
+
+    ui->groupBox_6moez_2->hide();
+    Evenement ev;
+    if (ev.supprimer(query.value("ID").toInt())) {
+        QMessageBox::information(this, "Succès", "Événement supprimé avec succès.");
+        // Rafraîchir l'affichage après suppression
+        afficherEvenement();
+        ui->calendrier_2->clearContents();
+        //currentdate=currentdate.addMonths(-1);
+        //ui->calendrier_2->clearContents();
+        int verif=0;
+        QDate datee=currentdate;
+        QDate firstDayOfMonth(currentdate.year(), currentdate.month(), 1);
+        QDate datelable(currentdate);
+        ui->label->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_4->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_5->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_6->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_7->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_9->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_10->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+        ui->label_15moez_2->setText(QString::number( currentdate.month())+"/"+QString::number( currentdate.year()));
+        for(int i=0;i<ui->calendrier_2->rowCount();i++)
+        {
+            for(int j=0;j<ui->calendrier_2->columnCount();j++)
+            {   QLabel *label3 = new QLabel(firstDayOfMonth.toString("dd"));
+                label3->setFixedSize(70, 30);
+                label3->setAlignment(Qt::AlignCenter);
+                QWidget *container = new QWidget();
+
+                // Créer un QVBoxLayout (vertical)
+                QVBoxLayout *layout = new QVBoxLayout(container);
+                //layout->addStretch();
+                layout->addWidget(label3); // Espace flexible avant le label
+
+                // L'espace flexible après le label
+
+                // Réinitialiser les marges du layout pour éviter l'espace inutile
+                layout->setContentsMargins(0, 0, 0, 0);
+
+                container->setLayout(layout);
+
+                // Appliquer le style complet au container
+                container->setStyleSheet(R"(
+    background-color: rgba(255, 182, 193, 0.3);  /* Rose bébé transparent */
+    border: none;                               /* Aucune bordure */
+    border-radius: 12px;                        /* Coins arrondis */
+    padding: 8px 12px;                          /* Espace intérieur */
+    color: #4a3c3c;                             /* Texte doux */
+)");
+
+
+
+
+                label3->setStyleSheet(
+                    "border: none;"
+                    "background-color :transparent; "  // Couleur de fond
+
+                    );
+                // Insérer le widget dans la cellule
+                ui->calendrier_2->setCellWidget(i, j, container);
+                ui->calendrier_2->setItem(i,j,new QTableWidgetItem("      "+firstDayOfMonth.toString("dd")));
+
+                qDebug()<<"verif est"<<verif;
+                if(verif>0)verif--;
+                for(int k=0;k<tablewidget->rowCount();k++)
+                {
+                    //qDebug()<<"date est "<< QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd");
+
+                    if(QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd")==firstDayOfMonth || verif>0)
+                    {
+
+
+
+                        if(verif==0)verif=QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd").daysTo(QDate::fromString(tablewidget->item(k,8)->text().split("T").first(), "yyyy-MM-dd"))+1;
+
+
+                        QLabel *label2 = new QLabel(firstDayOfMonth.toString("dd"));
+
+                        QDate date=firstDayOfMonth;
+                        Evenement ev;
+                        query = ev.getEvenementByDate(date);
+                        while(!query.next()){date=date.addDays(-1);query = ev.getEvenementByDate(date);}
+                        QLabel *label = new QLabel(query.value("TITRE").toString());
+                        label->setAlignment(Qt::AlignCenter); // Centrer le texte dans le QLabel
+                        label2->setAlignment(Qt::AlignCenter);
+                        // Taille plus petite que la cellule
+                        label->setFixedSize(140, 30);  // Change selon ton besoin
+                        label2->setFixedSize(70, 30);
+                        // Conteneur pour centrer le label sans changer la cellule
+                        QWidget *container = new QWidget();
+
+                        // Créer un QVBoxLayout (vertical)
+                        QVBoxLayout *layout = new QVBoxLayout(container);
+
+                        // Ajoute un espace flexible pour pousser le label vers le bas
+
+
+                        layout->addStretch();
+                        layout->addWidget(label2); // Espace flexible avant le label
+                        layout->addWidget(label);       // Le label sera en bas
+                            // L'espace flexible après le label
+
+                        // Réinitialiser les marges du layout pour éviter l'espace inutile
+                        layout->setContentsMargins(0, 0, 0, 0);
+
+                        container->setLayout(layout);
+
+                        // Appliquer le style complet au container
+                        container->setStyleSheet(R"(
+    background-color: rgba(255, 182, 193, 0.3);  /* Rose bébé transparent */
+    border: none;                               /* Aucune bordure */
+    border-radius: 12px;                        /* Coins arrondis */
+    padding: 8px 12px;                          /* Espace intérieur */
+    color: #4a3c3c;                             /* Texte doux */
+)");
+
+
+
+                        label->setStyleSheet(
+                            "background-color: rgba(173, 216, 230, 0.3); margin-right:10px;border: none; "  // Couleur de fond
+
+                            );
+                        label2->setStyleSheet(
+                            "border: none;"
+                            "background-color :transparent; "  // Couleur de fond
+
+                            );
+                        // Insérer le widget dans la cellule
+                        ui->calendrier_2->setCellWidget(i, j, container);
+                    }
+                }
+
+                firstDayOfMonth=firstDayOfMonth.addDays(1);}
+
+        }
+    } else {
+        QMessageBox::critical(this, "Erreur", "Échec de la suppression de l'événement.");
+    }
+}
+
+
+
+
+
+void MainWindow::on_ticket_clicked(){
+    // Vérifie si une ligne est sélectionnée
+   /* QModelIndexList selectedRows = ui->tableView->selectionModel()->selectedRows();
+if (selectedRows.isEmpty()) {
+    QMessageBox::warning(this, "Erreur", "Veuillez sélectionner un événement dans le tableau.");
+    return;
+}
+
+// Récupérer l'ID de l'événement sélectionné
+QModelIndex index = selectedRows.first();
+int row = index.row();
+qDebug() << "Contenu ligne sélectionnée :";
+
+// Afficher les données de la ligne sélectionnée
+for (int i = 1; i < model->columnCount(); ++i) {
+    qDebug() << "Colonne" << i << ":" << model->index(row, i).data().toString();
+}
+//query.next();
+// Récupérer les données de la ligne sélectionnée
+QString titre = "";//query.value("TITRE").toString();
+QString dateDebut ="";  //query.value("DATE_DEB").toString(); // Date de début en colonne 2
+QString dateFin = "";//query.value("DATE_FIN").toString(); ; // Date de fin en colonne 3
+QString prix =  "";//query.value("PRIX").toString();  // Prix en colonne 4
+qDebug()<<"prix   :"<<prix;
+// Générer le contenu du ticket PDF
+QString contenu =
+    "<html>"
+    "<head>"
+    "<style>"
+    "body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }"
+    ".ticket-container { max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; padding: 30px; border: 1px solid #ccc; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }"
+    ".ticket-header { text-align: center; background-color: #4CAF50; color: white; padding: 15px; border-radius: 8px 8px 0 0; font-size: 24px; }"
+    ".ticket-content { margin-top: 20px; padding: 10px; }"
+    ".ticket-content p { font-size: 16px; line-height: 1.6; margin: 10px 0; }"
+    ".ticket-footer { margin-top: 20px; text-align: center; padding: 10px; font-size: 14px; background-color: #f1f1f1; border-radius: 0 0 8px 8px; }"
+    ".ticket-footer .note { font-style: italic; color: #777; }"
+    "</style>"
+    "</head>"
+    "<body>"
+    "<div class='ticket-container'>"
+    "<div class='ticket-header'>🎫 Ticket Événement</div>"
+    "<div class='ticket-content'>"
+    "<p><strong>Titre :</strong> " + titre +  "</p>"
+              "<p><strong>Date de début :</strong> " + dateDebut + "</p>"
+                  "<p><strong>Date de fin :</strong> " + dateFin + "</p>"
+                "<p><strong>Prix :</strong> " + prix + " DT</p>"
+             "</div>"
+             "<div class='ticket-footer'>"
+             "<p class='note'>Merci d'avoir choisi notre événement. Nous espérons que vous passerez un excellent moment !</p>"
+             "</div>"
+             "</div>"
+             "</body>"
+             "</html>";
+
+
+QTextDocument doc;
+doc.setHtml(contenu);
+
+// Choisir où enregistrer le fichier
+QString fileName = QFileDialog::getSaveFileName(this, "Enregistrer le ticket PDF", "", "PDF Files (*.pdf)");
+if (fileName.isEmpty())
+    return;
+
+// Configurer l'imprimante PDF
+QPrinter printer(QPrinter::PrinterResolution);
+printer.setOutputFormat(QPrinter::PdfFormat);
+printer.setOutputFileName(fileName);
+printer.setPageMargins(QMarginsF(15, 15, 15, 15));
+
+// Générer le PDF
+doc.print(&printer);
+
+QMessageBox::information(this, "Succès", "Le ticket a été généré avec succès !");
+QDesktopServices::openUrl(QUrl::fromLocalFile(fileName));*/
+}
+
+
+
+
+
+void MainWindow::on_valide_date_clicked()
+{
+    ui->calendrier_2->clearContents();
+    currentdate=ui->date->date();
+    //ui->calendrier_2->clearContents();
+    int verif=0;
+    QDate datee=currentdate;
+    QDate firstDayOfMonth(currentdate.year(), currentdate.month(), 1);
+    QDate datelable(currentdate);
+    ui->label->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_4->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_5->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_6->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_7->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_9->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_10->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_15moez_2->setText(QString::number( currentdate.month())+"/"+QString::number( currentdate.year()));
+    for(int i=0;i<ui->calendrier_2->rowCount();i++)
+    {
+        for(int j=0;j<ui->calendrier_2->columnCount();j++)
+        {   QLabel *label3 = new QLabel(firstDayOfMonth.toString("dd"));
+            label3->setFixedSize(70, 30);
+            label3->setAlignment(Qt::AlignCenter);
+            QWidget *container = new QWidget();
+
+            // Créer un QVBoxLayout (vertical)
+            QVBoxLayout *layout = new QVBoxLayout(container);
+            //layout->addStretch();
+            layout->addWidget(label3); // Espace flexible avant le label
+
+            // L'espace flexible après le label
+
+            // Réinitialiser les marges du layout pour éviter l'espace inutile
+            layout->setContentsMargins(0, 0, 0, 0);
+
+            container->setLayout(layout);
+
+            // Appliquer le style complet au container
+            container->setStyleSheet(R"(
+    background-color: rgba(255, 182, 193, 0.3);  /* Rose bébé transparent */
+    border: none;                               /* Aucune bordure */
+    border-radius: 12px;                        /* Coins arrondis */
+    padding: 8px 12px;                          /* Espace intérieur */
+    color: #4a3c3c;                             /* Texte doux */
+)");
+
+
+
+
+            label3->setStyleSheet(
+                "border: none;"
+                "background-color :transparent; "  // Couleur de fond
+
+                );
+            // Insérer le widget dans la cellule
+            ui->calendrier_2->setCellWidget(i, j, container);
+            ui->calendrier_2->setItem(i,j,new QTableWidgetItem("      "+firstDayOfMonth.toString("dd")));
+
+            qDebug()<<"verif est"<<verif;
+            if(verif>0)verif--;
+            for(int k=0;k<tablewidget->rowCount();k++)
+            {
+                //qDebug()<<"date est "<< QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd");
+
+                if(QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd")==firstDayOfMonth || verif>0)
+                {
+
+
+
+                    if(verif==0)verif=QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd").daysTo(QDate::fromString(tablewidget->item(k,8)->text().split("T").first(), "yyyy-MM-dd"))+1;
+
+
+                    QLabel *label2 = new QLabel(firstDayOfMonth.toString("dd"));
+
+                    QDate date=firstDayOfMonth;
+                    Evenement ev;
+                    query = ev.getEvenementByDate(date);
+                    while(!query.next()){date=date.addDays(-1);query = ev.getEvenementByDate(date);}
+                    QLabel *label = new QLabel(query.value("TITRE").toString());
+                    label->setAlignment(Qt::AlignCenter); // Centrer le texte dans le QLabel
+                    label2->setAlignment(Qt::AlignCenter);
+                    // Taille plus petite que la cellule
+                    label->setFixedSize(140, 30);  // Change selon ton besoin
+                    label2->setFixedSize(70, 30);
+                    // Conteneur pour centrer le label sans changer la cellule
+                    QWidget *container = new QWidget();
+
+                    // Créer un QVBoxLayout (vertical)
+                    QVBoxLayout *layout = new QVBoxLayout(container);
+
+                    // Ajoute un espace flexible pour pousser le label vers le bas
+
+
+                    layout->addStretch();
+                    layout->addWidget(label2); // Espace flexible avant le label
+                    layout->addWidget(label);       // Le label sera en bas
+                        // L'espace flexible après le label
+
+                    // Réinitialiser les marges du layout pour éviter l'espace inutile
+                    layout->setContentsMargins(0, 0, 0, 0);
+
+                    container->setLayout(layout);
+
+                    // Appliquer le style complet au container
+                    container->setStyleSheet(R"(
+    background-color: rgba(255, 182, 193, 0.3);  /* Rose bébé transparent */
+    border: none;                               /* Aucune bordure */
+    border-radius: 12px;                        /* Coins arrondis */
+    padding: 8px 12px;                          /* Espace intérieur */
+    color: #4a3c3c;                             /* Texte doux */
+)");
+
+
+
+                    label->setStyleSheet(
+                        "background-color: rgba(173, 216, 230, 0.3); margin-right:10px;border: none; "  // Couleur de fond
+
+                        );
+                    label2->setStyleSheet(
+                        "border: none;"
+                        "background-color :transparent; "  // Couleur de fond
+
+                        );
+                    // Insérer le widget dans la cellule
+                    ui->calendrier_2->setCellWidget(i, j, container);
+                }
+            }
+
+            firstDayOfMonth=firstDayOfMonth.addDays(1);}
+    }}
+
+
+void MainWindow::on_calendrier_clicked()
+{
+    ui->tabWidget->setCurrentIndex(5);
+    ui->calendrier_2->clearContents();
+    int verif=0;
+    QDate datee=currentdate;
+    QDate firstDayOfMonth(currentdate.year(), currentdate.month(), 1);
+    QDate datelable(currentdate);
+    ui->label->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_4->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_5->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_6->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_7->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_9->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_10->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
+    ui->label_15moez_2->setText(QString::number( currentdate.month())+"/"+QString::number( currentdate.year()));
+    for(int i=0;i<ui->calendrier_2->rowCount();i++)
+    {
+        for(int j=0;j<ui->calendrier_2->columnCount();j++)
+        {   QLabel *label3 = new QLabel(firstDayOfMonth.toString("dd"));
+            label3->setFixedSize(70, 30);
+            label3->setAlignment(Qt::AlignCenter);
+            QWidget *container = new QWidget();
+
+            // Créer un QVBoxLayout (vertical)
+            QVBoxLayout *layout = new QVBoxLayout(container);
+            //layout->addStretch();
+            layout->addWidget(label3); // Espace flexible avant le label
+
+            // L'espace flexible après le label
+
+            // Réinitialiser les marges du layout pour éviter l'espace inutile
+            layout->setContentsMargins(0, 0, 0, 0);
+
+            container->setLayout(layout);
+
+            // Appliquer le style complet au container
+            container->setStyleSheet(R"(
+    background-color: rgba(255, 182, 193, 0.3);  /* Rose bébé transparent */
+    border: none;                               /* Aucune bordure */
+    border-radius: 12px;                        /* Coins arrondis */
+    padding: 8px 12px;                          /* Espace intérieur */
+    color: #4a3c3c;                             /* Texte doux */
+)");
+
+
+
+
+            label3->setStyleSheet(
+                "border: none;"
+                "background-color :transparent; "  // Couleur de fond
+
+                );
+            // Insérer le widget dans la cellule
+            ui->calendrier_2->setCellWidget(i, j, container);
+            ui->calendrier_2->setItem(i,j,new QTableWidgetItem("      "+firstDayOfMonth.toString("dd")));
+
+            qDebug()<<"verif est"<<verif;
+            if(verif>0)verif--;
+            for(int k=0;k<tablewidget->rowCount();k++)
+            {
+                //qDebug()<<"date est "<< QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd");
+
+                if(QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd")==firstDayOfMonth || verif>0)
+                {
+
+
+
+                    if(verif==0)verif=QDate::fromString(tablewidget->item(k,7)->text().split("T").first(), "yyyy-MM-dd").daysTo(QDate::fromString(tablewidget->item(k,8)->text().split("T").first(), "yyyy-MM-dd"))+1;
+
+
+                    QLabel *label2 = new QLabel(firstDayOfMonth.toString("dd"));
+
+                    QDate date=firstDayOfMonth;
+                    Evenement ev;
+                    query = ev.getEvenementByDate(date);
+                    while(!query.next()){date=date.addDays(-1);query = ev.getEvenementByDate(date);}
+                    QLabel *label = new QLabel(query.value("TITRE").toString());
+                    label->setAlignment(Qt::AlignCenter); // Centrer le texte dans le QLabel
+                    label2->setAlignment(Qt::AlignCenter);
+                    // Taille plus petite que la cellule
+                    label->setFixedSize(140, 30);  // Change selon ton besoin
+                    label2->setFixedSize(70, 30);
+                    // Conteneur pour centrer le label sans changer la cellule
+                    QWidget *container = new QWidget();
+
+                    // Créer un QVBoxLayout (vertical)
+                    QVBoxLayout *layout = new QVBoxLayout(container);
+
+                    // Ajoute un espace flexible pour pousser le label vers le bas
+
+
+                    layout->addStretch();
+                    layout->addWidget(label2); // Espace flexible avant le label
+                    layout->addWidget(label);       // Le label sera en bas
+                        // L'espace flexible après le label
+
+                    // Réinitialiser les marges du layout pour éviter l'espace inutile
+                    layout->setContentsMargins(0, 0, 0, 0);
+
+                    container->setLayout(layout);
+
+                    // Appliquer le style complet au container
+                    container->setStyleSheet(R"(
+    background-color: rgba(255, 182, 193, 0.3);  /* Rose bébé transparent */
+    border: none;                               /* Aucune bordure */
+    border-radius: 12px;                        /* Coins arrondis */
+    padding: 8px 12px;                          /* Espace intérieur */
+    color: #4a3c3c;                             /* Texte doux */
+)");
+
+
+
+                    label->setStyleSheet(
+                        "background-color: rgba(173, 216, 230, 0.3); margin-right:10px;border: none; "  // Couleur de fond
+
+                        );
+                    label2->setStyleSheet(
+                        "border: none;"
+                        "background-color :transparent; "  // Couleur de fond
+
+                        );
+                    // Insérer le widget dans la cellule
+                    ui->calendrier_2->setCellWidget(i, j, container);
+                }
+            }
+
+            firstDayOfMonth=firstDayOfMonth.addDays(1);
+        }}}
+
+
+/*void MainWindow::on_todo_clicked()
+{
+    // Récupérer le layout vertical de la GroupBox
+    QVBoxLayout* layout = qobject_cast<QVBoxLayout*>(ui->todoGroupBox->layout());
+    if (!layout) return;
+
+    // Supprimer toutes les anciennes tâches (sauf les widgets fixes comme la ligne d'ajout si elle y est)
+    QLayoutItem* item;
+    while ((item = layout->takeAt(0)) != nullptr) {
+        QWidget* widget = item->widget();
+        if (widget) widget->deleteLater();
+        delete item;
+    }
+
+    // Recharger les tâches depuis le fichier
+    QFile file("todolist.txt");
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        while (!in.atEnd()) {
+            QString task = in.readLine();
+            if (!task.trimmed().isEmpty()) {
+                QCheckBox* cb = new QCheckBox(task);
+                layout->addWidget(cb);
+            }
+        }
+        file.close();
+    }
+}
+
+
+
+void MainWindow::on_addTaskButton_clicked()
+{
+    QString taskText = ui->todoLineEdit->text().trimmed();
+    if (!taskText.isEmpty()) {
+        QCheckBox* cb = new QCheckBox(taskText);
+        // Créer un layout vertical
+        QVBoxLayout* todoLayout = new QVBoxLayout();
+
+        // Associer ce layout à la GroupBox
+        ui->todoGroupBox->setLayout(todoLayout);
+
+
+        // Ajouter au layout de la GroupBox
+        QVBoxLayout* layout = qobject_cast<QVBoxLayout*>(ui->todoGroupBox->layout());
+        if (layout) layout->addWidget(cb);
+
+        // Sauvegarde
+        QFile file("todolist.txt");
+        if (file.open(QIODevice::Append | QIODevice::Text)) {
+            QTextStream out(&file);
+            out << taskText << "\n";
+            file.close();
+        }
+
+        ui->todoLineEdit->clear();
+    }
+}*/
+
+

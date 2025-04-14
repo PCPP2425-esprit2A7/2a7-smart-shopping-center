@@ -143,3 +143,4 @@ bool Evenement::modifier(int id, const QString &titre, const QString &type, int 
     qDebug() << "Événement modifié avec succès !";
     return true;
 }
+
