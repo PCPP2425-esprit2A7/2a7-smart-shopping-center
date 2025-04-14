@@ -18,7 +18,8 @@
 #include <QEvent>
 #include <QTimer>
 #include "mailsender.h"
-
+#include <QTextBrowser>
+#include <QDateTime>
 
 HoverButton::HoverButton(QWidget *parent) : QPushButton(parent)  // ✅ Implémentation correcte
 {
@@ -70,18 +71,108 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     openAIClient = new OpenAIClient();
+    // Configure le style de base
+    ui->textBrowserReponse->setOpenLinks(false);
+    ui->textBrowserReponse->document()->setDefaultStyleSheet(
+        "/* Styles des bulles */"
+        ".user-message {"
+        "   background: #0084ff;"
+        "   color: white;"
+        "   border-radius: 18px 18px 0 18px;"
+        "   padding: 10px 14px;"
+        "   margin-left: 50px;"
+        "   display: inline-block;"
+        "   max-width: 75%;"
+        "   word-wrap: break-word;"
+        "}"
+        ".bot-message {"
+        "   background: #e5e5ea;"
+        "   color: black;"
+        "   border-radius: 18px 18px 18px 0;"
+        "   padding: 10px 14px;"
+        "   margin-right: 50px;"
+        "   display: inline-block;"
+        "   max-width: 75%;"
+        "   word-wrap: break-word;"
+        "}"
 
-    // Connexion au signal pour obtenir la requête SQL générée
-    connect(openAIClient, &OpenAIClient::chatbotResponse, this, [](const QString &reponse) {
-        qDebug() << "Réponse du chatbot : " << reponse;
-    });
+        "/* Conteneurs et alignement */"
+        ".message-container {"
+        "   margin: 10px 0;"
+        "}"
+        ".user-container {"
+        "   text-align: right;"
+        "}"
+        ".bot-container {"
+        "   text-align: left;"
+        "}"
+
+        "/* Avatars */"
+        ".avatar {"
+        "   width: 32px;"
+        "   height: 32px;"
+        "   border-radius: 50%;"
+        "   margin: 0 8px;"
+        "   vertical-align: middle;"
+        "}"
+
+        "/* Timestamps */"
+        ".timestamp {"
+        "   color: #999999;"
+        "   font-size: 10px;"
+        "   margin: 0 8px;"
+        "   display: inline-block;"
+        "}"
+
+        "/* Animation */"
+        "@keyframes fadeIn {"
+        "   from { opacity: 0; transform: translateY(10px); }"
+        "   to { opacity: 1; transform: translateY(0); }"
+        "}"
+        ".message-container {"
+        "   animation: fadeIn 0.3s ease-out;"
+        "}"
+        );
+
+    // Message de l'utilisateur
     connect(ui->btnEnvoyer, &QPushButton::clicked, this, [=]() {
         QString question = ui->lineEditQuestion->toPlainText().trimmed();
-        openAIClient->envoyerMessageChatbot(question);
-        ui->lineEditQuestion->clear();
+        if (!question.isEmpty()) {
+            QString timestamp = QDateTime::currentDateTime().toString("HH:mm");
+            QString html = QString(
+                               "<div class='message-container user-container'>"
+                               "   <div class='user-message'>%1</div>"
+                               "   <span class='timestamp'>%2</span>"
+                               "</div>"
+                               ).arg(question.toHtmlEscaped().replace("\n", "<br>"), timestamp);
+
+            ui->textBrowserReponse->append(html);
+            ui->textBrowserReponse->verticalScrollBar()->setValue(
+                ui->textBrowserReponse->verticalScrollBar()->maximum()
+                );
+
+            openAIClient->envoyerMessageChatbot(question);
+            ui->lineEditQuestion->clear();
+        }
     });
+
+    // Réponse du bot
     connect(openAIClient, &OpenAIClient::chatbotResponse, this, [=](const QString &reponse) {
-        ui->textBrowserReponse->append(QString("<div class='reponse'>Bot : %1</div>").arg(reponse));
+        QString timestamp = QDateTime::currentDateTime().toString("HH:mm");
+        QString formatted = reponse.toHtmlEscaped().replace("\n", "<br>");
+
+        QString html = QString(
+                           "<div class='message-container bot-container'>"
+                           "   <img src='../icons/employe.jpg' class='avatar'>"
+                           "   <div class='bot-message'>%1</div>"
+                           "   <span class='timestamp'>%2</span>"
+                           "</div>"
+                           ).arg(formatted, timestamp);
+
+        ui->textBrowserReponse->append(html);
+        ui->textBrowserReponse->verticalScrollBar()->setValue(
+            ui->textBrowserReponse->verticalScrollBar()->maximum()
+            );
     });
 
     ui->lineEdit_Recherche->setPlaceholderText("🔎 Rechercher un service...");
@@ -158,9 +249,7 @@ void MainWindow::genererDescriptionIA() {
 
     QString prompt = QString(
                          "Génère une description  pour un service nommé '%1'. "
-                         "Ce service a le statut '%2', se répète avec la fréquence '%3', "
-                         "est prévu du %4 au %5, coûte %6 euros et est associé à l'espace '%7'."
-                         ).arg(nom).arg(statut).arg(frequence).arg(dateDebut).arg(dateFin).arg(cout).arg(espace);
+                         ).arg(nom);
 
     openAIClient->envoyerRequeteDescription(prompt);
 }
@@ -375,140 +464,118 @@ void MainWindow::on_deleteButton_clicked()
 
 }
 
-
-
 void MainWindow::on_pdf_clicked()
 {
     QString filePath = QFileDialog::getSaveFileName(this, "Exporter en PDF", "", "PDF Files (*.pdf)");
-    if (filePath.isEmpty()) {
-        return;
-    }
+    if (filePath.isEmpty()) return;
 
     QPdfWriter pdfWriter(filePath);
-    pdfWriter.setPageSize(QPageSize(QPageSize::A4));
+    pdfWriter.setPageSize(QPageSize::A4);
     pdfWriter.setResolution(300);
-    pdfWriter.setTitle("Liste des eservices");
 
     QPainter painter(&pdfWriter);
+    int left = 50;
+    int top = 60;
+    int right = 50;
+    int x = left;
+    int y = top;
 
-    // ✅ Marges ajustées pour un meilleur espacement
-    int marginLeft = 80;
-    int marginTop = 100;
-    int x = marginLeft;
-    int y = marginTop;
+    // Titre
+    QString title = "Liste des services";
+    painter.setFont(QFont("Helvetica", 16, QFont::Bold));
+    painter.setPen(QColor(30, 30, 100));
+    QRect titleRect(left, y, pdfWriter.width() - left - right, 60);
+    painter.drawText(titleRect, Qt::AlignCenter, title);
+    y += 80;
 
-    // ✅ Titre du document
-    QString title = "Liste des servicess";
-    QRect rectTitle(marginLeft, y, pdfWriter.width() - (marginLeft * 2), 80);
-    painter.setFont(QFont("Helvetica", 18, QFont::Bold));
-    painter.setPen(Qt::darkBlue);
-    painter.drawText(rectTitle, Qt::AlignCenter, title);
-    y += 90;
+    QFont headerFont("Helvetica", 11, QFont::Bold);
+    QFont bodyFont("Helvetica", 10);
+    painter.setFont(headerFont);
 
-    // ✅ Dimensions des lignes et colonnes
-    int rowHeight = 40;
-    int maxColsPerPage = 7;
+    // Préparation des colonnes visibles (sans image)
+    QAbstractItemModel *model = ui->tableView->model();
+    int colCount = model->columnCount();
+    int rowCount = model->rowCount();
 
-    int colCount = ui->tableView->model()->columnCount();
+    int imageCol = -1;
+    int descriptionCol = -1;
 
-    // ✅ Exclure la colonne contenant l'image de profil (pdp)
-    int photoIndex = -1;
     for (int i = 0; i < colCount; ++i) {
-        if (ui->tableView->model()->headerData(i, Qt::Horizontal).toString().toLower().contains("pdp")) {
-            photoIndex = i;
-            break;
-        }
+        QString header = model->headerData(i, Qt::Horizontal).toString().toLower();
+        if (header.contains("pdp")) imageCol = i;
+        if (header.contains("description")) descriptionCol = i;
     }
 
-    int adjustedColCount = (photoIndex != -1) ? colCount - 1 : colCount;
-    int colsToShow = qMin(maxColsPerPage, adjustedColCount);
-
-    // ✅ Largeur ajustée des colonnes pour éviter les chevauchements
-    int colWidth = (pdfWriter.width() - (2 * marginLeft) - (colsToShow * 5)) / colsToShow;
-
-    // ✅ Dessiner les en-têtes du tableau
-    painter.setFont(QFont("Helvetica", 12, QFont::Bold));
-    painter.setPen(Qt::black);
-    painter.setBrush(QColor(200, 200, 200)); // Fond gris clair pour différencier
-
-    for (int i = 0, j = 0; i < colCount; ++i) {
-        if (i == photoIndex) continue;
-        if (j >= colsToShow) break;
-
-        painter.drawRect(x, y, colWidth, rowHeight);
-        painter.drawText(QRect(x + 5, y, colWidth - 10, rowHeight), Qt::AlignCenter,
-                         ui->tableView->model()->headerData(i, Qt::Horizontal).toString());
-        x += colWidth + 5;
-        j++;
+    QList<int> visibleCols;
+    for (int i = 0; i < colCount; ++i) {
+        if (i != imageCol) visibleCols.append(i);
     }
 
-    y += rowHeight + 5;
-    x = marginLeft;
+    int cols = visibleCols.size();
+    int pageWidth = pdfWriter.width() - left - right;
+    int descriptionExtra = 2; // pondération x2 pour la colonne description
+    int baseUnit = pageWidth / (cols + descriptionExtra - 1);
+    QMap<int, int> colWidths;
 
-    // ✅ Remplissage des données
-    painter.setFont(QFont("Helvetica", 10));
-    int rowCount = ui->tableView->model()->rowCount();
+    for (int i = 0; i < cols; ++i) {
+        int col = visibleCols[i];
+        colWidths[col] = (col == descriptionCol) ? baseUnit * descriptionExtra : baseUnit;
+    }
 
+    int rowHeight = 40;
+    x = left;
+
+    // Dessiner entêtes
+    for (int col : visibleCols) {
+        int width = colWidths[col];
+        QRect rect(x, y, width, rowHeight);
+        painter.fillRect(rect, QColor(220, 220, 250));
+        painter.setPen(Qt::black);
+        painter.drawRect(rect);
+        painter.drawText(rect, Qt::AlignCenter, model->headerData(col, Qt::Horizontal).toString());
+        x += width;
+    }
+
+    y += rowHeight;
+
+    painter.setFont(bodyFont);
+
+    // Dessiner les lignes de données
     for (int row = 0; row < rowCount; ++row) {
-        QColor rowColor = (row % 2 == 0) ? QColor(245, 245, 245) : QColor(255, 255, 255);
-        painter.setBrush(rowColor);
+        x = left;
+        QColor bgColor = (row % 2 == 0) ? QColor(255, 255, 255) : QColor(245, 245, 255);
 
-        for (int col = 0, j = 0; col < colCount; ++col) {
-            if (col == photoIndex) continue;
-            if (j >= colsToShow) break;
+        for (int col : visibleCols) {
+            int width = colWidths[col];
+            QRect rect(x, y, width, rowHeight);
+            painter.fillRect(rect, bgColor);
+            painter.setPen(Qt::gray);
+            painter.drawRect(rect);
 
-            painter.setPen(QColor(120, 120, 120)); // Bordures plus discrètes
-            painter.drawRect(x, y, colWidth, rowHeight);
+            QString data = model->data(model->index(row, col)).toString();
+            QTextOption opt(Qt::AlignLeft | Qt::AlignVCenter);
+            opt.setWrapMode(QTextOption::WordWrap);
 
-            QString data = ui->tableView->model()->data(ui->tableView->model()->index(row, col)).toString();
+            painter.setPen(Qt::black);
+            painter.drawText(rect.adjusted(5, 0, -5, 0), data, opt);
 
-            // ✅ Tronquer proprement le texte long avec "..."
-            data = data.left(colWidth / 10) + (data.length() > colWidth / 10 ? "..." : "");
-
-            // ✅ Alignement du texte en fonction du type de données
-            Qt::Alignment alignment = (data.toDouble() || data.toInt())
-                                          ? Qt::AlignRight | Qt::AlignVCenter
-                                          : Qt::AlignLeft | Qt::AlignVCenter;
-
-            painter.drawText(QRect(x + 5, y, colWidth - 10, rowHeight), alignment, data);
-            x += colWidth + 5;
-            j++;
+            x += width;
         }
 
-        x = marginLeft;
-        y += rowHeight + 2;
+        y += rowHeight;
 
-        // ✅ Gérer le saut de page et répéter l’en-tête
-        if (y > pdfWriter.height() - marginTop - 50) {
+        // Saut de page
+        if (y > pdfWriter.height() - 100) {
             pdfWriter.newPage();
-            y = marginTop;
-
-            // ✅ Répétition de l'en-tête après le saut de page
-            painter.setFont(QFont("Helvetica", 12, QFont::Bold));
-            painter.setPen(Qt::black);
-            painter.setBrush(QColor(200, 200, 200));
-
-            x = marginLeft;
-            for (int i = 0, j = 0; i < colCount; ++i) {
-                if (i == photoIndex) continue;
-                if (j >= colsToShow) break;
-
-                painter.drawRect(x, y, colWidth, rowHeight);
-                painter.drawText(QRect(x + 5, y, colWidth - 10, rowHeight),
-                                 Qt::AlignCenter, ui->tableView->model()->headerData(i, Qt::Horizontal).toString());
-                x += colWidth + 5;
-                j++;
-            }
-
-            y += rowHeight + 5;
-            x = marginLeft;
+            y = top;
         }
     }
 
     painter.end();
-
-    QMessageBox::information(this, "Succès", "Le fichier PDF a été généré avec succès !");
+    QDesktopServices::openUrl(QUrl::fromLocalFile(filePath));
+    QMessageBox::information(this, "Succès", "Le PDF stylisé a été généré avec succès !");
 }
+
 
 void MainWindow::afficherStatistiques() {
     QSqlQuery query;
@@ -888,30 +955,32 @@ void MainWindow::trierServices() {
     proxyModel->sort(columnIndex, Qt::AscendingOrder);
     qDebug() << "Tri effectué sur la colonne : " << columnIndex;
 }
-
 void MainWindow::filtrerServicesParStatut(const QString &statut) {
+    // Obtenez d'abord le modèle source correct (remplacez serviceModel par votre vrai modèle)
+    QAbstractItemModel *sourceModel = ui->tableView->model(); // ou autre modèle que vous utilisez
+
     // Vérifier si un proxyModel existe déjà
     QSortFilterProxyModel *proxyModel = qobject_cast<QSortFilterProxyModel*>(ui->tableView->model());
 
     if (!proxyModel) {
         proxyModel = new QSortFilterProxyModel(this);
-        proxyModel->setSourceModel(ui->tableView->model());  // Remplace `ui->tableView->model()` par le vrai modèle de données
+        proxyModel->setSourceModel(sourceModel);
         proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
         ui->tableView->setModel(proxyModel);
     }
 
-    // Appliquer le filtre sur la colonne du statut (colonne 3, à adapter si nécessaire)
-    int statutColumnIndex = 3;
+    // Appliquer le filtre sur la colonne du statut
+    int statutColumnIndex = 3; // Ajustez cet index selon votre modèle
 
     if (statut == "Tous") {
-        proxyModel->setFilterRegularExpression(QRegularExpression(".*", QRegularExpression::CaseInsensitiveOption));
+        proxyModel->setFilterFixedString(""); // Efface tout filtre
     } else {
-        proxyModel->setFilterRegularExpression(QRegularExpression("^" + QRegularExpression::escape(statut) + "$",
-                                                                  QRegularExpression::CaseInsensitiveOption));
+        proxyModel->setFilterRegularExpression(
+            QRegularExpression(statut, QRegularExpression::CaseInsensitiveOption));
+        proxyModel->setFilterKeyColumn(statutColumnIndex);
     }
-
-    proxyModel->setFilterKeyColumn(statutColumnIndex);
 }
+
 
 void MainWindow::rechercherService(const QString &searchText) {
     // Vérifier si un proxyModel existe déjà

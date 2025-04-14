@@ -29,6 +29,7 @@ set(PROJECT_SOURCES
     img.qrc
     openaiclient.h
     openaiclient.cpp  # Ajout du client OpenAI
+
 )
 
 # Création de l'exécutable
@@ -36,7 +37,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(gestion_services
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        config.txt
         mailsender.h mailsender.cpp
 
     )

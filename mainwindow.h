@@ -66,7 +66,7 @@ private slots:
     void afficherDescription(const QString &description);
     void on_lineEdit_id_textChanged(const QString &text);
     void on_lineEdit_id_textChanged2(const QString &text);
-   // void ajouterBulle(const QString &texte, bool estUtilisateur);
+
 
 private:
 
