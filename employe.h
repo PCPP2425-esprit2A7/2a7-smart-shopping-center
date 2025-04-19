@@ -18,6 +18,8 @@ private:
     QDate date_embauche;
     double salaire;
     QByteArray pdp; // Stockage de l'image en binaire
+    QByteArray face_id;
+
 
 public:
     QString cheminImagePDP;
@@ -25,7 +27,7 @@ public:
     // ✅ Constructeurs
     Employe();
     Employe(QString nom, QString prenom, QDate date_embauche, QString poste, double salaire,
-            QString email, QString sexe, QString telephone, QByteArray pdp, QString statut);
+            QString email, QString sexe, QString telephone, QByteArray pdp, QString statut, QByteArray face_id);
 
     // ✅ CRUD Operations
     bool ajouter();
@@ -37,11 +39,11 @@ public:
     int compterEmployes();
     static Employe rechercher(int id);
 
-
     // ✅ Méthodes supplémentaires
     bool chargerImage(int id) const;
     bool enregistrerImage(const QPixmap &pixmap, int id);
     QImage getImageById(int id) const;
+    bool enregistrerFaceId(const QByteArray &faceData);
 
     // ✅ Getters et Setters
     int getId() const { return id; }
@@ -76,6 +78,10 @@ public:
 
     QByteArray getPdp() const { return pdp; }
     void setPdp(const QByteArray &pdp) { this->pdp = pdp; }
+    QByteArray getFaceId() const { return face_id; }
+    void setFaceId(const QByteArray &value) { face_id = value; }
+
+
 };
 
 #endif // EMPLOYE_H

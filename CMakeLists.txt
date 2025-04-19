@@ -1,62 +1,78 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(Projetemploye VERSION 0.1 LANGUAGES CXX)
+# Configuration de l'encodage UTF-8
+if(MSVC)
+    add_compile_options(/utf-8)
+else()
+    add_compile_options(-finput-charset=UTF-8)
+endif()
 
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
+project(EmployeeManagementSystem VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# ✅ Inclusion des modules Qt nécessaires
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Sql Charts)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql Charts)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Sql)
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
+# Vérification des dépendances Python
+execute_process(
+    COMMAND ${Python3_EXECUTABLE} -c "import cv2; import numpy"
+    RESULT_VARIABLE PYTHON_DEPS_RESULT
+    OUTPUT_QUIET
+    ERROR_QUIET
+)
+
+if(NOT PYTHON_DEPS_RESULT EQUAL 0)
+    message(FATAL_ERROR "Les dépendances Python requises ne sont pas installées. Veuillez exécuter 'pip install -r requirements.txt'")
+endif()
+
+# Définir les fichiers source et en-têtes
 set(PROJECT_SOURCES
     main.cpp
     mainwindow.cpp
+    employeedialog.cpp
+    facelogindialog.cpp
+    connection.cpp
+)
+
+set(PROJECT_HEADERS
     mainwindow.h
+    employeedialog.h
+    facelogindialog.h
+    connection.h
+)
+
+set(PROJECT_FORMS
     mainwindow.ui
-    connection.h connection.cpp
-    employe.h employe.cpp
-    modifierdialog.h modifierdialog.cpp modifierdialog.ui
+    employeedialog.ui
+    facelogindialog.ui
 )
 
-# ✅ Création de l'exécutable
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(Projetemploye MANUAL_FINALIZATION ${PROJECT_SOURCES}
-        img.qrc)
-else()
-    if(ANDROID)
-        add_library(Projetemploye SHARED ${PROJECT_SOURCES})
-    else()
-        add_executable(Projetemploye ${PROJECT_SOURCES})
-    endif()
-endif()
-
-# ✅ Ajout correct des bibliothèques APRÈS la création de l'exécutable
-target_link_libraries(Projetemploye PRIVATE
-    Qt${QT_VERSION_MAJOR}::Widgets
-    Qt${QT_VERSION_MAJOR}::Sql
-    Qt${QT_VERSION_MAJOR}::Charts
+# Créer l'exécutable
+add_executable(${PROJECT_NAME}
+    ${PROJECT_SOURCES}
+    ${PROJECT_HEADERS}
+    ${PROJECT_FORMS}
 )
 
-# ✅ Configuration des propriétés de l'exécutable
-set_target_properties(Projetemploye PROPERTIES
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
+# Lier les bibliothèques Qt
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Widgets
+    Qt6::Sql
 )
 
-# ✅ Installation
-include(GNUInstallDirs)
-install(TARGETS Projetemploye
-    BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+# Copier les fichiers Python et ressources dans le dossier de build
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/face_recognition.py ${CMAKE_BINARY_DIR}/debug/face_recognition.py COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/haarcascade_frontalface_default.xml ${CMAKE_BINARY_DIR}/debug/haarcascade_frontalface_default.xml COPYONLY)
 
-# ✅ Finalisation si Qt6
-if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(Projetemploye)
-endif()
+# Installation des fichiers
+install(FILES 
+    ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/employeedialog.ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/facelogindialog.ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/face_recognition.py
+    ${CMAKE_CURRENT_SOURCE_DIR}/haarcascade_frontalface_default.xml
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin) 

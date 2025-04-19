@@ -1,5 +1,3 @@
-
-#include "modifierdialog.h"
 #include "employe.h"
 #include <QSqlQuery>
 #include <QSqlQueryModel>
@@ -21,11 +19,13 @@ Employe::Employe() {
     telephone = "";
     pdp = QByteArray(); // Correction du type
     statut = "";
+    face_id = QByteArray(); // Correction du type
+
 }
 
 // ✅ Constructeur paramétré
 Employe::Employe(QString nom, QString prenom, QDate date_embauche, QString poste, double salaire,
-                 QString email, QString sexe, QString telephone, QByteArray pdp, QString statut) {
+                 QString email, QString sexe, QString telephone, QByteArray pdp, QString statut, QByteArray face_id) {
     this->nom = nom;
     this->prenom = prenom;
     this->date_embauche = date_embauche;
@@ -36,13 +36,14 @@ Employe::Employe(QString nom, QString prenom, QDate date_embauche, QString poste
     this->telephone = telephone;
     this->pdp = pdp;
     this->statut = statut;
+    this->face_id= face_id;
 }
 
 bool Employe::ajouter()
 {
     QSqlQuery query;
-    query.prepare("INSERT INTO employe (nom, prenom, date_embauche, poste, salaire, email, sexe, telephone, pdp, statut) "
-                  "VALUES (:nom, :prenom, :date_embauche, :poste, :salaire, :email, :sexe, :telephone, :pdp, :statut)");
+    query.prepare("INSERT INTO employe (nom, prenom, date_embauche, poste, salaire, email, sexe, telephone, pdp, statut, face_id) "
+                  "VALUES (:nom, :prenom, :date_embauche, :poste, :salaire, :email, :sexe, :telephone, :pdp, :statut, :face_id)");
 
     query.bindValue(":nom", nom);
     query.bindValue(":prenom", prenom);
@@ -54,11 +55,20 @@ bool Employe::ajouter()
     query.bindValue(":telephone", telephone);
     query.bindValue(":statut", statut);
 
+    // Gestion de la photo de profil
     if (pdp.isEmpty()) {
         qDebug() << "⚠️ Pas d'image fournie.";
         query.bindValue(":pdp", QVariant()); // 🔥 Utilisation de QVariant() pour NULL
     } else {
         query.bindValue(":pdp", pdp);
+    }
+
+    // Gestion du Face ID
+    if (face_id.isEmpty()) {
+        qDebug() << "⚠️ Pas de Face ID fourni.";
+        query.bindValue(":face_id", QVariant()); // NULL pour face_id
+    } else {
+        query.bindValue(":face_id", face_id);
     }
 
     // 🔥 Debug de la requête SQL
@@ -72,7 +82,8 @@ bool Employe::ajouter()
              << "Sexe:" << sexe
              << "Téléphone:" << telephone
              << "Statut:" << statut
-             << "Image (taille en octets):" << pdp.size();
+             << "Image (taille en octets):" << pdp.size()
+             << "Face ID (taille en octets):" << face_id.size();
 
     // Exécuter la requête
     if (query.exec()) {
@@ -83,7 +94,6 @@ bool Employe::ajouter()
         return false;
     }
 }
-
 // ✅ Afficher les employés
 QSqlQueryModel* Employe::afficher()
 {
@@ -161,6 +171,8 @@ Employe Employe::rechercher(int id)
         employe.setTelephone(query.value("TELEPHONE").toString());
         employe.setPdp(query.value("PDP").toByteArray()); // ✅ Correction ici
         employe.setStatut(query.value("STATUT").toString());
+        employe.setFaceId(query.value("FACE_ID").toByteArray()); // ✅ Correction ici
+
 
         return employe;
     } else {
@@ -173,7 +185,7 @@ Employe Employe::rechercher(int id)
 bool Employe::modifier(int id)
 {
     QSqlQuery query;
-    query.prepare("UPDATE employe SET NOM = :nom, PRENOM = :prenom, DATE_EMBAUCHE = :date_embauche, POSTE = :poste, SALAIRE = :salaire, EMAIL = :email, SEXE = :sexe, TELEPHONE = :telephone, PDP = :pdp, STATUT = :statut WHERE ID = :id");
+    query.prepare("UPDATE employe SET NOM = :nom, PRENOM = :prenom, DATE_EMBAUCHE = :date_embauche, POSTE = :poste, SALAIRE = :salaire, EMAIL = :email, SEXE = :sexe, TELEPHONE = :telephone, PDP = :pdp, FACE_ID = :face_id, STATUT = :statut WHERE ID = :id");
     query.bindValue(":id", id);
     query.bindValue(":nom", nom);
     query.bindValue(":prenom", prenom);
@@ -185,6 +197,8 @@ bool Employe::modifier(int id)
     query.bindValue(":telephone", telephone);
     query.bindValue(":pdp", pdp);
     query.bindValue(":statut", statut);
+    query.bindValue(":face_id", face_id);
+
 
     return query.exec();
 }
@@ -227,4 +241,20 @@ QImage Employe::getImageById(int id) const
         image.loadFromData(pdp);
     }
     return image;
+}
+bool Employe::enregistrerFaceId(const QByteArray &faceData)
+{
+    QSqlQuery query;
+    query.prepare("UPDATE employe SET face_id = :face_id WHERE id = :id");
+    query.bindValue(":face_id", faceData);
+    query.bindValue(":id", this->id);
+
+    if (query.exec()) {
+        this->face_id = faceData;
+        qDebug() << "Face ID enregistré avec succès";
+        return true;
+    } else {
+        qDebug() << "Erreur lors de l'enregistrement du Face ID:" << query.lastError().text();
+        return false;
+    }
 }

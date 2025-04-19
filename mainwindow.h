@@ -2,99 +2,101 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QPushButton>
-#include <QPropertyAnimation>
-#include <QEnterEvent>
-#include <QSortFilterProxyModel>
+#include "employe.h"
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QFormLayout>
+#include <QLabel>
+#include <QMap>
 #include <QPdfWriter>
 #include <QPainter>
 #include <QFileDialog>
 #include <QTextDocument>
-#include <QHBoxLayout>
-#include <QtCharts/QChartView>
-#include <QtCharts/QPieSeries>
-#include <QtCharts/QBarSet>
-#include <QtCharts/QBarSeries>
-#include <QtCharts/QValueAxis>
-#include <QtCharts/QBarCategoryAxis>
-#include <QEnterEvent>
-#include <QEvent>
-#include <QtCharts/QChartView>
-#include <QtCharts/QBarSet>
-#include <QtCharts/QBarSeries>
-#include <QtCharts/QBarCategoryAxis>
-#include <QPropertyAnimation>
+#include <QSortFilterProxyModel>
+#include <QCamera>
+#include <QMediaCaptureSession>
+#include <QVideoWidget>
+#include <QImageCapture>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QBuffer>
+#include <QMessageBox>
+#include <QTimer>
+#include <QPushButton>
 #include <QWidget>
-#include <QPen>
-#include <QBrush>
+#include <QEvent>
+#include "facelogindialog.h"  // Ajouter cette ligne
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-
-class HoverButton : public QPushButton
-{
-    Q_OBJECT
-
-public:
-    explicit HoverButton(QWidget *parent = nullptr) : QPushButton(parent) {
-        setAttribute(Qt::WA_Hover); // Active la gestion du survol
-    }
-
-protected:
-    void enterEvent(QEnterEvent *event) override {
-        if (event->type() == QEvent::Enter) {
-            emit hoverEntered();  // Signale que le curseur est sur le bouton
-            qDebug() << "Hover entered";  // Message de débogage
-        }
-    }
-
-    void leaveEvent(QEvent *event) override {
-        if (event->type() == QEvent::Leave) {
-            emit hoverLeft();  // Signale que le curseur a quitté le bouton
-            qDebug() << "Hover left";  // Message de débogage
-        }
-
-        // Appel de la méthode parente (facultatif)
-        QPushButton::leaveEvent(event);
-    }
-
-signals:
-    void hoverEntered();
-    void hoverLeft();
-};
-// ✅ Classe MainWindow
+// Déclaration de la classe FrameEventFilter
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    QString cheminImagePDP;
+    void afficherEmployeSelectionne(const Employe &employe);
 
 private slots:
     void on_pushButton_ajouter_clicked();
     void on_pushButton_choisirImage_clicked();
     void afficherEmployes();
     void on_pushButton_supprimer_clicked();
-    void modifierEmploye();
     void on_pushButton_exporterPDF_clicked();
     void trierEmployes();
-    void changerCouleurBouton();
-    // ✅ Déclare les slots pour les animations
-    //void setUpNavigationButtons();
-    //void onEnterNavigationButton();
-    //void onLeaveNavigationButton();
     void afficherStatistiques();
+    void changerIndication();
+    void rechercherEmployes();
+    void setEmploye(const Employe &employe);
+    Employe getEmployeModifie() const;
+    void on_pushButton_modifierPhoto_clicked();
+    void on_pushButton_enregistrer_clicked();
+    void on_pushButton_appliquerModif_clicked();
+    void afficherDetailsEmploye(const QModelIndex &index);
+    void onPhotoClicked(const QModelIndex &index);
+    void on_pushButton_analysePDP_clicked();
+    void saveImageToDatabase(const QPixmap &pixmap) ;
+    void on_btnVerifier_clicked();
 
+
+
+    void genererPDF(const QMap<QString, QVariant>& employee);
+    void chargementTodoList();
+    void on_btnAccederTodo_clicked();  // Ajouter cette ligne
+    void toutMarquerCommeTermine();
+    void on_pushButton_faceId_clicked();
 
 private:
     Ui::MainWindow *ui;
+    QString cheminImagePDP;
     int employeSelectionneId;
-    //Employe Etmp;
-    QSortFilterProxyModel *proxyModel;
+    Employe Etmp;
+    Employe employe;
+    QVariantMap currentEmployeeData;
+    void analyzeImage(QPixmap newImage);
+    QCamera *camera;
+    QVideoWidget *viewfinder;
+    QMediaCaptureSession *captureSession;
+    QImageCapture *imageCapture;
+    bool isCameraActive;
+    QByteArray faceIdTemp;
+
+    QByteArray analyzeImage(const QByteArray &imageData);
+    QSqlQueryModel *todoModel = nullptr;
+    bool compareFaces(const QString &tempImage, const QString &storedImage);
+
+
+
 };
+
+QPixmap createRoundedPixmap(const QPixmap &src, int size);
 
 #endif // MAINWINDOW_H

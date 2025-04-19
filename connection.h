@@ -1,14 +1,17 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
+
 #include <QSqlDatabase>
-#include <QSqlError>
-#include <QSqlQuery>
 
 class Connection
 {
 public:
-    Connection();
-    bool createconnect();
+    Connection();           // Constructeur
+    bool createconnect();   // Connexion à la base Oracle via QODBC
+    void closeconnexion();  // Ferme la connexion (optionnel)
+
+private:
+    QSqlDatabase db;        // Connexion persistante
 };
 
 #endif // CONNECTION_H

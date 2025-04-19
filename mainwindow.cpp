@@ -3,70 +3,76 @@
 #include "employe.h"
 #include <QMessageBox>
 #include <QFileDialog>
-#include <QDebug>
 #include <QBuffer>
-#include "modifierdialog.h"
-#include <QFileDialog>
 #include <QPdfWriter>
 #include <QPainter>
 #include <QTableView>
-#include <QAbstractItemModel>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QLayoutItem>
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QSortFilterProxyModel>
+#include <QRandomGenerator>
+#include <QChart>
+#include <QChartView>
+#include <QPieSeries>
+#include <QPieSlice>
+#include <QBarSeries>
+#include <QBarSet>
+#include <QBarCategoryAxis>
+#include <QValueAxis>
+#include <QStandardItemModel>
+#include <QSqlQuery>
+#include <QPixmap>
+#include <QPainter>
+#include <QPainterPath>
+#include <QSqlRecord>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QBuffer>
+#include <QPixmap>
+#include <QMessageBox>
+#include <QTimer>
+#include <QMediaDevices>
+#include <QCameraDevice>
+#include <QGraphicsOpacityEffect>
+#include <QCheckBox>
+#include <QGraphicsProxyWidget>  // Add this line to fix the issue
 #include <QPropertyAnimation>
-#include <QPushButton>
-#include <QSortFilterProxyModel>
-#include <QSortFilterProxyModel>
+#include <QCheckBox>
+#include <QStandardItemModel>
+#include <QFileDialog>
+#include <QPdfDocument>
+#include <QRegularExpression>
 #include <QMessageBox>
 #include <QDebug>
-#include <QEnterEvent>
-#include <QEvent>
-#include <QtCharts/QChart>
-#include <QtCharts/QChartView>
-#include <QtCharts/QBarSeries>
-#include <QtCharts/QBarSet>
-#include <QtCharts/QBarCategoryAxis>
-#include <QSqlQuery>
-#include <QMap>
-#include <QRandomGenerator>
-#include <QPropertyAnimation>
-#include <QWidget>
-#include <QPen>
-#include <QBrush>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QRegularExpression> // à mettre en haut de ton fichier
+
+const QString CLARIFAI_API_KEY = "35e6d6a543214a109e32dbc5b2d604c9";
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), cheminImagePDP("")
 {
     ui->setupUi(this);
-    //applyButtonHoverEffect();
-    //applyButtonHoverAnimation(); // Pour l'animation avec opacité
 
-
-
-    // 🔥 Charger les employés dès le démarrage
     afficherEmployes();
 
-    // Connexion des boutons aux slots
-    //connect(ui->pushButton_ajouter, &QPushButton::clicked, this, &MainWindow::on_pushButton_ajouter_clicked);
-    //connect(ui->pushButton_choisirImage, &QPushButton::clicked, this, &MainWindow::on_pushButton_choisirImage_clicked);
     connect(ui->afficher, &QPushButton::clicked, this, &MainWindow::afficherEmployes);
-    connect(ui->pushButton_modifier, &QPushButton::clicked, this, &MainWindow::modifierEmploye);
-    connect(ui->boutonTrier, &QPushButton::clicked, this, &MainWindow::trierEmployes);
-    connect(ui->stat, &QPushButton::clicked, this, &MainWindow::changerCouleurBouton);
-    connect(ui->ajout, &QPushButton::clicked, this, &MainWindow::changerCouleurBouton);
-    connect(ui->liste, &QPushButton::clicked, this, &MainWindow::changerCouleurBouton);
+    connect(ui->tri, &QPushButton::clicked, this, &MainWindow::trierEmployes);
+    connect(ui->statt, &QPushButton::clicked, this, &MainWindow::afficherStatistiques);
+    //connect(ui->pushButton_faceId, &QPushButton::clicked, this, &MainWindow::on_pushButton_faceId_clicked);
+    connect(ui->pushButton_enregistrer, &QPushButton::clicked,
+            this, &MainWindow::on_pushButton_appliquerModif_clicked);
 
-    connect(ui->stat, &QPushButton::clicked, this, &MainWindow::afficherStatistiques);
-
-
-    connect(ui->ajout, &QPushButton::clicked, this, [=]() {
-        qDebug() << "✅ Bouton ajout détecté";
-    });
-
-
-
-    // ✅ Masquer la barre des onglets
     ui->tabWidget->tabBar()->hide();
 
-    // ✅ Gestion du changement d'onglet via les boutons
     connect(ui->liste, &QPushButton::clicked, this, [=]() {
         ui->tabWidget->setCurrentIndex(1);
         qDebug() << "Passage à l'onglet Liste";
@@ -76,11 +82,75 @@ MainWindow::MainWindow(QWidget *parent)
         ui->tabWidget->setCurrentIndex(0);
         qDebug() << "Retour à l'onglet Ajout";
     });
+    connect(ui->login, &QPushButton::clicked, this, [=]() {
+        ui->tabWidget->setCurrentIndex(4);
+        qDebug() << "Retour à l'onglet login";
+    });
+    connect(ui->pushButton_8, &QPushButton::clicked, this, [=]() {
+        ui->tabWidget->setCurrentIndex(5);
+        chargementTodoList(); // 👈 Appelle cette fonction ici
+    });
+    connect(ui->pushButton_ajouter, &QPushButton::clicked, this, [=]() {
+        ui->tabWidget->setCurrentIndex(6);
+    });
 
     connect(ui->stat, &QPushButton::clicked, this, [=]() {
         ui->tabWidget->setCurrentIndex(2);
-        qDebug() << "Passage à l'onglet Statistiques";
+        afficherStatistiques();
     });
+
+    connect(ui->pushButton_modifier, &QPushButton::clicked, this, [=]() {
+        QModelIndex index = ui->tableView->currentIndex();
+
+        if (!index.isValid()) {
+            QMessageBox::warning(this, "Attention", "Veuillez d'abord sélectionner un employé.");
+            return;
+        }
+
+        int row = index.row();
+        auto model = ui->tableView->model();
+
+        Employe e;
+
+        e.setId(model->index(row, 1).data().toInt());
+        e.setNom(model->index(row, 2).data().toString());
+        e.setPrenom(model->index(row, 3).data().toString());
+
+        QDate d = model->index(row, 4).data().toDate();
+        e.setDateEmbauche(d.isValid() ? d : QDate::fromString(model->index(row, 4).data().toString(), "yyyy-MM-dd"));
+
+        e.setPoste(model->index(row, 5).data().toString());
+        e.setSalaire(model->index(row, 6).data().toDouble());
+        e.setEmail(model->index(row, 7).data().toString());
+        e.setSexe(model->index(row, 8).data().toString());
+        e.setTelephone(model->index(row, 9).data().toString());
+        e.setStatut(model->index(row, 10).data().toString());
+
+        QStandardItemModel* m = qobject_cast<QStandardItemModel*>(model);
+        if (m) {
+            QStandardItem* photoItem = m->item(row, 0);
+            if (photoItem) {
+                QVariantMap datas = photoItem->data(Qt::UserRole + 1).toMap();
+                e.setPdp(datas.value("pdp").toByteArray());
+            }
+        }
+
+        setEmploye(e);
+
+        ui->tabWidget->setCurrentIndex(3);
+        qDebug() << "Passage à l'onglet Modification pour l'employé ID:" << e.getId();
+    });
+
+    connect(ui->comboRecherchePar, &QComboBox::currentTextChanged, this, &MainWindow::changerIndication);
+    connect(ui->btnRechercher, &QPushButton::clicked, this, &MainWindow::rechercherEmployes);
+
+    ui->comboRecherchePar->addItems({
+        "Recherche par ID",
+        "Recherche par Nom",
+        "Recherche par Date d'embauche"
+    });
+    ui->labelIndication->setText("ID à rechercher :");
+    ui->champRecherche->setPlaceholderText("e.g. 1 / Karim / 2024-03-28");
 }
 
 MainWindow::~MainWindow()
@@ -88,51 +158,201 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-// ✅ Fonction d'affichage des employés
-// 🔥 Fonction corrigée pour afficher les employés
-
 void MainWindow::afficherEmployes()
 {
-    Employe Etmp;
-    QSqlQueryModel* model = Etmp.afficher();
+    disconnect(ui->tableView, &QTableView::clicked, this, &MainWindow::onPhotoClicked);
 
-    if (model) {
-        int rowCount = model->rowCount();
-        qDebug() << "📊 Nombre de lignes dans le modèle :" << rowCount;
-        //if (rowCount == 0) {
-        //    QMessageBox::information(this, "Information", "Aucune donnée trouvée !");
-        //}
+    QSqlQuery query("SELECT pdp, id, nom, prenom, date_embauche, poste, salaire, email, sexe, telephone, statut FROM employe");
 
-        ui->tableView->setModel(model);
-        ui->tableView->setStyleSheet(
-            "QTableView {"
-            "   background-color: #f5f5f5;"
-            "   border: 1px solid #ccc;"
-            "   gridline-color: #ccc;"
-            "   selection-background-color: #A3C1DA;"
-            "   selection-color: white;"
-            "   font: bold 12px;"
-            "}"
-            "QTableView::item {"
-            "   padding: 10px;"
-            "   border-bottom: 1px solid #ddd;"
-            "}"
-            "QTableView::item:selected {"
-            "   background-color: #6fa3ef;"
-            "}"
-            "QHeaderView::section {"
-            "   background-color: #2e3d4e;"
-            "   color: white;"
-            "   padding: 5px;"
-            "   border: 1px solid #aaa;"
-            "}"
-            );
-        ui->tableView->resizeColumnsToContents();
-    } else {
-        QMessageBox::critical(this, "Erreur", "Impossible de charger la liste des employés.");
+    QStandardItemModel *model = new QStandardItemModel(this);
+    model->setHorizontalHeaderLabels({
+        "Photo", "ID", "Nom", "Prénom", "Date embauche",
+        "Poste", "Salaire", "Email", "Sexe", "Téléphone", "Statut"
+    });
+
+    while (query.next()) {
+        QList<QStandardItem*> rowItems;
+
+        QStandardItem *photoItem = new QStandardItem();
+        QByteArray imageData = query.value("pdp").toByteArray();
+
+        qDebug() << "🔄 Chargement image : Taille =" << imageData.size();
+
+        QVariantMap empData;
+        empData["pdp"] = imageData;
+        empData["id"] = query.value("id");
+        empData["nom"] = query.value("nom");
+        empData["prenom"] = query.value("prenom");
+        empData["date_embauche"] = query.value("date_embauche");
+        empData["poste"] = query.value("poste");
+        empData["salaire"] = query.value("salaire");
+        empData["email"] = query.value("email");
+        empData["sexe"] = query.value("sexe");
+        empData["telephone"] = query.value("telephone");
+        empData["statut"] = query.value("statut");
+
+        photoItem->setData(empData, Qt::UserRole + 1);
+
+        if (!imageData.isEmpty()) {
+            QPixmap pix;
+            if (pix.loadFromData(imageData)) {
+                pix = pix.scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                QPixmap rounded = createRoundedPixmap(pix, 48);
+                photoItem->setIcon(QIcon(rounded));
+            } else {
+                qDebug() << "⚠ Erreur : Impossible de charger l'image.";
+            }
+        } else {
+            QPixmap def(":/img/default-user.png");
+            if (!def.isNull()) {
+                QPixmap rounded = createRoundedPixmap(def, 48);
+                photoItem->setIcon(QIcon(rounded));
+            }
+        }
+        photoItem->setText("");
+        rowItems << photoItem;
+
+        for (int i = 1; i < query.record().count(); ++i) {
+            rowItems << new QStandardItem(query.value(i).toString());
+        }
+
+        model->appendRow(rowItems);
     }
+
+    ui->tableView->setModel(model);
+    ui->tableView->resizeRowsToContents();
+    ui->tableView->resizeColumnsToContents();
+    ui->tableView->setIconSize(QSize(64, 64));
+
+    connect(ui->tableView, &QTableView::clicked, this, &MainWindow::onPhotoClicked);
 }
 
+void MainWindow::on_pushButton_analysePDP_clicked() {
+    static QPixmap originalImage;
+    static QString fileName;
+
+    // Récupérer l'image du bouton pushButton_pdp
+    QIcon icon = ui->pushButton_pdp->icon();
+    QPixmap pixmap = icon.pixmap(200, 200);
+
+    if (pixmap.isNull()) {
+        // Si aucune image n'est trouvée sur le bouton, ouvrir l'explorateur de fichiers
+        fileName = QFileDialog::getOpenFileName(this, tr("Sélectionner une photo"), "", tr("Images (*.png *.jpg *.jpeg)"));
+        if (fileName.isEmpty()) return;
+        originalImage = QPixmap(fileName);
+    } else {
+        originalImage = pixmap;
+    }
+
+    if (originalImage.isNull()) {
+        QMessageBox::warning(this, tr("Erreur"), tr("Impossible de charger l'image"));
+        return;
+    }
+
+    QPixmap scaledImage = originalImage.scaled(200, 200, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    ui->pushButton_pdp->setIcon(scaledImage);
+    ui->pushButton_pdp2->setIcon(scaledImage);
+
+    QByteArray imageData;
+    QBuffer buffer(&imageData);
+    buffer.open(QIODevice::WriteOnly);
+    originalImage.save(&buffer, "PNG");
+    QString base64Image = imageData.toBase64();
+
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    QNetworkRequest request(QUrl("https://api.clarifai.com/v2/models/face-detection/outputs"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setRawHeader("Authorization", "Key " + CLARIFAI_API_KEY.toUtf8());
+
+    QJsonObject inputs;
+    inputs["data"] = QJsonObject{{"image", QJsonObject{{"base64", base64Image}}}};
+    QJsonObject requestBody;
+    requestBody["inputs"] = QJsonArray{inputs};
+
+    QJsonDocument doc(requestBody);
+    QByteArray data = doc.toJson();
+    QNetworkReply *reply = manager->post(request, data);
+
+    QDialog *dialog = new QDialog(this);
+    dialog->setWindowTitle("Analyse de l'image");
+    dialog->setMinimumWidth(600);
+    QVBoxLayout *layout = new QVBoxLayout(dialog);
+
+    QLabel *imageLabel = new QLabel(dialog);
+    imageLabel->setPixmap(originalImage.scaled(300, 300, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    layout->addWidget(imageLabel);
+
+    QLabel *analysisLabel = new QLabel("Analyse en cours...", dialog);
+    layout->addWidget(analysisLabel);
+
+    QPushButton *selectButton = new QPushButton("Utiliser cette image", dialog);
+    QPushButton *chooseAnotherButton = new QPushButton("Choisir une autre image", dialog);
+    connect(selectButton, &QPushButton::clicked, [=]() {
+        ui->pushButton_pdp->setIcon(scaledImage);
+        ui->pushButton_pdp2->setIcon(scaledImage);
+        dialog->accept();
+    });
+    connect(chooseAnotherButton, &QPushButton::clicked, [=]() {
+        dialog->reject();
+        QString newFileName = QFileDialog::getOpenFileName(this, tr("Sélectionner une photo"), "", tr("Images (*.png *.jpg *.jpeg)"));
+        if (!newFileName.isEmpty()) {
+            fileName = newFileName;
+            // Mettre à jour le bouton avec la nouvelle image avant de relancer l'analyse
+            originalImage = QPixmap(fileName);
+            QPixmap scaledImage = originalImage.scaled(200, 200, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            ui->pushButton_pdp->setIcon(scaledImage);
+            ui->pushButton_pdp2->setIcon(scaledImage);
+            on_pushButton_analysePDP_clicked(); // Relancer l'analyse
+        }
+    });
+    layout->addWidget(selectButton);
+    layout->addWidget(chooseAnotherButton);
+
+    connect(reply, &QNetworkReply::finished, [=]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            QJsonDocument response = QJsonDocument::fromJson(reply->readAll());
+            QJsonArray outputs = response.object()["outputs"].toArray();
+            if (!outputs.isEmpty()) {
+                QJsonArray regions = outputs[0].toObject()["data"].toObject()["regions"].toArray();
+                int faceCount = regions.size();
+
+                if (faceCount > 0) {
+                    QPixmap tempImage = originalImage;
+                    QPainter painter(&tempImage);
+                    painter.setPen(QPen(Qt::red, 3));
+
+                    for (const auto &region : regions) {
+                        QJsonObject box = region.toObject()["region_info"].toObject()["bounding_box"].toObject();
+                        double top = box["top_row"].toDouble() * tempImage.height();
+                        double left = box["left_col"].toDouble() * tempImage.width();
+                        double bottom = box["bottom_row"].toDouble() * tempImage.height();
+                        double right = box["right_col"].toDouble() * tempImage.width();
+                        QRect rect(QPoint(left, top), QPoint(right, bottom));
+                        painter.drawRect(rect);
+                    }
+                    painter.end();
+                    imageLabel->setPixmap(tempImage.scaled(300, 300, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+                }
+
+                if (faceCount == 1) {
+                    analysisLabel->setText("✅ Un seul visage détecté. Photo validée.");
+                } else if (faceCount > 1) {
+                    analysisLabel->setText("⚠️ Plusieurs visages détectés. Photo non validée.");
+                } else {
+                    analysisLabel->setText("❌ Aucun visage détecté. Photo non validée.");
+                }
+            } else {
+                analysisLabel->setText("❌ Erreur d'analyse Clarifai.");
+            }
+        } else {
+            analysisLabel->setText("❌ Erreur réseau : " + reply->errorString());
+        }
+        reply->deleteLater();
+        manager->deleteLater();
+    });
+
+    dialog->exec();
+}
 void MainWindow::on_pushButton_ajouter_clicked()
 {
     qDebug() << "Tentative d'ajout d'un employé...";
@@ -140,41 +360,24 @@ void MainWindow::on_pushButton_ajouter_clicked()
     QString nom = ui->nom->text();
     QString prenom = ui->prenom->text();
     QDate date_embauche = ui->date_embauche->date();
-    QString poste = ui->poste->text();
+    QString poste = ui->poste->currentText();
     QString email = ui->email->text();
     QString sexe = ui->sexe->currentText();
     QString telephone = ui->telephone->text();
     QString statut = ui->statut->text();
 
-    // Vérification des champs obligatoires
     if (nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || telephone.isEmpty()) {
         QMessageBox::critical(this, "Erreur", "Tous les champs obligatoires doivent être remplis.");
         return;
     }
 
-    // ✅ Vérification du format de l'email
-    QRegularExpression regexEmail("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$");
-    if (!regexEmail.match(email).hasMatch()) {
-        QMessageBox::critical(this, "Erreur", "L'email n'est pas valide !");
-        return;
-    }
-
-    // ✅ Vérification du numéro de téléphone (ex: 8 chiffres)
-    QRegularExpression regexTel("^[0-9]{8,12}$");
-    if (!regexTel.match(telephone).hasMatch()) {
-        QMessageBox::critical(this, "Erreur", "Le numéro de téléphone doit contenir entre 8 et 12 chiffres !");
-        return;
-    }
-
-    // ✅ Vérification du salaire
     bool ok;
     int salaire = ui->salaire->text().toInt(&ok);
-    if (!ok || salaire < 0) {
-        QMessageBox::critical(this, "Erreur", "Le salaire doit être un nombre valide et positif.");
+    if (!ok) {
+        QMessageBox::critical(this, "Erreur", "Le salaire doit être un nombre valide.");
         return;
     }
 
-    // ✅ Gestion de l'image
     QByteArray imageData;
     if (!cheminImagePDP.isEmpty()) {
         QPixmap pixmap(cheminImagePDP);
@@ -191,34 +394,49 @@ void MainWindow::on_pushButton_ajouter_clicked()
         }
     }
 
-    // ✅ Création de l'employé avec l'image
-    Employe employe(nom, prenom, date_embauche, poste, salaire, email, sexe, telephone, imageData, statut);
+    // Si c'est un chef technicien, vérifier le FaceID
+    if (poste == "chef technicien" && faceIdTemp.isEmpty()) {
+        QMessageBox::critical(this, "Erreur", "L'enregistrement du FaceID est obligatoire pour un chef technicien.");
+        return;
+    }
+
+    // Création de l'objet employé avec face_id
+    Employe employe(nom, prenom, date_embauche, poste, salaire, email, sexe, telephone, imageData, statut, faceIdTemp);
+
+    // Dans la fonction on_pushButton_ajouter_clicked()
 
     if (employe.ajouter()) {
         QMessageBox::information(this, "Succès", "Employé ajouté avec succès !");
 
-        // ✅ Réinitialisation des champs après ajout
+        // Clear tous les champs
         ui->nom->clear();
         ui->prenom->clear();
         ui->date_embauche->setDate(QDate::currentDate());
-        ui->poste->clear();
+        ui->poste->setCurrentIndex(0);
         ui->email->clear();
         ui->sexe->setCurrentIndex(0);
         ui->telephone->clear();
-        ui->salaire->clear();
         ui->statut->clear();
-        ui->pushButton_pdp->setIcon(QIcon());  // Efface l'icône du bouton
-        ui->pushButton_pdp2->setIcon(QIcon());  // Efface l'icône du bouton
+        ui->salaire->clear();
 
+        // Réinitialiser les boutons de photo de profil
+        ui->pushButton_pdp->setIcon(QIcon());  // Enlever l'icône
+        ui->pushButton_pdp2->setIcon(QIcon()); // Enlever l'icône
+        ui->pushButton_pdp->setStyleSheet("");  // Réinitialiser le style
+        ui->pushButton_pdp2->setStyleSheet(""); // Réinitialiser le style
+
+        // Réinitialiser le chemin de l'image
         cheminImagePDP.clear();
 
-        afficherEmployes(); // Rafraîchir la liste des employés
+        // Réinitialiser le Face ID temporaire
+        faceIdTemp.clear();
+
+        // Rafraîchir le tableau des employés
+        afficherEmployes();
     } else {
         QMessageBox::critical(this, "Erreur", "Échec de l'ajout de l'employé !");
     }
 }
-
-// ✅ Fonction pour choisir une image
 void MainWindow::on_pushButton_choisirImage_clicked()
 {
     QString filePath = QFileDialog::getOpenFileName(this, "Choisir une image", "", "Images (*.png *.jpg *.bmp)");
@@ -237,22 +455,25 @@ void MainWindow::on_pushButton_choisirImage_clicked()
     }
 }
 
-
-// ✅ Fonction pour supprimer un employé
 void MainWindow::on_pushButton_supprimer_clicked()
 {
     QModelIndexList selection = ui->tableView->selectionModel()->selectedRows();
-
     if (selection.isEmpty()) {
         QMessageBox::warning(this, "Erreur", "Veuillez sélectionner un employé à supprimer.");
         return;
     }
 
-    int id = selection.first().data().toInt();
+    int id = selection.first().siblingAtColumn(1).data(Qt::DisplayRole).toInt();
+    qDebug() << "ID sélectionné :" << id;
+
+    if (id <= 0) {
+        QMessageBox::critical(this, "Erreur", "ID invalide (" + QString::number(id) + ") !");
+        return;
+    }
 
     QMessageBox::StandardButton reply = QMessageBox::question(this, "Confirmation",
-                                                              "Êtes-vous sûr de vouloir supprimer cet employé ?", QMessageBox::Yes | QMessageBox::No);
-
+                                                              "Êtes-vous sûr de vouloir supprimer cet employé ?",
+                                                              QMessageBox::Yes | QMessageBox::No);
     if (reply == QMessageBox::No) {
         return;
     }
@@ -266,349 +487,968 @@ void MainWindow::on_pushButton_supprimer_clicked()
     }
 }
 
-// ✅ Fonction pour modifier un employé
-void MainWindow::modifierEmploye()
-{
-    QModelIndex index = ui->tableView->currentIndex();
-    if (!index.isValid()) {
-        QMessageBox::warning(this, "Avertissement", "Veuillez sélectionner un employé à modifier.");
-        return;
-    }
-
-    int id = ui->tableView->model()->data(ui->tableView->model()->index(index.row(), 0)).toInt();
-
-    Employe employe = Employe::rechercher(id);
-    if (employe.getNom().isEmpty()) {
-        QMessageBox::critical(this, "Erreur", "Cet employé n'existe pas !");
-        return;
-    }
-
-    ModifierDialog dialog(this);
-    dialog.setEmploye(employe);
-
-    if (dialog.exec() == QDialog::Accepted) {
-        Employe employeModifie = dialog.getEmployeModifie();
-        if (employeModifie.modifier(id)) {
-            QMessageBox::information(this, "Succès", "L'employé a été modifié avec succès.");
-            afficherEmployes();
-        } else {
-            QMessageBox::critical(this, "Erreur", "Échec de la modification !");
-        }
-    }
-}
-
 void MainWindow::on_pushButton_exporterPDF_clicked()
 {
-    QString filePath = QFileDialog::getSaveFileName(this, "Exporter en PDF", "", "PDF Files (*.pdf)");
-    if (filePath.isEmpty()) {
+    QString filePath = QFileDialog::getSaveFileName(this, "Exporter en PDF", "liste_employes.pdf", "PDF Files (*.pdf)");
+    if (filePath.isEmpty()) return;
+
+    QPdfWriter writer(filePath);
+    writer.setPageSize(QPageSize(QPageSize::A4));
+    writer.setResolution(120);
+    writer.setPageMargins(QMarginsF(30, 30, 30, 30));
+
+    QPainter painter(&writer);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    QAbstractItemModel *model = ui->tableView->model();
+    int rowCount = model->rowCount();
+    int colCount = model->columnCount();
+
+    int y = 100;
+    int x = 50;
+    const int rowHeight = 200;
+    const int photoSize = 100;
+
+    // 🔤 Normalisation des en-têtes
+    auto normalize = [](const QString &text) -> QString {
+        QRegularExpression re("[\\x{0300}-\\x{036F}]");
+        QString cleaned = text.normalized(QString::NormalizationForm_D);
+        return cleaned.remove(re).toLower().simplified();
+    };
+
+    // 📦 Détection des colonnes
+    QMap<QString, int> cols;
+    for (int c = 0; c < colCount; ++c) {
+        QString head = normalize(model->headerData(c, Qt::Horizontal).toString());
+        if (head.contains("photo") || head.contains("pdp")) cols["photo"] = c;
+        else if (head.contains("id")) cols["id"] = c;
+        else if (head == "nom") cols["nom"] = c;
+        else if (head == "prenom") cols["prenom"] = c;
+        else if (head.contains("date")) cols["date_embauche"] = c;
+        else if (head.contains("poste")) cols["poste"] = c;
+        else if (head.contains("salaire")) cols["salaire"] = c;
+        else if (head.contains("email")) cols["email"] = c;
+        else if (head.contains("sexe")) cols["sexe"] = c;
+        else if (head.contains("telephone")) cols["telephone"] = c;
+        else if (head.contains("statut")) cols["statut"] = c;
+    }
+
+    if (cols.size() < 10) {
+        painter.end();
+        QMessageBox::critical(this, "Erreur", "Certaines colonnes sont introuvables !");
         return;
     }
 
-    QPdfWriter pdfWriter(filePath);
-    pdfWriter.setPageSize(QPageSize(QPageSize::A4));
-    pdfWriter.setResolution(300);
-    pdfWriter.setTitle("Liste des employés");
+    // 📝 Titre stylisé du document
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(QColor(220, 230, 250));  // Fond doux pour le titre
+    painter.drawRoundedRect(QRect(30, 20, writer.width() - 60, 60), 10, 10);
 
-    QPainter painter(&pdfWriter);
+    // Texte centré
+    painter.setFont(QFont("Georgia", 20, QFont::Bold));
+    painter.setPen(QColor(25, 50, 120));
+    painter.drawText(QRect(30, 20, writer.width() - 60, 60), Qt::AlignCenter, "📋 Liste des Employés");
+    painter.setFont(QFont("Arial", 11));
 
-    // ✅ Marges larges pour éviter l'effet de compression
-    int marginLeft = 100;
-    int marginTop = 120;
-    int x = marginLeft;
-    int y = marginTop;
 
-    // ✅ Titre clair et centré
-    QString title = "Liste des employés";
-    QRect rectTitle(marginLeft, y, pdfWriter.width() - (marginLeft * 2), 80);
-    painter.setFont(QFont("Helvetica", 20, QFont::Bold));
-    painter.setPen(Qt::darkBlue);
-    painter.drawText(rectTitle, Qt::AlignCenter, title);
-    y += 100;
-
-    // ✅ Hauteur de ligne fixe + colonne max à afficher par page
-    int rowHeight = 50;
-    int maxColsPerPage = 7;
-
-    int colCount = ui->tableView->model()->columnCount();
-
-    // ✅ Exclure la colonne "pdp"
-    int photoIndex = -1;
-    for (int i = 0; i < colCount; ++i) {
-        if (ui->tableView->model()->headerData(i, Qt::Horizontal).toString().toLower().contains("pdp")) {
-            photoIndex = i;
-            break;
-        }
-    }
-
-    int adjustedColCount = (photoIndex != -1) ? colCount - 1 : colCount;
-
-    // ✅ Gestion du nombre de colonnes affichées par page
-    int colsToShow = qMin(maxColsPerPage, adjustedColCount);
-
-    // ✅ Largeur des colonnes équilibrée
-    int colWidth = (pdfWriter.width() - (2 * marginLeft) - (colsToShow * 10)) / colsToShow;
-
-    // ✅ En-têtes (fond gris clair + bordures nettes)
-    painter.setFont(QFont("Helvetica", 12, QFont::Bold));
-    painter.setPen(Qt::black);
-    painter.setBrush(QColor(230, 230, 230));
-
-    for (int i = 0, j = 0; i < colCount; ++i) {
-        if (i == photoIndex) continue;
-
-        if (j >= colsToShow) break;
-
-        // ✅ Bordure nette et épaisse
-        painter.drawRect(x, y, colWidth, rowHeight);
-        painter.drawText(QRect(x + 5, y, colWidth - 10, rowHeight),
-                         Qt::AlignCenter, ui->tableView->model()->headerData(i, Qt::Horizontal).toString());
-        x += colWidth + 10;
-        j++;
-    }
-
-    y += rowHeight + 10;
-    x = marginLeft;
-
-    // ✅ Contenu du tableau (alternance de couleurs)
-    painter.setFont(QFont("Helvetica", 10));
-    painter.setPen(Qt::black);
-    int rowCount = ui->tableView->model()->rowCount();
-
+    // 📄 Parcours des employés
     for (int row = 0; row < rowCount; ++row) {
-        QColor rowColor = (row % 2 == 0) ? QColor(245, 245, 245) : QColor(255, 255, 255);
-        painter.setBrush(rowColor);
+        int posX = x;
 
-        for (int col = 0, j = 0; col < colCount; ++col) {
-            if (col == photoIndex) continue;
-            if (j >= colsToShow) break;
+        // 🎨 Fond alterné
+        QColor bg = (row % 2 == 0) ? QColor(250, 250, 255) : QColor(240, 245, 255);
+        painter.fillRect(QRect(30, y - 20, writer.width() - 60, rowHeight + 20), bg);
 
-            // ✅ Bordure nette avec une couleur foncée
-            painter.setPen(QColor(150, 150, 150));
-            painter.drawRect(x, y, colWidth, rowHeight);
-
-            QString data = ui->tableView->model()->data(ui->tableView->model()->index(row, col)).toString();
-
-            // ✅ Tronquer le texte proprement avec "..."
-            data = data.left(colWidth / 10) + (data.length() > colWidth / 10 ? "..." : "");
-
-            // ✅ Texte aligné (texte à gauche, nombres à droite)
-            Qt::Alignment alignment = (data.toDouble() || data.toInt())
-                                          ? Qt::AlignRight | Qt::AlignVCenter
-                                          : Qt::AlignLeft | Qt::AlignVCenter;
-
-            painter.drawText(QRect(x + 5, y, colWidth - 10, rowHeight), alignment, data);
-            x += colWidth + 10;
-            j++;
+        // 🖼️ Photo
+        QVariant cellData = model->data(model->index(row, cols["photo"]), Qt::UserRole + 1);
+        QPixmap pixmap;
+        if (cellData.canConvert<QVariantMap>()) {
+            QByteArray imgData = cellData.toMap()["pdp"].toByteArray();
+            pixmap.loadFromData(imgData);
         }
 
-        x = marginLeft;
+        if (!pixmap.isNull()) {
+            QPixmap circle(photoSize, photoSize);
+            circle.fill(Qt::transparent);
+            QPainter circlePainter(&circle);
+            circlePainter.setRenderHint(QPainter::Antialiasing);
+            QPainterPath path;
+            path.addEllipse(0, 0, photoSize, photoSize);
+            circlePainter.setClipPath(path);
+            circlePainter.drawPixmap(0, 0, pixmap.scaled(photoSize, photoSize, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
+            painter.drawPixmap(posX, y, circle);
+        }
+
+        posX += photoSize + 30;
+
+        // 📋 Données avec icônes
+        QString rawDate = model->data(model->index(row, cols["date_embauche"])).toString();
+        QDate date = QDate::fromString(rawDate.left(10), "yyyy-MM-dd");
+        QString dateStr = date.isValid() ? date.toString("yyyy-MM.dd") : rawDate;
+
+        QStringList lignes;
+        lignes << QString("🆔 ID : %1").arg(model->data(model->index(row, cols["id"])).toString());
+        lignes << QString("👤 Nom : %1 %2")
+                      .arg(model->data(model->index(row, cols["prenom"])).toString())
+                      .arg(model->data(model->index(row, cols["nom"])).toString());
+        lignes << QString("📅 Embauche : %1").arg(dateStr);
+        lignes << QString("💼 Poste : %1").arg(model->data(model->index(row, cols["poste"])).toString());
+        lignes << QString("💰 Salaire : %1 DT")
+                      .arg(QString::number(model->data(model->index(row, cols["salaire"])).toDouble(), 'f', 2));
+        lignes << QString("📧 Email : %1").arg(model->data(model->index(row, cols["email"])).toString());
+        lignes << QString("📞 Téléphone : %1").arg(model->data(model->index(row, cols["telephone"])).toString());
+        lignes << QString("🔘 Sexe : %1").arg(model->data(model->index(row, cols["sexe"])).toString());
+        lignes << QString("📌 Statut : %1").arg(model->data(model->index(row, cols["statut"])).toString());
+
+        painter.setPen(Qt::black);
+        QFont lineFont("Arial", 10);
+        painter.setFont(lineFont);
+        for (int i = 0; i < lignes.size(); ++i) {
+            painter.drawText(posX, y + 20 + i * 16, lignes[i]);
+        }
+
         y += rowHeight;
 
-        // ✅ Saut de page automatique + répétition de l'en-tête
-        if (y > pdfWriter.height() - marginTop) {
-            pdfWriter.newPage();
-            y = marginTop;
-
-            // Répéter l'en-tête après le saut de page
-            painter.setFont(QFont("Helvetica", 12, QFont::Bold));
-            painter.setPen(Qt::black);
-            painter.setBrush(QColor(230, 230, 230));
-
-            x = marginLeft;
-            for (int i = 0, j = 0; i < colCount; ++i) {
-                if (i == photoIndex) continue;
-                if (j >= colsToShow) break;
-
-                painter.drawRect(x, y, colWidth, rowHeight);
-                painter.drawText(QRect(x + 5, y, colWidth - 10, rowHeight),
-                                 Qt::AlignCenter, ui->tableView->model()->headerData(i, Qt::Horizontal).toString());
-                x += colWidth + 10;
-                j++;
-            }
-
-            y += rowHeight + 10;
-            x = marginLeft;
+        // Nouvelle page
+        if (y > writer.height() - 180) {
+            writer.newPage();
+            y = 100;
         }
     }
 
+    // 🦶 Pied de page
+    painter.setPen(QColor(80, 80, 80));
+    painter.setFont(QFont("Arial", 9));
+    QString footer = QString("📄 Généré le %1  |  Employés : %2")
+                         .arg(QDateTime::currentDateTime().toString("dd/MM/yyyy HH:mm"))
+                         .arg(rowCount);
+    painter.drawText(QRect(0, writer.height() - 40, writer.width(), 20), Qt::AlignCenter, footer);
+
     painter.end();
-
-    QMessageBox::information(this, "Succès", "Le fichier PDF a été généré avec succès !");
+    QDesktopServices::openUrl(QUrl::fromLocalFile(filePath));
+    QMessageBox::information(this, "PDF généré", "🎉 La liste des employés a été exportée avec succès !");
 }
-
 void MainWindow::trierEmployes() {
-    // Récupérer l'index de la colonne sélectionnée
     int columnIndex = ui->tableView->currentIndex().column();
 
-    // Vérifier si aucune colonne n'est sélectionnée
     if (columnIndex < 0) {
         QMessageBox::warning(this, "Tri impossible", "Veuillez choisir une colonne à trier !");
-        return; // Arrêter la fonction si aucune colonne n'est sélectionnée
+        return;
     }
 
-    qDebug() << "Tri en cours sur la colonne : " << columnIndex;
-
-    // Vérifier si un proxyModel existe déjà
+    // Récupérer le modèle source (StandardItemModel) même si on a un proxy model
+    QStandardItemModel *sourceModel = nullptr;
     QSortFilterProxyModel *proxyModel = qobject_cast<QSortFilterProxyModel*>(ui->tableView->model());
+
+    if (proxyModel) {
+        sourceModel = qobject_cast<QStandardItemModel*>(proxyModel->sourceModel());
+    } else {
+        sourceModel = qobject_cast<QStandardItemModel*>(ui->tableView->model());
+    }
+
+    if (!sourceModel) {
+        QMessageBox::warning(this, "Erreur", "Impossible de trier ce type de modèle");
+        return;
+    }
+
+    // Si on n'a pas de proxy model, en créer un nouveau
     if (!proxyModel) {
-        // Si aucun proxyModel n'existe, on en crée un
         proxyModel = new QSortFilterProxyModel(this);
-        proxyModel->setSourceModel(ui->tableView->model());
+        proxyModel->setSourceModel(sourceModel);
         proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
-        ui->tableView->setModel(proxyModel); // Appliquer le proxyModel à tableView
     }
 
-    // Appliquer le tri sur la colonne sélectionnée
+    // Configurer le proxy model pour le tri numérique
+    proxyModel->setSortRole(Qt::UserRole);
+
+    // Pour chaque ligne, définir la valeur numérique dans le rôle UserRole
+    for (int row = 0; row < sourceModel->rowCount(); ++row) {
+        QStandardItem *item = sourceModel->item(row, columnIndex);
+        if (item) {
+            QString text = item->text();
+            bool ok;
+            double numericValue = text.toDouble(&ok);
+            if (ok) {
+                item->setData(numericValue, Qt::UserRole);
+            } else {
+                item->setData(text, Qt::UserRole);
+            }
+        }
+    }
+
+    // Appliquer le tri
     proxyModel->sort(columnIndex, Qt::AscendingOrder);
-    qDebug() << "Tri effectué sur la colonne : " << columnIndex;
+    ui->tableView->setModel(proxyModel);
 }
-
 void MainWindow::afficherStatistiques() {
-    // 🟢 Accéder à l'onglet Statistiques
-    QWidget *statistiquesTab = ui->tabWidget->widget(2);
-    QVBoxLayout *layout = qobject_cast<QVBoxLayout *>(statistiquesTab->layout());
+    // === Créer la scène ===
+    QGraphicsScene *scene = new QGraphicsScene(this);
+    int chartWidth = 800;
 
-    // Si le layout n'existe pas, on le crée
-    if (!layout) {
-        layout = new QVBoxLayout(statistiquesTab);
-        statistiquesTab->setLayout(layout);
+    // === GRAND TITRE ===
+    QLabel *titleLabel = new QLabel("📊 Statistiques des employés");
+    titleLabel->setStyleSheet("font-size: 28pt; font-weight: bold; color: #2c3e50;");
+    titleLabel->setAlignment(Qt::AlignCenter);
+    titleLabel->setFixedWidth(chartWidth);
+    QGraphicsProxyWidget *titleProxy = scene->addWidget(titleLabel);
+    titleProxy->setPos(0, 0);
+
+    // =================== CAMEMBERT : Répartition par poste ===================
+    QSqlQuery query1("SELECT poste, COUNT(*) AS effectif FROM employe GROUP BY poste");
+    QPieSeries *posteSeries = new QPieSeries();
+    int totalEmployes = 0;
+
+    while (query1.next()) {
+        int count = query1.value(1).toInt();
+        totalEmployes += count; // Total pour le calcul
+        posteSeries->append(QString("%1 : %2%").arg(query1.value(0).toString())
+                                .arg((static_cast<double>(count) / totalEmployes) * 100, 0, 'f', 1), count);
     }
 
-    // Supprimer tous les widgets existants dans le layout (et donc effacer les anciennes statistiques)
-    QLayoutItem *child;
-    while ((child = layout->takeAt(0)) != nullptr) {
-        delete child->widget();
-        delete child;
+    for (QPieSlice *slice : posteSeries->slices()) {
+        slice->setExploded(true);
+        slice->setLabelVisible(true);
+        slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->percentage() * 100, 0, 'f', 1));
+        slice->setLabelFont(QFont("Arial", 10, QFont::Bold)); // Texte en gras
     }
 
-    // Crée un layout horizontal pour placer les graphiques côte à côte
-    QHBoxLayout *hLayout = new QHBoxLayout();
-    layout->addLayout(hLayout); // Ajouter le layout horizontal à la disposition principale
+    QChart *posteChart = new QChart();
+    posteChart->addSeries(posteSeries);
+    posteChart->setTitle("📋 Répartition par poste");
+    posteChart->setTitleFont(QFont("Arial", 14, QFont::Bold));
+    posteChart->setAnimationOptions(QChart::SeriesAnimations);
+    posteChart->legend()->setAlignment(Qt::AlignBottom);
+    posteChart->setBackgroundBrush(QColor("#ecf0f1")); // Couleur fond clair
 
-    // =========================== 1️⃣ Histogramme des Salaires (avec animation fluide) ===========================
-    QMap<QString, double> sommeSalaires;
-    QMap<QString, int> nombreEmployes;
+    QChartView *posteChartView = new QChartView(posteChart);
+    posteChartView->setRenderHint(QPainter::Antialiasing);
+    posteChartView->setFixedSize(400, 350); // Taille ajustée
 
-    QSqlQuery query("SELECT poste, salaire FROM employe");
-    while (query.next()) {
-        QString poste = query.value(0).toString();
-        double salaire = query.value(1).toDouble();
-        sommeSalaires[poste] += salaire;
-        nombreEmployes[poste] += 1;
-    }
+    QGraphicsProxyWidget *posteProxy = scene->addWidget(posteChartView);
+    posteProxy->setPos(0, 80); // Position à gauche sous le titre
 
-    QBarSeries *series = new QBarSeries();
-    QStringList categories;
-
-    for (auto it = sommeSalaires.begin(); it != sommeSalaires.end(); ++it) {
-        QBarSet *set = new QBarSet(it.key());
-        *set << it.value();  // Somme des salaires pour chaque poste
-        set->setColor(QColor::fromHsv(QRandomGenerator::global()->bounded(360), 255, 255)); // Couleurs dynamiques
-        series->append(set);
-        categories << it.key();
-    }
-
-    QChart *chart1 = new QChart();
-    chart1->addSeries(series);
-    chart1->setTitle("Somme des salaires par poste");
-    chart1->setAnimationOptions(QChart::SeriesAnimations);  // ✅ Animation fluide sur les séries
-    chart1->legend()->setVisible(true);
-    chart1->legend()->setAlignment(Qt::AlignBottom);
-
-    QBarCategoryAxis *axisX = new QBarCategoryAxis();
-    axisX->append(categories);
-    chart1->addAxis(axisX, Qt::AlignBottom);
-    series->attachAxis(axisX);
-
-    QValueAxis *axisY = new QValueAxis();
-    axisY->setTitleText("Total Salaires (en DT)");
-    chart1->addAxis(axisY, Qt::AlignLeft);
-    series->attachAxis(axisY);
-
-    QChartView *chartView1 = new QChartView(chart1);
-    chartView1->setRenderHint(QPainter::Antialiasing);
-
-    // Ajoute le graphique dans le layout horizontal
-    hLayout->addWidget(chartView1);
-
-    // =========================== 2️⃣ Diagramme Circulaire des Sexes (avec animation) ===========================
+    // =================== CAMEMBERT : Répartition par sexe ===================
+    QSqlQuery query2("SELECT sexe FROM employe");
     int hommes = 0, femmes = 0;
-    QSqlQuery querySexe("SELECT sexe FROM employe");
-    while (querySexe.next()) {
-        if (querySexe.value(0).toString().toLower() == "homme")
-            hommes++;
-        else
-            femmes++;
+
+    while (query2.next()) {
+        QString sexe = query2.value(0).toString().toLower();
+        if (sexe.contains("homme") || sexe.startsWith("h")) hommes++;
+        else if (sexe.contains("femme") || sexe.startsWith("f")) femmes++;
     }
 
-    QPieSeries *pieSeries = new QPieSeries();
-    pieSeries->append("Hommes", hommes);
-    pieSeries->append("Femmes", femmes);
+    QPieSeries *sexeSeries = new QPieSeries();
+    sexeSeries->append("👨 Hommes", hommes);
+    sexeSeries->append("👩 Femmes", femmes);
 
-    QPieSlice *hommeSlice = pieSeries->slices().at(0);
-    hommeSlice->setLabel(QString("Hommes (%1)").arg(hommes));
-    hommeSlice->setBrush(Qt::blue);
-    hommeSlice->setLabelVisible(true);
-    hommeSlice->setExploded(true); // ✅ ANIMATION : Partie légèrement sortie
+    for (QPieSlice *slice : sexeSeries->slices()) {
+        slice->setExploded(true);
+        slice->setLabelVisible(true);
+        slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->percentage() * 100, 0, 'f', 1));
+        slice->setLabelFont(QFont("Arial", 10, QFont::Bold)); // Texte en gras
+    }
 
-    QPieSlice *femmeSlice = pieSeries->slices().at(1);
-    femmeSlice->setLabel(QString("Femmes (%1)").arg(femmes));
-    femmeSlice->setBrush(Qt::red);
-    femmeSlice->setLabelVisible(true);
+    QChart *sexeChart = new QChart();
+    sexeChart->addSeries(sexeSeries);
+    sexeChart->setTitle("👥 Répartition par sexe");
+    sexeChart->setTitleFont(QFont("Arial", 14, QFont::Bold));
+    sexeChart->setAnimationOptions(QChart::SeriesAnimations);
+    sexeChart->legend()->setAlignment(Qt::AlignBottom);
+    sexeChart->setBackgroundBrush(QColor("#ecf0f1")); // Couleur fond clair
 
-    // Animation sur le survol des parts du diagramme circulaire
-    QObject::connect(hommeSlice, &QPieSlice::hovered, [hommeSlice](bool state) {
-        hommeSlice->setExploded(state); // ✅ Animation lors du survol
+    QChartView *sexeChartView = new QChartView(sexeChart);
+    sexeChartView->setRenderHint(QPainter::Antialiasing);
+    sexeChartView->setFixedSize(400, 350); // Taille ajustée
+
+    QGraphicsProxyWidget *sexeProxy = scene->addWidget(sexeChartView);
+    sexeProxy->setPos(410, 80); // Position à droite sous le titre
+
+    // === Appliquer la scène au QGraphicsView ===
+    scene->setSceneRect(0, 0, chartWidth + 20, 500);
+    ui->graphicsView->setScene(scene);
+    ui->graphicsView->setRenderHint(QPainter::Antialiasing);
+    ui->graphicsView->setSceneRect(scene->sceneRect());
+}
+void MainWindow::changerIndication()
+{
+    QString critere = ui->comboRecherchePar->currentText();
+
+    if (critere == "Recherche par ID") {
+        ui->labelIndication->setText("ID à rechercher :");
+    } else if (critere == "Recherche par Nom") {
+        ui->labelIndication->setText("Nom à rechercher :");
+    } else if (critere == "Recherche par Date d'embauche") {
+        ui->labelIndication->setText("Date (format YYYY-MM-DD) :");
+    }
+}
+void MainWindow::rechercherEmployes()
+{
+    QString critere = ui->comboRecherchePar->currentText();
+    QString valeur = ui->champRecherche->text().trimmed();
+
+    if (valeur.isEmpty()) {
+        QMessageBox::warning(this, "Champ vide", "Veuillez saisir une valeur !");
+        return;
+    }
+
+    QString requete = "SELECT pdp, id, nom, prenom, date_embauche, poste, salaire, email, sexe, telephone, statut FROM employe WHERE ";
+    QVariant bindValue;
+
+    if (critere == "Recherche par ID") {
+        requete += "id = ?";
+        bindValue = valeur;
+    } else if (critere == "Recherche par Nom") {
+        requete += "LOWER(nom) LIKE LOWER(?)";
+        bindValue = "%" + valeur + "%";
+    } else if (critere == "Recherche par Date d'embauche") {
+        QDate date = QDate::fromString(valeur, "yyyy-MM-dd");
+        if (!date.isValid()) {
+            QMessageBox::warning(this, "Format incorrect", "La date doit être au format YYYY-MM-DD");
+            return;
+        }
+        requete += "date_embauche = ?";
+        bindValue = date;
+    }
+
+    QSqlQuery query;
+    query.prepare(requete);
+    query.bindValue(0, bindValue);
+
+    if (!query.exec()) {
+        QMessageBox::critical(this, "Erreur SQL", query.lastError().text());
+        return;
+    }
+
+    QStandardItemModel *model = new QStandardItemModel(this);
+    model->setHorizontalHeaderLabels({
+        "Photo", "ID", "Nom", "Prénom", "Date embauche",
+        "Poste", "Salaire", "Email", "Sexe", "Téléphone", "Statut"
     });
 
-    QObject::connect(femmeSlice, &QPieSlice::hovered, [femmeSlice](bool state) {
-        femmeSlice->setExploded(state);
-    });
+    while (query.next()) {
+        QList<QStandardItem*> rowItems;
+        QStandardItem *photoItem = new QStandardItem();
 
-    QChart *chart2 = new QChart();
-    chart2->addSeries(pieSeries);
-    chart2->setTitle("Répartition des employés par sexe");
-    chart2->setAnimationOptions(QChart::SeriesAnimations);  // ✅ ANIMATION fluide sur les séries
+        QByteArray imageData = query.value("pdp").toByteArray();
 
-    QChartView *chartView2 = new QChartView(chart2);
-    chartView2->setRenderHint(QPainter::Antialiasing);
+        QVariantMap empData;
+        empData["pdp"] = imageData;
+        empData["id"] = query.value("id");
+        empData["nom"] = query.value("nom");
+        empData["prenom"] = query.value("prenom");
+        empData["date_embauche"] = query.value("date_embauche");
+        empData["poste"] = query.value("poste");
+        empData["salaire"] = query.value("salaire");
+        empData["email"] = query.value("email");
+        empData["sexe"] = query.value("sexe");
+        empData["telephone"] = query.value("telephone");
+        empData["statut"] = query.value("statut");
 
-    // Ajoute le graphique dans le layout horizontal
-    hLayout->addWidget(chartView2);
+        photoItem->setData(empData, Qt::UserRole + 1);
+
+        if (!imageData.isEmpty()) {
+            QPixmap pix;
+            if (pix.loadFromData(imageData)) {
+                pix = pix.scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                QPixmap rounded = createRoundedPixmap(pix, 48);  // Assure-toi que createRoundedPixmap existe
+                photoItem->setIcon(QIcon(rounded));
+            }
+        } else {
+            QPixmap def(":/img/default-user.png");
+            QPixmap rounded = createRoundedPixmap(def, 48);
+            photoItem->setIcon(QIcon(rounded));
+        }
+
+        photoItem->setText("");
+        rowItems << photoItem;
+
+        for (int i = 1; i < query.record().count(); ++i) {
+            rowItems << new QStandardItem(query.value(i).toString());
+        }
+
+        model->appendRow(rowItems);
+    }
+
+    ui->tableView->setModel(model);
+    ui->tableView->resizeRowsToContents();
+    ui->tableView->resizeColumnsToContents();
+    ui->tableView->setIconSize(QSize(64, 64));
+
+    connect(ui->tableView, &QTableView::clicked, this, &MainWindow::onPhotoClicked);
+}
+void MainWindow::setEmploye(const Employe &employe)
+{
+    this->employe = employe;
+
+    ui->nom_2->setText(employe.getNom());
+    ui->prenom_2->setText(employe.getPrenom());
+    ui->date_embauche_2->setDate(employe.getDateEmbauche());
+    ui->poste_2->setText(employe.getPoste());
+    ui->salaire_2->setText(QString::number(employe.getSalaire()));
+    ui->email_2->setText(employe.getEmail());
+    ui->sexe_2->setCurrentText(employe.getSexe());
+    ui->telephone_2->setText(employe.getTelephone());
+    ui->statut_2->setText(employe.getStatut());
+
+    if (!employe.getPdp().isEmpty()) {
+        QPixmap pixmap;
+        pixmap.loadFromData(employe.getPdp());
+
+        if (!pixmap.isNull()) {
+            ui->pushButton_pdp_2->setIcon(QIcon(pixmap));
+            ui->pushButton_pdp_2->setIconSize(QSize(150, 150));
+            ui->pushButton_pdp2_2->setIcon(QIcon(pixmap));
+            ui->pushButton_pdp2_2->setIconSize(QSize(50, 50));
+        } else {
+            qDebug() << "❌ Erreur : Impossible de charger l'image depuis les données binaires.";
+        }
+    } else {
+        qDebug() << "⚠️ Aucune donnée d'image disponible.";
+    }
+
+    ui->tabWidget->setCurrentIndex(3);
 }
 
-void MainWindow::changerCouleurBouton() {
-    QPushButton *button = qobject_cast<QPushButton *>(sender()); // Récupérer le bouton cliqué
-    if (!button) return;
+Employe MainWindow::getEmployeModifie() const
+{
+    Employe employe;
 
-    // Liste de tous les boutons
-    QList<QPushButton*> boutons = {ui->stat, ui->ajout, ui->liste}; // Ajoute tous tes boutons ici
+    employe.setNom(ui->nom_2->text());
+    employe.setPrenom(ui->prenom_2->text());
+    employe.setDateEmbauche(ui->date_embauche_2->date());
+    employe.setPoste(ui->poste_2->text());
+    employe.setSalaire(ui->salaire_2->text().toDouble());
+    employe.setEmail(ui->email_2->text());
+    employe.setSexe(ui->sexe_2->currentText());
+    employe.setTelephone(ui->telephone_2->text());
+    employe.setStatut(ui->statut_2->text());
 
-    // Réinitialiser le style de tous les boutons
-    for (QPushButton* btn : boutons) {
-        btn->setStyleSheet("QPushButton {"
-                           "background-color: rgb(227, 241, 244);"
-                           "font: 700 9pt 'Segoe UI';"
-                           "border: 2px solid black;"
-                           "border-radius: 20px;"
-                           "qproperty-iconSize: 30px 30px;"
-                           "}"
-                           "QPushButton:hover {"
-                           "background-color: rgb(180, 210, 230);"
-                           "}"); // Ajout de l'effet hover pour tous les boutons
+    employe.setPdp(this->employe.getPdp());
+    employe.setId(this->employe.getId());
+
+    return employe;
+}
+
+void MainWindow::on_pushButton_modifierPhoto_clicked()
+{
+    QString filePath = QFileDialog::getOpenFileName(this, "Choisir une image", "", "Images (*.png *.jpg *.jpeg *.bmp)");
+
+    if (!filePath.isEmpty()) {
+        QPixmap pixmap(filePath);
+        if (!pixmap.isNull()) {
+            ui->pushButton_pdp_2->setIcon(QIcon(pixmap));
+            ui->pushButton_pdp_2->setIconSize(QSize(150, 150));
+            ui->pushButton_pdp2_2->setIcon(QIcon(pixmap));
+            ui->pushButton_pdp2_2->setIconSize(QSize(50, 50));
+            ui->pushButton_pdp2_2->setStyleSheet("border-radius: 25px; border: none;");
+
+            QByteArray byteArray;
+            QBuffer buffer(&byteArray);
+            buffer.open(QIODevice::WriteOnly);
+            pixmap.save(&buffer, "PNG");
+            employe.setPdp(byteArray);
+        } else {
+            QMessageBox::warning(this, "Erreur", "Impossible de charger l'image sélectionnée.");
+        }
+    }
+}
+
+void MainWindow::on_pushButton_enregistrer_clicked()
+{
+    if (ui->nom_2->text().isEmpty() || ui->prenom_2->text().isEmpty()) {
+        QMessageBox::critical(this, "Erreur", "Tous les champs obligatoires doivent être remplis !");
+        return;
     }
 
+    Employe e = getEmployeModifie();
 
-    // Appliquer le style uniquement au bouton cliqué
-    button->setStyleSheet("QPushButton {"
-                          "background-color: rgb(71, 127, 172);"  // Couleur sélectionnée
-                          "color: white;"  // Texte en blanc pour contraste
-                          "font: 700 9pt 'Segoe UI';"
-                          "border: 2px solid black;"
-                          "border-radius: 20px;"
-                          "qproperty-iconSize: 30px 30px;"
-                          "}"
-                          "QPushButton:hover {"
-                          "background-color: rgb(100, 150, 200);"  // Couleur du bouton survolé
-                "}");
+    if (e.modifier(e.getId())) {
+        QMessageBox::information(this, "Succès", "✅ Modification enregistrée !");
+        afficherEmployes();
+        ui->tabWidget->setCurrentIndex(1);
+    } else {
+        QMessageBox::critical(this, "Erreur", "❌ La modification a échoué.");
+    }
+}
+
+void MainWindow::on_pushButton_appliquerModif_clicked()
+{
+    if (ui->nom_2->text().isEmpty() || ui->prenom_2->text().isEmpty()) {
+        QMessageBox::warning(this, "Champ vide", "Veuillez remplir tous les champs obligatoires !");
+        return;
+    }
+
+    Employe updated;
+    updated.setId(employe.getId());
+    updated.setNom(ui->nom_2->text());
+    updated.setPrenom(ui->prenom_2->text());
+    updated.setDateEmbauche(ui->date_embauche_2->date());
+    updated.setPoste(ui->poste_2->text());
+    updated.setSalaire(ui->salaire_2->text().toDouble());
+    updated.setEmail(ui->email_2->text());
+    updated.setSexe(ui->sexe_2->currentText());
+    updated.setTelephone(ui->telephone_2->text());
+    updated.setStatut(ui->statut_2->text());
+
+    updated.setPdp(employe.getPdp());
+
+    if (updated.modifier(updated.getId())) {
+        QMessageBox::information(this, "Succès", "✅ Employé modifié avec succès !");
+        afficherEmployes();
+        ui->tabWidget->setCurrentIndex(1);
+    } else {
+        QMessageBox::critical(this, "Erreur", "❌ La mise à jour a échoué !");
+    }
+}
+
+QPixmap createRoundedPixmap(const QPixmap &src, int size)
+{
+    QPixmap dest(size, size);
+    dest.fill(Qt::transparent);
+
+    QPainter painter(&dest);
+    painter.setRenderHint(QPainter::Antialiasing);
+    QPainterPath path;
+    path.addEllipse(0, 0, size, size);
+    painter.setClipPath(path);
+    painter.drawPixmap(0, 0, size, size, src);
+    return dest;
+}
+
+void MainWindow::afficherDetailsEmploye(const QModelIndex &index)
+{
+    if (index.column() != 0) return;
+
+    QVariant empData = index.data(Qt::UserRole + 1);
+    if (!empData.isValid()) {
+        qDebug() << "❌ Aucune donnée employé trouvée";
+        return;
+    }
+
+    QVariantMap employee = empData.toMap();
+    qDebug() << "📸 Affichage des détails de l'employé:" << employee;
+
+    QDialog *dialog = new QDialog(this);
+    dialog->setWindowTitle("Détails de l'employé");
+    dialog->setFixedSize(350, 500);
+
+    QVBoxLayout *layout = new QVBoxLayout(dialog);
+
+    // 📷 Affichage de la photo
+    QLabel *photoLabel = new QLabel();
+    QPixmap photo;
+    QByteArray photoData = employee["pdp"].toByteArray();
+
+    qDebug() << "Taille des données photo:" << photoData.size();
+
+    if (!photoData.isEmpty() && photo.loadFromData(photoData)) {
+        photo = photo.scaled(120, 120, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    } else {
+        photo.load(":/img/default-user.png");
+        photo = photo.scaled(120, 120, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    }
+    photoLabel->setPixmap(photo);
+    photoLabel->setAlignment(Qt::AlignCenter);
+    layout->addWidget(photoLabel);
+
+    // 🔹 Infos employé
+    QFrame *infoFrame = new QFrame();
+    QFormLayout *formLayout = new QFormLayout(infoFrame);
+    formLayout->setSpacing(5);
+
+    // Correction des clés pour correspondre aux données stockées
+    QStringList fields = {"ID", "Nom", "Prénom", "Poste", "Salaire", "Email", "Téléphone"};
+    QStringList keys = {"id", "nom", "prenom", "poste", "salaire", "email", "telephone"};
+
+    for (int i = 0; i < fields.size(); ++i) {
+        QLabel *label = new QLabel(employee[keys[i]].toString());
+        label->setStyleSheet("font: 10pt; padding: 2px;");
+
+        QLabel *title = new QLabel(fields[i] + ":");
+        title->setStyleSheet("font-weight: bold; font: 10pt; color: #2c3e50;");
+
+        formLayout->addRow(title, label);
+    }
+
+    infoFrame->setStyleSheet("background: #f8f9fa; border-radius: 10px; padding: 10px;");
+    layout->addWidget(infoFrame);
+
+    // 📄 Ajout d'un bouton pour générer le PDF
+    QPushButton *pdfButton = new QPushButton("Exporter en PDF");
+    layout->addWidget(pdfButton);
+
+    connect(pdfButton, &QPushButton::clicked, this, [this, employee]() {
+        genererPDF(employee);
+    });
+
+    dialog->exec();
+    delete dialog;
+}
+
+void MainWindow::genererPDF(const QVariantMap &employee)
+{
+    QString filename = QFileDialog::getSaveFileName(nullptr, "Enregistrer PDF", "details_employe.pdf", "Fichiers PDF (*.pdf)");
+    if (filename.isEmpty()) return;
+
+    QPdfWriter writer(filename);
+    writer.setPageSize(QPageSize(QPageSize::A4));
+    writer.setResolution(300);
+    writer.setPageMargins(QMarginsF(40, 40, 40, 40));
+
+    QPainter painter;
+    if (!painter.begin(&writer)) return;
+
+    int pageWidth = writer.width();
+    int pageHeight = writer.height();
+    int margin = 100;
+
+    // Arrière-plan
+    painter.fillRect(0, 0, pageWidth, pageHeight, QColor(252, 252, 252));
+    painter.fillRect(0, 0, pageWidth, 350, QColor(245, 245, 245));
+
+    // PHOTO À GAUCHE
+    int photoX = margin;
+    int photoY = 50;
+    int photoSize = 280;
+
+    QByteArray photoData = employee["pdp"].toByteArray();
+    if (!photoData.isEmpty()) {
+        QPixmap photo;
+        if (photo.loadFromData(photoData)) {
+            QPixmap rounded(photoSize, photoSize);
+            rounded.fill(Qt::transparent);
+
+            QPainter roundPainter(&rounded);
+            roundPainter.setRenderHint(QPainter::Antialiasing);
+            QPainterPath path;
+            path.addEllipse(0, 0, photoSize, photoSize);
+            roundPainter.setClipPath(path);
+
+            QPixmap scaled = photo.scaled(photoSize, photoSize, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+            roundPainter.drawPixmap(0, 0, scaled);
+            roundPainter.end();
+
+            painter.drawPixmap(photoX, photoY, rounded);
+        }
+    }
+
+    // Titre à droite
+    painter.setPen(Qt::black);
+    painter.setFont(QFont("Arial", 24, QFont::Bold));
+    painter.drawText(QRect(photoX + photoSize + 50, 140, pageWidth - photoSize - 200, 80), Qt::AlignLeft | Qt::AlignVCenter, QStringLiteral("Détails de l'employé"));
+
+    // Carte Informations
+    int infoStartY = 370;
+    int cardWidth = pageWidth - (2 * margin);
+    int cardHeight = 1000;
+
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(QColor(220, 220, 220, 100));
+    painter.drawRoundedRect(margin + 5, infoStartY + 5, cardWidth, cardHeight, 15, 15);
+    painter.setBrush(Qt::white);
+    painter.drawRoundedRect(margin, infoStartY, cardWidth, cardHeight, 15, 15);
+
+    // Détails
+    int x = margin + 80;
+    int y = infoStartY + 80;
+    int lineHeight = 135; // ✅ Espacement augmenté ici
+
+    QStringList fields = {
+        QStringLiteral("ID"), QStringLiteral("Nom"), QStringLiteral("Prénom"),
+        QStringLiteral("Poste"), QStringLiteral("Salaire"), QStringLiteral("Email"),
+        QStringLiteral("Tél")
+    };
+    QStringList keys = {"id", "nom", "prenom", "poste", "salaire", "email", "telephone"};
+
+    for (int i = 0; i < fields.size(); ++i) {
+        if (employee.contains(keys[i])) {
+            // Label
+            painter.setPen(QColor(50, 50, 50));
+            painter.setFont(QFont("Arial", 18, QFont::Bold));
+            QRect labelRect(x, y, 300, 60);
+            painter.drawText(labelRect, Qt::AlignLeft | Qt::AlignVCenter, fields[i] + " :");
+
+            // Valeur
+            painter.setPen(Qt::black);
+            painter.setFont(QFont("Arial", 18));
+            QString value = employee[keys[i]].toString();
+            if (fields[i] == QStringLiteral("Salaire"))
+                value += QStringLiteral(" DT");
+
+            QRect valueRect(x + 320, y, cardWidth - 400, 60);
+            painter.drawText(valueRect, Qt::AlignLeft | Qt::AlignVCenter, value);
+
+            // Ligne de séparation
+            if (i < fields.size() - 1) {
+                painter.setPen(QPen(QColor(200, 200, 200), 2));
+                painter.drawLine(x - 30, y + lineHeight - 35, x + cardWidth - 100, y + lineHeight - 35);
+            }
+
+            y += lineHeight;
+        }
+    }
+
+    // Pied de page
+    painter.setPen(QColor(90, 90, 90));
+    painter.setFont(QFont("Arial", 14));
+    QString dateStr = "Document généré le " + QDateTime::currentDateTime().toString("dd/MM/yyyy à hh:mm");
+
+    // ... pied de page ...
+    painter.drawText(QRect(margin, pageHeight - 60, cardWidth, 40), Qt::AlignCenter, dateStr);
+
+    // 🔚 Fin du dessin
+    painter.end();
+
+    // 🚀 Ouvre automatiquement le fichier PDF généré
+    QDesktopServices::openUrl(QUrl::fromLocalFile(filename));
+
+    QMessageBox::information(nullptr, "Succès", "✅ Le PDF a été généré avec succès !");
+
+}
+
+
+void MainWindow::saveImageToDatabase(const QPixmap &pixmap) {
+    if (pixmap.isNull()) {
+        qDebug() << "❌ Image invalide";
+        return;
+    }
+
+    QByteArray imageData;
+    QBuffer buffer(&imageData);
+    buffer.open(QIODevice::WriteOnly);
+    if (!pixmap.save(&buffer, "PNG")) {
+        qDebug() << "❌ Échec de la conversion de l'image";
+        return;
+    }
+    buffer.close();
+
+    QSqlQuery query;
+    query.prepare("UPDATE employe SET pdp = :imageData WHERE id = :id");
+    query.bindValue(":imageData", imageData);
+    query.bindValue(":id", employe.getId());
+
+    if (!query.exec()) {
+        qDebug() << "❌ Erreur lors de la mise à jour de l'image:" << query.lastError().text();
+    } else {
+        qDebug() << "✅ Image mise à jour avec succès";
+    }
+}
+
+void MainWindow::onPhotoClicked(const QModelIndex &index) {
+    if (index.column() != 0) return;
+
+    QVariant empData = index.data(Qt::UserRole + 1);
+    if (!empData.isValid()) {
+        qDebug() << "❌ Aucune donnée employé trouvée";
+        return;
+    }
+
+    QVariantMap employee = empData.toMap();
+    qDebug() << "📸 Affichage des détails de l'employé:" << employee;
+
+    afficherDetailsEmploye(index);
+}
+void MainWindow::chargementTodoList()
+{
+    if (ui->tableTodo->model())
+        delete ui->tableTodo->model();
+
+    QSqlQuery query(R"(
+        SELECT
+            m.id,
+            m.type,
+            m.description,
+            m.statut,
+            m.date_resolution AS date_resolution
+        FROM maintenance m
+    )");
+
+    QStandardItemModel *model = new QStandardItemModel(this);
+    model->setHorizontalHeaderLabels({ "✔", "🔧 Type", "📝 Description", "📌 Statut", "📅 Résolution" });
+
+    while (query.next()) {
+        QList<QStandardItem *> row;
+
+        // Case à cocher (colonne 0)
+        QStandardItem *checkItem = new QStandardItem();
+        checkItem->setCheckable(true);
+        QString statut = query.value("statut").toString();
+        checkItem->setCheckState(statut.toLower() == "traitée" ? Qt::Checked : Qt::Unchecked);
+        checkItem->setData(query.value("id").toInt()); // pour update
+        row << checkItem;
+
+        // Type, description
+        row << new QStandardItem(query.value("type").toString());
+        row << new QStandardItem(query.value("description").toString());
+
+        // Statut (badge coloré)
+        QStandardItem *statutItem = new QStandardItem(statut);
+        QString couleur = "#ffffff";
+        if (statut.toLower() == "non traitée") couleur = "#ffeaa7";
+        else if (statut.toLower() == "en cours") couleur = "#d6eaff";
+        else if (statut.toLower() == "traitée") couleur = "#d4edda";
+        statutItem->setBackground(QColor(couleur));
+        row << statutItem;
+
+        // Date résolution
+        row << new QStandardItem(query.value("date_resolution").toString());
+
+        model->appendRow(row);
+    }
+
+    ui->tableTodo->setModel(model);
+
+    for (int i = 0; i < model->columnCount(); ++i)
+        ui->tableTodo->setColumnWidth(i, 160);
+
+    // Style
+    ui->tableTodo->setStyleSheet(R"(
+        QTableView {
+            background-color: #f4f6f8;
+            font-size: 14px;
+            alternate-background-color: #ffffff;
+            selection-background-color: #aee1f9;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        QHeaderView::section {
+            background-color: #34495e;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            padding: 6px;
+        }
+        QTableView::item {
+            padding: 5px;
+        }
+        QTableView::item:hover {
+            background-color: #eaf4fb;
+        }
+    )");
+
+    ui->tableTodo->horizontalHeader()->setStretchLastSection(true);
+    ui->tableTodo->setAlternatingRowColors(true);
+    ui->tableTodo->verticalHeader()->setVisible(false);
+    ui->tableTodo->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableTodo->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+    // Animation à l'apparition
+    QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(ui->tableTodo);
+    ui->tableTodo->setGraphicsEffect(effect);
+    QPropertyAnimation *fade = new QPropertyAnimation(effect, "opacity");
+    fade->setDuration(500);
+    fade->setStartValue(0.0);
+    fade->setEndValue(1.0);
+    fade->start(QAbstractAnimation::DeleteWhenStopped);
+
+    // Mise à jour du statut en BDD quand on coche
+    connect(model, &QStandardItemModel::itemChanged, this, [=](QStandardItem *item) {
+        if (item->column() == 0) {
+            int id = item->data().toInt();
+            bool isChecked = item->checkState() == Qt::Checked;
+            QString newStatus = isChecked ? "traitée" : "en cours";
+
+            QSqlQuery update;
+            update.prepare("UPDATE maintenance SET statut = :statut WHERE id = :id");
+            update.bindValue(":statut", newStatus);
+            update.bindValue(":id", id);
+
+            if (!update.exec()) {
+                qDebug() << "❌ Erreur update maintenance :" << update.lastError().text();
+            } else {
+                model->setData(model->index(item->row(), 3), newStatus);
+                // Optionnel : changer la couleur du badge
+                QColor color = (newStatus == "traitée") ? QColor("#d4edda") : QColor("#d6eaff");
+                model->item(item->row(), 3)->setBackground(color);
+            }
+        }
+    });
+
+    qDebug() << "✅ To-Do list chargée avec badge et checkbox.";
+}
+
+void MainWindow::toutMarquerCommeTermine()
+{
+    QSqlQuery update("UPDATE maintenance SET statut = 'traitée' WHERE statut <> 'traitée' OR statut IS NULL");
+    if (!update.exec()) {
+        QMessageBox::warning(this, "Erreur", "Impossible de tout marquer comme terminé !");
+    } else {
+        chargementTodoList();
+    }
+}
+
+void MainWindow::on_btnAccederTodo_clicked()
+{
+    FaceLoginDialog dialog(this);
+    if (dialog.exec() == QDialog::Accepted) {
+        ui->tabWidget->setCurrentIndex(5);  // Index de l'onglet Todo List
+        chargementTodoList();
+    }
+}
+void MainWindow::on_pushButton_faceId_clicked()
+{
+    // Récupérer le dernier ID inséré dans la table employe
+    QSqlQuery query;
+    query.prepare("SELECT MAX(id) FROM employe");
+
+    if (!query.exec() || !query.next()) {
+        QMessageBox::warning(this, "Erreur", "Impossible de récupérer l'ID de l'employé");
+        return;
+    }
+
+    QString employeeId = query.value(0).toString();
+    if (employeeId.isEmpty()) {
+        QMessageBox::warning(this, "Attention", "Veuillez d'abord ajouter l'employé");
+        return;
+    }
+
+    // Appeler la fonction d'enregistrement du FaceID
+    if (FaceLoginDialog::registerFaceID(this, employeeId)) {
+        QMessageBox::information(this, "Succès", "FaceID enregistré avec succès");
+        // Mettre à jour l'icône du bouton pour indiquer que le FaceID est enregistré
+        ui->pushButton_faceId->setStyleSheet(ui->pushButton_faceId->styleSheet() + "\nbackground-color: #4CAF50;");
+    } else {
+        QMessageBox::warning(this, "Erreur", "Échec de l'enregistrement du FaceID");
+    }
+}
+void MainWindow::on_btnVerifier_clicked()
+{
+    QString nomSaisi = ui->lineEdit_nom->text().trimmed();
+    QSqlQuery query;
+    query.prepare("SELECT id, nom, face_id FROM employes WHERE nom = :nom");
+    query.bindValue(":nom", nomSaisi);
+
+    if (!query.exec()) {
+        qDebug() << "Erreur SQL:" << query.lastError().text();
+        return;
+    }
+
+}
+bool MainWindow::compareFaces(const QString &tempImage, const QString &storedImage)
+{
+    QProcess process;
+    QString pythonScript = "C:/Users/Yasmine/Desktop/testtttfinal/build/Desktop_Qt_6_7_3_MinGW_64_bit-Debug/debug/compare_faces.py";
+    QString pythonExe = "C:/Users/Yasmine/AppData/Local/Programs/Python/Python311/python.exe";
+
+    process.start(pythonExe, QStringList() << pythonScript << tempImage << storedImage);
+
+    if (!process.waitForFinished(60000)) {
+        qDebug() << "Erreur: Le script Python n'a pas terminé";
+        return false;
+    }
+
+    QString output = QString::fromUtf8(process.readAllStandardOutput()).trimmed();
+    QString errorOutput = QString::fromUtf8(process.readAllStandardError()).trimmed();
+
+    if (!errorOutput.isEmpty())
+        qDebug() << "Erreur du script Python: " << errorOutput;
+
+    qDebug() << "Sortie du script Python:" << output;
+
+    // Si ton script retourne un JSON
+    QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
+    if (!doc.isObject()) return false;
+
+    QJsonObject obj = doc.object();
+    return obj.contains("match") && obj["match"].toBool();
 }
