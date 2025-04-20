@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QSqlQueryModel>
 #include "locataire.h"
+#include <QFile>
 
 
 // Constructeur par défaut
@@ -23,7 +24,7 @@ Locataire::Locataire() {
 
 Locataire::Locataire(QString nom, QString prenom, QString typeActivite, QString email,
                      int telephone, QString dureeContrat, QDate dateDeb, QDate dateFin,
-                     QString paiementEffectue) {
+                     QString paiementEffectue,QByteArray contrat) {
     this->nom = nom;
     this->prenom = prenom;
     this->typeActivite = typeActivite;
@@ -33,36 +34,86 @@ Locataire::Locataire(QString nom, QString prenom, QString typeActivite, QString 
     this->dateDeb = dateDeb;
     this->dateFin = dateFin;
     this->paiementEffectue = paiementEffectue;
+    this->contrat = contrat;
+
 }
 
-// Ajouter un locataire (Correction de la requête SQL)
 bool Locataire::ajouter() {
     QSqlQuery query;
-    query.prepare("INSERT INTO locataire (\"NOM\", \"PRENOM\", \"TYPR_ACTIVITE\", \"EMAIL\", \"TELEPHONE\", \"DUREE_CONTRAT\", \"DATE_DEB\", \"DATE_FIN\", \"PAIMENT_EFFECTUE\") "
-                  "VALUES (:nom, :prenom, :typeActivite, :email, :telephone, :dureeContrat, :dateDeb, :dateFin, :paiementEffectue)");
+    query.prepare("INSERT INTO LOCATAIRE (NOM, PRENOM, TYPE_ACTIVITE, EMAIL, TELEPHONE, DUREE_CONTRAT, DATE_DEB, DATE_FIN, PAIMENT_EFFECTUE, CONTRAT) "
+                  "VALUES (:nom, :prenom, :typeActivite, :email, :telephone, :duree, :dateDeb, :dateFin, :paiement, :contrat)");
+
 
     query.bindValue(":nom", nom);
     query.bindValue(":prenom", prenom);
     query.bindValue(":typeActivite", typeActivite);
     query.bindValue(":email", email);
     query.bindValue(":telephone", telephone);
-    query.bindValue(":dureeContrat", dureeContrat);
+    query.bindValue(":duree", dureeContrat);
     query.bindValue(":dateDeb", dateDeb);
     query.bindValue(":dateFin", dateFin);
-    query.bindValue(":paiementEffectue", paiementEffectue);
-
-    qDebug() << "Requête SQL exécutée :" << query.executedQuery();
+    query.bindValue(":paiement", paiementEffectue);  // Utilisez la variable membre de la classe
+    query.bindValue(":contrat", contrat);  // Utilisez la variable membre de la classe
 
     if (!query.exec()) {
-        qDebug() << "Erreur lors de l'ajout du locataire :" << query.lastError().text();
+        qDebug() << "Error executing query:" << query.lastError().text();
         return false;
     }
+
+    return true;  // Assurez-vous de retourner true lorsque l'ajout réussit
+}
+
+
+bool Locataire::modifier(int id, const QString &nom, const QString &prenom, const QString &typeActivite,
+                         const QString &email, const QString &telephone, const QString &duree,
+                         const QString &dateDeb, const QString &dateFin, const QString &paiement,
+                         const QByteArray &contrat) {
+    // Vérification si l'ID est valide
+    if (id <= 0) {
+        qDebug() << "ID invalide";
+        return false;
+    }
+
+    bool ok;
+    int telephoneInt = telephone.toInt(&ok);
+
+    if (!ok) {
+        qDebug() << "Numéro de téléphone invalide : " << telephone;
+        return false;
+    }
+
+    QSqlQuery query;
+    QString formattedDateDeb = QDate::fromString(dateDeb, "yyyy-MM-dd").toString("yyyy-MM-dd");
+    QString formattedDateFin = QDate::fromString(dateFin, "yyyy-MM-dd").toString("yyyy-MM-dd");
+
+    query.prepare("UPDATE locataire SET nom = ?, prenom = ?, type_activite = ?, email = ?, telephone = ?, "
+                  "duree_contrat = ?, date_deb = TO_DATE(?, 'YYYY-MM-DD'), date_fin = TO_DATE(?, 'YYYY-MM-DD'), "
+                  "paiment_effectue = ?, contrat = ? WHERE id = ?");
+
+    query.addBindValue(nom);
+    query.addBindValue(prenom);
+    query.addBindValue(typeActivite);
+    query.addBindValue(email);
+    query.addBindValue(telephoneInt);
+    query.addBindValue(duree);
+    query.addBindValue(formattedDateDeb);
+    query.addBindValue(formattedDateFin);
+    query.addBindValue(paiement);
+    query.addBindValue(contrat, QSql::In | QSql::Binary);  // Mettre à jour le contrat
+    query.addBindValue(id);
+
+    if (!query.exec()) {
+        qDebug() << "Erreur SQL : " << query.lastError().text();
+        return false;
+    }
+
+    qDebug() << "Locataire modifié avec succès.";
     return true;
 }
-QSqlQueryModel* Locataire::afficher()
-{
+
+QSqlQueryModel* Locataire::afficher() {
     QSqlQueryModel* model = new QSqlQueryModel();
-    model->setQuery("SELECT * FROM locataire");
+    model->setQuery("SELECT ID, NOM, PRENOM, TYPE_ACTIVITE, EMAIL, TELEPHONE, DUREE_CONTRAT, DATE_DEB, DATE_FIN, PAIMENT_EFFECTUE, CONTRAT FROM LOCATAIRE");
 
     if (model->lastError().isValid()) {
         qDebug() << "Erreur SQL lors de l'affichage des locataires:" << model->lastError().text();
@@ -72,6 +123,7 @@ QSqlQueryModel* Locataire::afficher()
 
     return model;
 }
+
 bool Locataire::existe(int id) {
     QSqlQuery query;
     query.prepare("SELECT COUNT(*) FROM locataire WHERE ID = :id");
@@ -106,71 +158,13 @@ bool Locataire::supprimer(int id) {
     return true;
 }
 
-bool Locataire::modifier(int id, const QString &nom, const QString &prenom, const QString &typeActivite,
-                         const QString &email, const QString &telephone, const QString &duree,
-                         const QString &dateDeb, const QString &dateFin, const QString &paiement)
-{
-    // Vérification si l'ID est valide
-    if (id <= 0) {
-        qDebug() << "ID invalide";
-        return false;
-    }
 
-    // Convertir le téléphone en entier
-    bool ok;
-    int telephoneInt = telephone.toInt(&ok);  // Convertir la chaîne en entier
-
-    if (!ok) {
-        qDebug() << "Numéro de téléphone invalide : " << telephone;
-        return false;  // Si la conversion échoue, afficher un message d'erreur
-    }
-
-    // Préparer la requête SQL sans inclure la photo
-    QSqlQuery query;
-
-    // Vérification du format de date
-    QString formattedDateDeb = QDate::fromString(dateDeb, "yyyy-MM-dd").toString("yyyy-MM-dd");
-    QString formattedDateFin = QDate::fromString(dateFin, "yyyy-MM-dd").toString("yyyy-MM-dd");
-
-    // Préparer la requête SQL avec TO_DATE pour garantir que la date soit au bon format
-    query.prepare("UPDATE locataire SET nom = ?, prenom = ?, type_activite = ?, email = ?, telephone = ?, "
-                  "duree_contrat = ?, date_deb = TO_DATE(?, 'YYYY-MM-DD'), date_fin = TO_DATE(?, 'YYYY-MM-DD'), "
-                  "paiment_effectue = ? WHERE id = ?");
-
-    // Lier les valeurs de manière sécurisée
-    query.addBindValue(nom);
-    query.addBindValue(prenom);
-    query.addBindValue(typeActivite);
-    query.addBindValue(email);
-    query.addBindValue(telephoneInt);  // Passer le téléphone en tant qu'entier
-    query.addBindValue(duree);
-    query.addBindValue(formattedDateDeb);  // Utiliser la date formatée
-    query.addBindValue(formattedDateFin);  // Utiliser la date formatée
-    query.addBindValue(paiement);
-    query.addBindValue(id);
-
-    // Exécuter la requête et vérifier si elle réussit
-    if (!query.exec()) {
-        qDebug() << "Erreur SQL : " << query.lastError().text();
-        return false;  // Vous pouvez gérer l'erreur ici
-    }
-
-    // Afficher la requête pour vérifier qu'elle est correcte
-    qDebug() << "Requête SQL exécutée : " << query.lastQuery();
-
-    return true;
-}
-
-
-
-
-bool Locataire::loadById(int id)
-{
+bool Locataire::loadById(int id) {
     qDebug() << "Chargement du locataire avec ID :" << id;
 
     QSqlQuery query;
     query.prepare("SELECT NOM, PRENOM, TYPE_ACTIVITE, EMAIL, TELEPHONE, "
-                  "DUREE_CONTRAT, DATE_DEB, DATE_FIN, PAIMENT_EFFECTUE "
+                  "DUREE_CONTRAT, DATE_DEB, DATE_FIN, PAIMENT_EFFECTUE, CONTRAT "
                   "FROM LOCATAIRE WHERE ID = :id");
     query.bindValue(":id", id);
 
@@ -189,6 +183,9 @@ bool Locataire::loadById(int id)
         setDateDeb(query.value(6).toDate());
         setDateFin(query.value(7).toDate());
         setPaiementEffectue(query.value(8).toString());
+
+        // Charger le contrat depuis la base de données
+        setContrat(query.value(9).toByteArray());
 
         qDebug() << "Locataire chargé avec succès !";
         return true;

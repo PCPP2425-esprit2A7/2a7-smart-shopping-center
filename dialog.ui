@@ -56,7 +56,7 @@ border-radius: 25px;
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
+      <string notr="true">color: rgb(0, 0, 0);border: 2px solid transparent ; /* Ajoute une bordure */
 font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
      </property>
      <property name="text">
@@ -95,7 +95,7 @@ qproperty-iconSize: 60px 60px; /* Ajuste la taille de l'icône */</string>
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
+      <string notr="true">color: rgb(0, 0, 0);border: 2px solid transparent ; /* Ajoute une bordure */
 font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
      </property>
      <property name="text">
@@ -112,7 +112,7 @@ font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
+      <string notr="true">color: rgb(0, 0, 0);border: 2px solid transparent ; /* Ajoute une bordure */
 font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
      </property>
      <property name="text">
@@ -129,7 +129,7 @@ font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
+      <string notr="true">color: rgb(0, 0, 0);border: 2px solid transparent ; /* Ajoute une bordure */
 font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
      </property>
      <property name="text">
@@ -165,7 +165,7 @@ background-color: rgb(227, 241, 244);
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
+      <string notr="true">color: rgb(0, 0, 0);border: 2px solid transparent ; /* Ajoute une bordure */
 font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
      </property>
      <property name="text">
@@ -182,7 +182,7 @@ font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
+      <string notr="true">color: rgb(0, 0, 0);border: 2px solid transparent ; /* Ajoute une bordure */
 font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
      </property>
      <property name="text">
@@ -199,7 +199,7 @@ font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
+      <string notr="true">color: rgb(0, 0, 0);border: 2px solid transparent ; /* Ajoute une bordure */
 font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
      </property>
      <property name="text">
@@ -370,7 +370,7 @@ background-color: rgb(227, 241, 244);
       <bool>false</bool>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 4px solid black;
+      <string notr="true">color: rgb(0, 0, 0);border: 4px solid black;
 background-color: rgb(132, 194, 49);
 border-radius: 25px;
 font: 700 12pt &quot;Arial Rounded MT&quot;;
@@ -397,7 +397,7 @@ font: 700 12pt &quot;Arial Rounded MT&quot;;
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
+      <string notr="true">color: rgb(0, 0, 0);border: 2px solid transparent ; /* Ajoute une bordure */
 font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
      </property>
      <property name="text">
@@ -414,7 +414,7 @@ font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
+      <string notr="true">color: rgb(0, 0, 0);border: 2px solid transparent ; /* Ajoute une bordure */
 font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
      </property>
      <property name="text">
@@ -431,7 +431,7 @@ font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">border:2px solid transparent;
+      <string notr="true">color: rgb(0, 0, 0);border:2px solid transparent;
 border-radius: 15px;
 background-color: rgb(227, 241, 244);
 </string>
@@ -447,7 +447,7 @@ background-color: rgb(227, 241, 244);
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">border:2px solid transparent;
+      <string notr="true">color: rgb(0, 0, 0);border:2px solid transparent;
 border-radius: 15px;
 background-color: rgb(227, 241, 244);
 </string>
@@ -463,7 +463,7 @@ background-color: rgb(227, 241, 244);
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 2px solid transparent ; /* Ajoute une bordure */
+      <string notr="true">color: rgb(0, 0, 0);border: 2px solid transparent ; /* Ajoute une bordure */
 font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
      </property>
      <property name="text">

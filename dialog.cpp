@@ -3,6 +3,8 @@
 #include "ui_dialog.h"
 #include <QMessageBox>
 #include <QDebug>
+#include <QFile>
+
 
 Dialog::Dialog(int id, QWidget *parent) :
     QDialog(parent),
@@ -32,11 +34,15 @@ void Dialog::loadLocataireDetails()
         ui->datedeb->setDate(QDate::fromString(locataire.getDateDeb(), "yyyy-MM-dd"));  // Now the date is a QString
         ui->datefin->setDate(QDate::fromString(locataire.getDateFin(), "yyyy-MM-dd"));
         ui->paiement->setText(locataire.getPaiementEffectue());
+        // Si le contrat est stocké dans un QByteArray
+        ui->contrat->setText(QString::fromUtf8(locataire.getContrat()));  // Si c'est en UTF-8
+
     } else {
         QMessageBox::warning(this, "Erreur", "Impossible de charger les détails du locataire.");
     }
 }
 
+// Code de votre méthode on_saveButton_clicked()
 void Dialog::on_saveButton_clicked()
 {
     Locataire locataire;
@@ -65,6 +71,20 @@ void Dialog::on_saveButton_clicked()
     QDate datefin = ui->datefin->date();
     QString duree = ui->duree->text().trimmed();
     QString paiement = ui->paiement->text().trimmed();
+
+    // Lire le contrat (fichier image ou document) en QByteArray
+    QByteArray contrat;
+    QString cheminContrat = ui->contrat->text();  // Assurez-vous que ce champ contient le chemin du fichier
+    if (!cheminContrat.isEmpty()) {
+        QFile file(cheminContrat);
+        if (file.open(QIODevice::ReadOnly)) {
+            contrat = file.readAll();
+            file.close();
+        } else {
+            QMessageBox::warning(this, "Erreur", "Impossible de lire le fichier du contrat.");
+            return;
+        }
+    }
 
     qDebug() << "Date Début: " << datedeb.toString("yyyy-MM-dd");
     qDebug() << "Date Fin: " << datefin.toString("yyyy-MM-dd");
@@ -97,13 +117,12 @@ void Dialog::on_saveButton_clicked()
     locataire.setDureeContrat(duree);
     locataire.setPaiementEffectue(paiement);
 
-    // Appel de la méthode modifier avec 10 arguments
+    // Appel de la méthode modifier avec le QByteArray du contrat
     if (locataire.modifier(locataireId, nom, prenom, typeact, email, QString::number(telephone),
-                           duree, datedeb.toString("yyyy-MM-dd"), datefin.toString("yyyy-MM-dd"), paiement)) {
+                           duree, datedeb.toString("yyyy-MM-dd"), datefin.toString("yyyy-MM-dd"), paiement, contrat)) {
         QMessageBox::information(this, "Succès", "Les informations du locataire ont été mises à jour avec succès.");
         this->accept();  // Fermer le dialogue si la mise à jour a réussi
     } else {
         QMessageBox::warning(this, "Erreur", "La mise à jour des informations a échoué.");
     }
-
 }
