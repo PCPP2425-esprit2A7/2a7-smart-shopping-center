@@ -104,7 +104,7 @@ public:
 
         return query;
     }
-    /*QSqlQuery getEvenementID(int id)
+    QSqlQuery getEvenementID(int id)
     {
         QSqlQuery query;
         query.prepare("SELECT * FROM EVENEMENT WHERE ID = :id");
@@ -116,7 +116,7 @@ public:
 
 
         return query;
-    }*/
+    }
 
 
 

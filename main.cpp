@@ -7,9 +7,9 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
-    /**Connection c;
-    bool test=c.createconnect();*/
-    if(true)
+    Connection c;
+    bool test=c.createconnect();
+    if(test)
     {w.show();
         QMessageBox::information(nullptr, QObject::tr("database is open"),
                                  QObject::tr("connection successful.\n"

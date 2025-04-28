@@ -203,7 +203,7 @@ border-radius: 25px; /* Ajuste selon le degré d'arrondi souhaité */
 </string>
      </property>
      <property name="currentIndex">
-      <number>5</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="widget_3">
       <attribute name="title">
@@ -2569,96 +2569,44 @@ border-radius: 12px; /* Ajuste selon le degré d'arrondi souhaité */</string>
        <widget class="QDateEdit" name="date">
         <property name="geometry">
          <rect>
-          <x>670</x>
+          <x>310</x>
           <y>10</y>
-          <width>131</width>
-          <height>31</height>
+          <width>110</width>
+          <height>26</height>
          </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(227, 241, 244);
-background-color: rgb(149, 165, 255);
-border: 1px solid noir ; /* Ajoute une bordure */
-border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
-border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
-border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */
-</string>
         </property>
        </widget>
        <widget class="QPushButton" name="valide_date">
         <property name="geometry">
          <rect>
-          <x>620</x>
+          <x>480</x>
           <y>0</y>
-          <width>51</width>
-          <height>51</height>
+          <width>111</width>
+          <height>41</height>
          </rect>
         </property>
         <property name="styleSheet">
-         <string notr="true">border-color: transparent;
-background-color: none;</string>
+         <string notr="true">background-color: rgb(227, 241, 244);
+font: 700 9pt &quot;Segoe UI&quot;;
+border: 2px solid black ; /* Ajoute une bordure */
+border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
+border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
+qproperty-iconSize: 30px 30px; /* Ajuste la taille de l'icône */
+border-radius: 15px; /* Ajuste selon le degré d'arrondi souhaité */</string>
         </property>
         <property name="text">
-         <string/>
+         <string>valider</string>
         </property>
         <property name="icon">
          <iconset resource="img.qrc">
-          <normaloff>:/Downloads/calendar-date-vector-flat-icon-png-7017516949739211umvfiwzkw-removebg-preview.png</normaloff>:/Downloads/calendar-date-vector-flat-icon-png-7017516949739211umvfiwzkw-removebg-preview.png</iconset>
+          <normaloff>:/Downloads/4682662.png</normaloff>:/Downloads/4682662.png</iconset>
         </property>
         <property name="iconSize">
          <size>
-          <width>45</width>
-          <height>45</height>
+          <width>30</width>
+          <height>30</height>
          </size>
         </property>
-       </widget>
-       <widget class="QGroupBox" name="todoGroupBox">
-        <property name="geometry">
-         <rect>
-          <x>1000</x>
-          <y>70</y>
-          <width>271</width>
-          <height>371</height>
-         </rect>
-        </property>
-        <property name="title">
-         <string>Ma To-Do List</string>
-        </property>
-        <widget class="QPushButton" name="addTaskButton">
-         <property name="geometry">
-          <rect>
-           <x>220</x>
-           <y>50</y>
-           <width>31</width>
-           <height>29</height>
-          </rect>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">border-radius: 12px; /* Ajuste selon le degré d'arrondi souhaité */
-border-color: rgb(255, 169, 203);</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="img.qrc">
-           <normaloff>:/Downloads/4682662.png</normaloff>:/Downloads/4682662.png</iconset>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="todoLineEdit">
-         <property name="geometry">
-          <rect>
-           <x>20</x>
-           <y>50</y>
-           <width>191</width>
-           <height>31</height>
-          </rect>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">border-radius: 12px; /* Ajuste selon le degré d'arrondi souhaité */
-border-color: rgb(255, 169, 203);</string>
-         </property>
-        </widget>
        </widget>
       </widget>
      </widget>

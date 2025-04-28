@@ -163,11 +163,11 @@ private slots:
 
     void on_calendrier_clicked();
 
-    //void on_tableView_activated(const QModelIndex &index);
+    void on_tableView_activated(const QModelIndex &index);
 
     //void on_tableView_activated(const QModelIndex &index);
 
-    void on_addTaskButton_clicked();
+    void on_tableView_clicked(const QModelIndex &index);
 
 private:
     Ui::MainWindow *ui;

@@ -27,13 +27,6 @@
 #include <QTableWidget>
 #include "connexion.h"
 #include <QPrinter>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QCheckBox>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QFile>
-#include <QTextStream>
 
 
 
@@ -42,8 +35,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    Connection c;
-    c.createconnect();
     tablewidget=new QTableWidget();
     model = new QSqlTableModel(this);
     model->setTable("evenements"); // Remplace "evenements" par le nom correct de ta table
@@ -52,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Initialisation de l'interface
     //statModel = new QSqlQueryModel(this);
 
-    //afficherEvenement();
+    afficherEvenement();
 
     //connect(ui->pushButton_choisirImage, &QPushButton::clicked, this, &MainWindow::on_pushButton_choisirImage_clicked);
     connect(ui->liste, &QPushButton::clicked, this, &MainWindow::afficherEvenement);
@@ -63,6 +54,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Initialiser le modèle pour afficher les événements dans le QListView
     eventModel = new QStringListModel(this);// listViewEvents doit être l'objet QListView dans ton UI
+
+
 
 
 
@@ -130,7 +123,8 @@ MainWindow::MainWindow(QWidget *parent) :
         "}";
 
 
-
+    Connection c;
+    c.createconnect();
     Evenement ev;
     QSqlQueryModel* model = ev.afficher();
 
@@ -1606,7 +1600,7 @@ void MainWindow::on_supprimer_ev_clicked()
 
 void MainWindow::on_ticket_clicked(){
     // Vérifie si une ligne est sélectionnée
-   /* QModelIndexList selectedRows = ui->tableView->selectionModel()->selectedRows();
+    QModelIndexList selectedRows = ui->tableView->selectionModel()->selectedRows();
 if (selectedRows.isEmpty()) {
     QMessageBox::warning(this, "Erreur", "Veuillez sélectionner un événement dans le tableau.");
     return;
@@ -1623,10 +1617,10 @@ for (int i = 1; i < model->columnCount(); ++i) {
 }
 //query.next();
 // Récupérer les données de la ligne sélectionnée
-QString titre = "";//query.value("TITRE").toString();
-QString dateDebut ="";  //query.value("DATE_DEB").toString(); // Date de début en colonne 2
-QString dateFin = "";//query.value("DATE_FIN").toString(); ; // Date de fin en colonne 3
-QString prix =  "";//query.value("PRIX").toString();  // Prix en colonne 4
+QString titre = query.value("TITRE").toString();
+QString dateDebut =query.value("DATE_DEB").toString(); // Date de début en colonne 2
+QString dateFin = query.value("DATE_FIN").toString(); ; // Date de fin en colonne 3
+QString prix =  query.value("PRIX").toString();  // Prix en colonne 4
 qDebug()<<"prix   :"<<prix;
 // Générer le contenu du ticket PDF
 QString contenu =
@@ -1677,7 +1671,13 @@ printer.setPageMargins(QMarginsF(15, 15, 15, 15));
 doc.print(&printer);
 
 QMessageBox::information(this, "Succès", "Le ticket a été généré avec succès !");
-QDesktopServices::openUrl(QUrl::fromLocalFile(fileName));*/
+QDesktopServices::openUrl(QUrl::fromLocalFile(fileName));
+}
+
+
+void MainWindow::on_todo_clicked()
+{
+
 }
 
 
@@ -1947,63 +1947,24 @@ void MainWindow::on_calendrier_clicked()
         }}}
 
 
-/*void MainWindow::on_todo_clicked()
+void MainWindow::on_tableView_activated(const QModelIndex &index)
 {
-    // Récupérer le layout vertical de la GroupBox
-    QVBoxLayout* layout = qobject_cast<QVBoxLayout*>(ui->todoGroupBox->layout());
-    if (!layout) return;
+    int eventId = ui->tableView->model()->data(ui->tableView->model()->index(index.row(), 0)).toInt();
+    qDebug()<<eventId;
+    Evenement ev;
+    query = ev.getEvenementID(eventId);
 
-    // Supprimer toutes les anciennes tâches (sauf les widgets fixes comme la ligne d'ajout si elle y est)
-    QLayoutItem* item;
-    while ((item = layout->takeAt(0)) != nullptr) {
-        QWidget* widget = item->widget();
-        if (widget) widget->deleteLater();
-        delete item;
-    }
 
-    // Recharger les tâches depuis le fichier
-    QFile file("todolist.txt");
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream in(&file);
-        while (!in.atEnd()) {
-            QString task = in.readLine();
-            if (!task.trimmed().isEmpty()) {
-                QCheckBox* cb = new QCheckBox(task);
-                layout->addWidget(cb);
-            }
-        }
-        file.close();
-    }
+
+
 }
 
 
-
-void MainWindow::on_addTaskButton_clicked()
+void MainWindow::on_tableView_clicked(const QModelIndex &index)
 {
-    QString taskText = ui->todoLineEdit->text().trimmed();
-    if (!taskText.isEmpty()) {
-        QCheckBox* cb = new QCheckBox(taskText);
-        // Créer un layout vertical
-        QVBoxLayout* todoLayout = new QVBoxLayout();
-
-        // Associer ce layout à la GroupBox
-        ui->todoGroupBox->setLayout(todoLayout);
-
-
-        // Ajouter au layout de la GroupBox
-        QVBoxLayout* layout = qobject_cast<QVBoxLayout*>(ui->todoGroupBox->layout());
-        if (layout) layout->addWidget(cb);
-
-        // Sauvegarde
-        QFile file("todolist.txt");
-        if (file.open(QIODevice::Append | QIODevice::Text)) {
-            QTextStream out(&file);
-            out << taskText << "\n";
-            file.close();
-        }
-
-        ui->todoLineEdit->clear();
-    }
-}*/
-
+    int eventId = ui->tableView->model()->data(ui->tableView->model()->index(index.row(), 0)).toInt();
+    qDebug()<<eventId;
+    Evenement ev;
+    query = ev.getEvenementID(eventId);
+}
 
