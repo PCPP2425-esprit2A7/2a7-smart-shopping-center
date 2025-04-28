@@ -112,7 +112,7 @@ void OpenAIClient::onReplyFinished(QNetworkReply *reply) {
         emit requeteSQLPr(responseText);
     }
     // Vérifier si la réponse est une description de service
-    else if (responseText.contains("Découvrez") || responseText.contains("hebdomadaire") || responseText.contains("actif") || responseText.contains("Profitez") || responseText.contains("service") ) {
+    else if (responseText.contains("Découvrez") || responseText.contains("hebdomadaire") || responseText.contains("actif") || responseText.contains("Profitez")  ) {
         qDebug() << "Description générée : " << responseText;
         emit descriptionGeneree(responseText);
     }

@@ -10,11 +10,11 @@ set(CMAKE_AUTORCC ON)  # Pour les fichiers .qrc
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Trouver Qt6 avec Widgets, Sql, Charts et Network
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Sql Charts Network)
+# Trouver Qt6 avec Widgets, Sql, Charts, Network, SerialPort
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Sql Charts Network SerialPort)
 
 # Vérification de la version Qt
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql Charts Network)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql Charts Network Core SerialPort)
 
 # Ajouter les fichiers de votre projet
 set(PROJECT_SOURCES
@@ -29,7 +29,6 @@ set(PROJECT_SOURCES
     img.qrc
     openaiclient.h
     openaiclient.cpp  # Ajout du client OpenAI
-
 )
 
 # Création de l'exécutable
@@ -38,7 +37,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         mailsender.h mailsender.cpp
-
+        arduinocommunication.h arduinocommunication.cpp
+        voice_recognizer.py
     )
 else()
     if(ANDROID)
@@ -51,12 +51,14 @@ endif()
 # Ajouter le chemin des en-têtes de QtXlsx (si nécessaire)
 include_directories(${CMAKE_SOURCE_DIR}/QXlsx/header)
 
-# Lier les bibliothèques Qt, y compris Network
+# Lier les bibliothèques Qt, y compris Network et SerialPort
 target_link_libraries(gestion_services PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Sql
     Qt${QT_VERSION_MAJOR}::Charts
-    Qt${QT_VERSION_MAJOR}::Network  # Ajout de Network ici
+    Qt${QT_VERSION_MAJOR}::Network
+    Qt${QT_VERSION_MAJOR}::SerialPort  # Ajout de SerialPort ici
+    Qt${QT_VERSION_MAJOR}::Core
 )
 
 # Définir les propriétés pour macOS et Windows

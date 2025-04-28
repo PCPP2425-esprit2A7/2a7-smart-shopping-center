@@ -12,18 +12,19 @@ public:
     explicit OpenAIClient(QObject *parent = nullptr);
     void envoyerRequete(const QString &question);
     void envoyerRequeteDescription(const QString &prompt);
-    void envoyerMessageChatbot(const QString &message); // 🔥 Ajout du chatbot
+    void envoyerMessageChatbot(const QString &message);
 
 signals:
     void requeteSQLPr(const QString &sqlQuery);
     void descriptionGeneree(const QString &description);
-    void chatbotResponse(const QString &response); // 🔥 Nouveau signal pour le chatbot
+    void chatbotResponse(const QString &response);
 
 private slots:
     void onReplyFinished(QNetworkReply *reply);
 
 private:
     QNetworkAccessManager *manager;
+    const QString apiUrl = "https://api.openai.com/v1/chat/completions";
 
 };
 

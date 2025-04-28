@@ -1,3 +1,4 @@
+//#include "arduinocommunication.h"
 #include "mainwindow.h"
 #include <QApplication>
 #include <QMessageBox>
@@ -26,6 +27,13 @@ int main(int argc, char *argv[])
             QMessageBox::Ok);
         return -1;
     }
+    /*ArduinoCommunication arduino;
+    QString portName = "COM5"; // Assurez-vous que c'est le bon port
+    if (!arduino.openSerialPort(portName)) {
+        qDebug() << "Erreur ouverture port série";
+        return 1;
+    }*/
+
 
     return a.exec();
 }

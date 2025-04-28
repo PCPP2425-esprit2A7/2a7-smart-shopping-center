@@ -4,6 +4,7 @@
 #include <QString>
 #include <QSqlQuery>
 #include <QSqlQueryModel>
+#include <QSqlQueryModel>
 #include <QSqlError>
 
 class Service

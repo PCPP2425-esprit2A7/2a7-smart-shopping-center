@@ -20,6 +20,7 @@
 #include "mailsender.h"
 #include <QTextBrowser>
 #include <QDateTime>
+#include <QProcess>
 
 HoverButton::HoverButton(QWidget *parent) : QPushButton(parent)  // ✅ Implémentation correcte
 {
@@ -51,6 +52,9 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    QShortcut* shortcut = new QShortcut(QKeySequence(Qt::Key_Return), this);
+    connect(shortcut, &QShortcut::activated, ui->sendButton, &QPushButton::click);
+    shortcut->setContext(Qt::WidgetWithChildrenShortcut);  // Limite au widget courant et ses enfants
 
     // Cacher la barre des onglets pour forcer l'utilisation des boutons
     ui->tabWidget->tabBar()->hide();
@@ -178,6 +182,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->lineEdit_Recherche->setPlaceholderText("🔎 Rechercher un service...");
 
 
+
       setUpNavigationButtons();
     connect(openAIClient, &OpenAIClient::descriptionGeneree, this, &MainWindow::afficherDescription);
 
@@ -209,6 +214,30 @@ MainWindow::~MainWindow()
 }
 
 
+
+void MainWindow::on_btnVoix_clicked()
+{
+    QProcess process;
+    process.start("python", QStringList() << "voice_recognizer.py");
+
+    if (!process.waitForFinished()) {
+        qDebug() << "Le script n'a pas terminé correctement.";
+        return;
+    }
+
+    QString output = process.readAllStandardOutput().trimmed();
+    qDebug() << "Texte reconnu :" << output;
+
+    if (!output.isEmpty()) {
+        ui->requete->setText(output);
+    } else {
+        ui->requete->setPlaceholderText("Aucune voix détectée");
+    }
+}
+
+
+
+
 void MainWindow::afficherDescription(const QString &description) {
 
     QTimer *timer = new QTimer(this);
@@ -230,22 +259,13 @@ void MainWindow::afficherDescription(const QString &description) {
 
 void MainWindow::genererDescriptionIA() {
     QString nom = ui->lineEdit_Nom_2->text().trimmed();
-    QString statut = ui->comboBox_Statut_2->currentText();
-    QString frequence = ui->comboBox_Frequence_2->currentText();
-    QString dateDebut = ui->dateEdit_Debut_2->date().toString("dd/MM/yyyy");
-    QString dateFin = ui->dateEdit_Fin_2->date().toString("dd/MM/yyyy");
-    QString espace = ui->lineEdit_id->text().trimmed(); // Nom de l'espace associé
-    QString cout = ui->lineEdit_Cout_2->text().trimmed();
 
     // Vérification des champs obligatoires
     if (nom.isEmpty()) {
         QMessageBox::warning(this, "Erreur", "Veuillez entrer un nom de service.");
         return;
     }
-    if (espace.isEmpty()) {
-        QMessageBox::warning(this, "Erreur", "Veuillez entrer le nom de l'espace associé.");
-        return;
-    }
+
 
     QString prompt = QString(
                          "Génère une description  pour un service nommé '%1'. "
@@ -269,6 +289,7 @@ void MainWindow::envoyerRequete()
 
     // Connexion au signal pour obtenir la requête SQL générée
     connect(openAIClient, &OpenAIClient::requeteSQLPr, this, &MainWindow::executerRequeteSQL);
+
 
     // Envoyer la requête à OpenAI
     openAIClient->envoyerRequete(question);
