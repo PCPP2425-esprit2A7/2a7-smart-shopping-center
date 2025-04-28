@@ -54,27 +54,62 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QRegularExpression> // à mettre en haut de ton fichier
+#include <QDesktopServices>
+
 
 const QString CLARIFAI_API_KEY = "35e6d6a543214a109e32dbc5b2d604c9";
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), cheminImagePDP("")
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow),
+    arduino(new Arduino(this)),
+    dernierIdEmploye(-1)
 {
-    ui->setupUi(this);
+    ui->setupUi(this); // D'abord configurer l'UI
+
+    // Connexion des signaux Arduino
+    connect(arduino, &Arduino::empreinteEnregistree,
+            this, &MainWindow::onEmpreinteEnregistree);
+
+    connect(arduino, &Arduino::messageStatut,
+            this, [this](const QString &msg){
+                ui->statusbar->showMessage(msg, 3000); // attention à "statusbar" vs "statusBar"
+            });
+
+    // Connexion automatique
+    if (!arduino->connecter()) {
+        QTimer::singleShot(3000, this, [this]() {
+            arduino->connecter();
+        });
+    }
 
     afficherEmployes();
+
+
+    // Connexion des signaux
+    connect(arduino, &Arduino::empreinteEnregistree, this, &MainWindow::onEmpreinteEnregistree);
+    // Exemple d’init si arduino déjà instancié :
+    bool ok = connect(arduino, &Arduino::empreinteReconnue,
+                      this,  &MainWindow::slotEmpreinteReconnue);
+    qDebug() << "[CONNECT empreinteReconnue/MainWindow] Connect status: " << ok;    connect(arduino, &Arduino::empreinteNonTrouvee, this, &MainWindow::slotEmpreinteNonTrouvee);
+    // Tu peux aussi connecter messageStatut() ou erreurCapteur() à un QLabel ou statusBar
+
+
+
 
     connect(ui->afficher, &QPushButton::clicked, this, &MainWindow::afficherEmployes);
     connect(ui->tri, &QPushButton::clicked, this, &MainWindow::trierEmployes);
     connect(ui->statt, &QPushButton::clicked, this, &MainWindow::afficherStatistiques);
     //connect(ui->pushButton_faceId, &QPushButton::clicked, this, &MainWindow::on_pushButton_faceId_clicked);
-    connect(ui->pushButton_enregistrer, &QPushButton::clicked,
+    connect(ui->pushButton_appliquerModif, &QPushButton::clicked,
             this, &MainWindow::on_pushButton_appliquerModif_clicked);
 
     ui->tabWidget->tabBar()->hide();
 
     connect(ui->liste, &QPushButton::clicked, this, [=]() {
         ui->tabWidget->setCurrentIndex(1);
+        afficherEmployes();
+
         qDebug() << "Passage à l'onglet Liste";
     });
 
@@ -366,6 +401,7 @@ void MainWindow::on_pushButton_ajouter_clicked()
     QString telephone = ui->telephone->text();
     QString statut = ui->statut->text();
 
+    // Vérification des champs obligatoires
     if (nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || telephone.isEmpty()) {
         QMessageBox::critical(this, "Erreur", "Tous les champs obligatoires doivent être remplis.");
         return;
@@ -400,11 +436,10 @@ void MainWindow::on_pushButton_ajouter_clicked()
         return;
     }
 
-    // Création de l'objet employé avec face_id
-    Employe employe(nom, prenom, date_embauche, poste, salaire, email, sexe, telephone, imageData, statut, faceIdTemp);
+    // Création de l'objet employé avec face_id et empreinte
+    Employe employe(nom, prenom, date_embauche, poste, salaire, email, sexe, telephone, imageData, statut, faceIdTemp, empreinteTemp);
 
-    // Dans la fonction on_pushButton_ajouter_clicked()
-
+    // Tentative d'ajout de l'employé
     if (employe.ajouter()) {
         QMessageBox::information(this, "Succès", "Employé ajouté avec succès !");
 
@@ -681,11 +716,11 @@ void MainWindow::trierEmployes() {
     ui->tableView->setModel(proxyModel);
 }
 void MainWindow::afficherStatistiques() {
-    // === Créer la scène ===
+    // Création de la scène
     QGraphicsScene *scene = new QGraphicsScene(this);
-    int chartWidth = 800;
+    int chartWidth = 900;  // Augmenter la largeur totale
 
-    // === GRAND TITRE ===
+    // Grand titre
     QLabel *titleLabel = new QLabel("📊 Statistiques des employés");
     titleLabel->setStyleSheet("font-size: 28pt; font-weight: bold; color: #2c3e50;");
     titleLabel->setAlignment(Qt::AlignCenter);
@@ -693,23 +728,21 @@ void MainWindow::afficherStatistiques() {
     QGraphicsProxyWidget *titleProxy = scene->addWidget(titleLabel);
     titleProxy->setPos(0, 0);
 
-    // =================== CAMEMBERT : Répartition par poste ===================
+    // =================== Haute Section : Répartition par Poste ===================
     QSqlQuery query1("SELECT poste, COUNT(*) AS effectif FROM employe GROUP BY poste");
     QPieSeries *posteSeries = new QPieSeries();
     int totalEmployes = 0;
 
     while (query1.next()) {
         int count = query1.value(1).toInt();
-        totalEmployes += count; // Total pour le calcul
-        posteSeries->append(QString("%1 : %2%").arg(query1.value(0).toString())
-                                .arg((static_cast<double>(count) / totalEmployes) * 100, 0, 'f', 1), count);
+        totalEmployes += count;
+        posteSeries->append(query1.value(0).toString(), count);
     }
 
     for (QPieSlice *slice : posteSeries->slices()) {
         slice->setExploded(true);
         slice->setLabelVisible(true);
-        slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->percentage() * 100, 0, 'f', 1));
-        slice->setLabelFont(QFont("Arial", 10, QFont::Bold)); // Texte en gras
+        slice->setLabel(QString("%1 (%2)").arg(slice->label()).arg(slice->percentage() * 100, 0, 'f', 1));
     }
 
     QChart *posteChart = new QChart();
@@ -718,23 +751,28 @@ void MainWindow::afficherStatistiques() {
     posteChart->setTitleFont(QFont("Arial", 14, QFont::Bold));
     posteChart->setAnimationOptions(QChart::SeriesAnimations);
     posteChart->legend()->setAlignment(Qt::AlignBottom);
-    posteChart->setBackgroundBrush(QColor("#ecf0f1")); // Couleur fond clair
+    posteChart->legend()->setBackgroundVisible(false);
+    posteChart->setBackgroundBrush(QColor("#ecf0f1"));
 
     QChartView *posteChartView = new QChartView(posteChart);
     posteChartView->setRenderHint(QPainter::Antialiasing);
-    posteChartView->setFixedSize(400, 350); // Taille ajustée
+    posteChartView->setFixedSize(450, 350); // Ajustement de taille
 
+    // Position pour le graphique par poste
     QGraphicsProxyWidget *posteProxy = scene->addWidget(posteChartView);
-    posteProxy->setPos(0, 80); // Position à gauche sous le titre
+    posteProxy->setPos(0, 100); // Position en haut à gauche
 
-    // =================== CAMEMBERT : Répartition par sexe ===================
+    // =================== Basse Section : Répartition par Sexe ===================
     QSqlQuery query2("SELECT sexe FROM employe");
     int hommes = 0, femmes = 0;
 
     while (query2.next()) {
         QString sexe = query2.value(0).toString().toLower();
-        if (sexe.contains("homme") || sexe.startsWith("h")) hommes++;
-        else if (sexe.contains("femme") || sexe.startsWith("f")) femmes++;
+        if (sexe.contains("homme")) {
+            hommes++;
+        } else if (sexe.contains("femme")) {
+            femmes++;
+        }
     }
 
     QPieSeries *sexeSeries = new QPieSeries();
@@ -744,8 +782,7 @@ void MainWindow::afficherStatistiques() {
     for (QPieSlice *slice : sexeSeries->slices()) {
         slice->setExploded(true);
         slice->setLabelVisible(true);
-        slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->percentage() * 100, 0, 'f', 1));
-        slice->setLabelFont(QFont("Arial", 10, QFont::Bold)); // Texte en gras
+        slice->setLabel(QString("%1 (%2)").arg(slice->label()).arg(slice->percentage() * 100, 0, 'f', 1));
     }
 
     QChart *sexeChart = new QChart();
@@ -754,20 +791,30 @@ void MainWindow::afficherStatistiques() {
     sexeChart->setTitleFont(QFont("Arial", 14, QFont::Bold));
     sexeChart->setAnimationOptions(QChart::SeriesAnimations);
     sexeChart->legend()->setAlignment(Qt::AlignBottom);
-    sexeChart->setBackgroundBrush(QColor("#ecf0f1")); // Couleur fond clair
+    sexeChart->legend()->setBackgroundVisible(false);
+    sexeChart->setBackgroundBrush(QColor("#ecf0f1"));
 
     QChartView *sexeChartView = new QChartView(sexeChart);
     sexeChartView->setRenderHint(QPainter::Antialiasing);
-    sexeChartView->setFixedSize(400, 350); // Taille ajustée
+    sexeChartView->setFixedSize(450, 350);
 
+    // Position pour le graphique par sexe
     QGraphicsProxyWidget *sexeProxy = scene->addWidget(sexeChartView);
-    sexeProxy->setPos(410, 80); // Position à droite sous le titre
+    sexeProxy->setPos(460, 100); // Position à droite sous le titre
 
-    // === Appliquer la scène au QGraphicsView ===
+    // Appliquer la scène au QGraphicsView
     scene->setSceneRect(0, 0, chartWidth + 20, 500);
     ui->graphicsView->setScene(scene);
     ui->graphicsView->setRenderHint(QPainter::Antialiasing);
     ui->graphicsView->setSceneRect(scene->sceneRect());
+    // Animation d'apparition : ajouter une animation de fondu
+    QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(ui->graphicsView);
+    ui->graphicsView->setGraphicsEffect(effect);
+    QPropertyAnimation *animation = new QPropertyAnimation(effect, "opacity");
+    animation->setDuration(400);
+    animation->setStartValue(0);
+    animation->setEndValue(1);
+    animation->start(QPropertyAnimation::DeleteWhenStopped);
 }
 void MainWindow::changerIndication()
 {
@@ -1424,31 +1471,288 @@ void MainWindow::on_btnVerifier_clicked()
     }
 
 }
-bool MainWindow::compareFaces(const QString &tempImage, const QString &storedImage)
+void MainWindow::on_cvButton_clicked()
 {
-    QProcess process;
-    QString pythonScript = "C:/Users/Yasmine/Desktop/testtttfinal/build/Desktop_Qt_6_7_3_MinGW_64_bit-Debug/debug/compare_faces.py";
-    QString pythonExe = "C:/Users/Yasmine/AppData/Local/Programs/Python/Python311/python.exe";
+    QString filePath = QFileDialog::getOpenFileName(this, "Choisir un CV", "", "Fichiers texte (*.txt)");
+    if (filePath.isEmpty()) return;
 
-    process.start(pythonExe, QStringList() << pythonScript << tempImage << storedImage);
-
-    if (!process.waitForFinished(60000)) {
-        qDebug() << "Erreur: Le script Python n'a pas terminé";
-        return false;
+    QString extractedText;
+    QFile file(filePath);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        extractedText = in.readAll();
+        file.close();
     }
 
-    QString output = QString::fromUtf8(process.readAllStandardOutput()).trimmed();
-    QString errorOutput = QString::fromUtf8(process.readAllStandardError()).trimmed();
+    if (extractedText.isEmpty()) {
+        QMessageBox::warning(this, "Erreur", "Le fichier est vide ou non lisible.");
+        return;
+    }
 
-    if (!errorOutput.isEmpty())
-        qDebug() << "Erreur du script Python: " << errorOutput;
+    // === Extraction des infos ===
+    QString nom, prenom, email, tel, sexe, poste;
 
-    qDebug() << "Sortie du script Python:" << output;
+    // 🔍 Email & téléphone
+    QRegularExpression reEmail(R"(([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}))");
+    QRegularExpression rePhone(R"((\+?\d[\d\s\-]{6,}\d))");
 
-    // Si ton script retourne un JSON
-    QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
-    if (!doc.isObject()) return false;
+    QRegularExpressionMatch matchEmail = reEmail.match(extractedText);
+    if (matchEmail.hasMatch()) email = matchEmail.captured(1);
 
-    QJsonObject obj = doc.object();
-    return obj.contains("match") && obj["match"].toBool();
+    QRegularExpressionMatch matchPhone = rePhone.match(extractedText);
+    if (matchPhone.hasMatch()) tel = matchPhone.captured(1);
+
+    // 🔤 Nom / prénom (simple heuristique)
+    QStringList lines = extractedText.split("\n", Qt::SkipEmptyParts);
+    if (!lines.isEmpty()) {
+        QStringList names = lines.first().split(" ", Qt::SkipEmptyParts);
+        if (names.size() >= 2) {
+            prenom = names.first();
+            nom = names.last();
+        }
+    }
+
+    // 🔮 Détection sexe
+    QString lowerText = extractedText.toLower();
+    if (lowerText.contains("née le") || lowerText.contains("madame") || lowerText.contains("elle")) {
+        sexe = "Femme";
+    } else if (lowerText.contains("né le") || lowerText.contains("monsieur") || lowerText.contains("il")) {
+        sexe = "Homme";
+    }
+
+    // 🎯 Détection poste (keywords)
+    QStringList postes = {
+        "développeur", "developpeur", "ingénieur", "ingenieur",
+        "technicien", "chef de projet", "designer", "analyste",
+        "data scientist", "administrateur", "manager"
+    };
+
+    for (const QString &mot : postes) {
+        if (lowerText.contains(mot)) {
+            poste = mot.left(1).toUpper() + mot.mid(1);  // Mettre en maj la première lettre
+            break;
+        }
+    }
+
+    // ✅ Remplir les champs
+    ui->nom->setText(nom);
+    ui->prenom->setText(prenom);
+    ui->email->setText(email);
+    ui->telephone->setText(tel);
+    ui->sexe->setCurrentText(sexe);
+    ui->poste->setCurrentText(poste);
+
+
+    // ✅ Message OK
+    QMessageBox::information(this, "Extraction réussie", "✅ Données extraites avec succès !");
+}
+
+
+//empreinte
+
+void MainWindow::on_btnAjouterEmpreinte_clicked()
+{
+    // 1. Récupérer le dernier ID employé inséré
+    QSqlQuery query;
+    if (!query.exec("SELECT id FROM employe ORDER BY id DESC LIMIT 1")) {
+        QString errorMsg = "Impossible de récupérer le dernier ID employé:\n" + query.lastError().text();
+
+        // Solution alternative pour les drivers qui ne supportent pas LIMIT
+        if (!query.exec("SELECT MAX(id) FROM employe")) {
+            QMessageBox::critical(this, "Erreur SQL", errorMsg);
+            return;
+        }
+    }
+
+    if (!query.next()) {
+        QMessageBox::warning(this, "Avertissement", "Aucun employé trouvé dans la base de données");
+        return;
+    }
+
+    int dernierId = query.value(0).toInt();
+    if (dernierId <= 0) {
+        QMessageBox::warning(this, "Avertissement", "ID employé invalide");
+        return;
+    }
+
+    // 2. Vérifier la connexion Arduino
+    if (!arduino->estConnecte()) {
+        QMessageBox::StandardButton reply = QMessageBox::question(
+            this,
+            "Arduino non connecté",
+            "Le capteur d'empreintes n'est pas connecté. Voulez-vous essayer de vous reconnecter ?",
+            QMessageBox::Yes | QMessageBox::No
+            );
+
+        if (reply == QMessageBox::Yes && !arduino->connecter()) {
+            QMessageBox::critical(this, "Erreur", "Échec de la connexion au capteur");
+            return;
+        }
+        else if (reply == QMessageBox::No) {
+            return;
+        }
+    }
+
+    // 3. Préparer l'interface utilisateur
+    ui->btnAjouterEmpreinte->setEnabled(false);
+    ui->btnAjouterEmpreinte->setText("Enregistrement en cours...");
+    QApplication::processEvents(); // Forcer la mise à jour de l'UI
+
+    // 4. Afficher les instructions
+    QMessageBox::information(this,
+                             "Enregistrement d'empreinte",
+                             QString("Prêt à enregistrer l'empreinte pour l'employé ID: %1\n\n"
+                                     "Veuillez placer votre doigt sur le capteur.\n"
+                                     "Vous devrez le placer deux fois pour une bonne capture.").arg(dernierId));
+
+    // 5. Envoyer la commande à l'Arduino
+    arduino->demarrerEnregistrement(dernierId); // Utiliser la méthode correcte
+
+    // Le reste est géré par:
+    // - onEmpreinteEnregistree() en cas de succès
+    // - onErreurArduino() en cas d'échec
+}
+void MainWindow::onEmpreinteEnregistree(int idEmploye)
+{
+    // 1. Vérifier que l'ID correspond au dernier ID dans la base de données
+    QSqlQuery verifQuery;
+    verifQuery.prepare("SELECT MAX(id) FROM employe");
+
+    if (!verifQuery.exec()) {
+        QMessageBox::critical(this, "Erreur BD",
+                              QString("Erreur lors de l'exécution de la requête SELECT MAX(id): %1")
+                                  .arg(verifQuery.lastError().text()));
+        return;
+    }
+
+    if (!verifQuery.next()) {
+        QMessageBox::critical(this, "Erreur BD",
+                              "Impossible de lire la réponse de la base de données.");
+        return;
+    }
+
+    QVariant maxIdVariant = verifQuery.value(0);
+    if (maxIdVariant.isNull()) {
+        QMessageBox::warning(this, "BD vide", "Aucun employé trouvé dans la base.");
+        return;
+    }
+
+    int currentMaxId = maxIdVariant.toInt();
+    if (idEmploye != currentMaxId) {
+        QMessageBox::warning(this, "Avertissement",
+                             QString("L'ID de l'empreinte (%1) ne correspond pas au dernier employé (%2)")
+                                 .arg(idEmploye).arg(currentMaxId));
+        return; // Arrêter l'exécution si l'ID est incorrect
+    }
+
+    // 2. Mettre à jour l'attribut 'empreinte' ET 'id_empreinte_capteur'
+    QSqlQuery updateQuery;
+    updateQuery.prepare("UPDATE employe SET empreinte = ?, id_empreinte_capteur = ? WHERE id = ?");
+
+    QByteArray dummyData = QByteArray::fromHex("00"); // Donnée factice pour test, à remplacer par la vraie empreinte si dispo
+
+    // Supposons pour l'exemple qu'on veut utiliser idEmploye comme id_empreinte_capteur :
+    int idEmpreinteCapteur = idEmploye; // à adapter selon ton vrai ID du capteur, si tu l'as dans ta logique
+
+    updateQuery.addBindValue(dummyData);           // Ajouter la valeur BLOB
+    updateQuery.addBindValue(idEmpreinteCapteur);  // Ajouter l'ID depuis le capteur
+    updateQuery.addBindValue(idEmploye);           // Ajouter l'ID
+
+    if (updateQuery.exec()) {
+        QMessageBox::information(this, "Succès",
+                                 QString("Empreinte enregistrée avec succès pour l'employé #%1").arg(idEmploye));
+
+        // Mettre à jour l'affichage si besoin
+        afficherEmployes();
+    } else {
+        QMessageBox::critical(this, "Erreur BD",
+                              QString("Erreur lors de la mise à jour: %1").arg(updateQuery.lastError().text()));
+    }
+
+    // 3. Réinitialiser l'interface
+    ui->btnAjouterEmpreinte->setEnabled(true);
+    ui->btnAjouterEmpreinte->setText("Ajout avec succés");
+}
+void MainWindow::onErreurArduino(const QString &message)
+{
+    // 1. Afficher le message d'erreur dans la barre de statut
+    ui->statusbar->showMessage("Erreur Arduino: " + message, 10000); // 10 secondes
+
+    // 2. Journalisation de l'erreur
+    qCritical() << "Erreur Arduino:" << message;
+
+    // 3. Feedback visuel sur le bouton
+    QString originalStyle = ui->btnAjouterEmpreinte->styleSheet();
+    QString originalText = ui->btnAjouterEmpreinte->text();
+
+    // Changement visuel temporaire
+    ui->btnAjouterEmpreinte->setStyleSheet("background-color: #ffcccc; color: #cc0000;");
+    ui->btnAjouterEmpreinte->setText("Erreur - Cliquez pour réessayer");
+    ui->btnAjouterEmpreinte->setEnabled(true);
+
+    // 4. Gestion des erreurs spécifiques
+    if(message.contains("capteur", Qt::CaseInsensitive)) {
+        QMessageBox::critical(this, "Erreur Capteur",
+                              "Problème de communication avec le capteur d'empreintes.\n"
+                              "Veuillez vérifier:\n"
+                              "1. Que le capteur est bien branché\n"
+                              "2. Qu'aucun autre programme n'utilise le port série\n"
+                              "3. Que le câble USB est en bon état");
+    }
+    else if(message.contains("timeout", Qt::CaseInsensitive)) {
+        QMessageBox::warning(this, "Timeout",
+                             "Temps d'attente dépassé. Veuillez réessayer.");
+    }
+    else {
+        QMessageBox::warning(this, "Erreur", message);
+    }
+
+    // 5. Réinitialisation après 5 secondes
+    QTimer::singleShot(5000, this, [this, originalStyle, originalText]() {
+        ui->btnAjouterEmpreinte->setStyleSheet(originalStyle);
+        ui->btnAjouterEmpreinte->setText(originalText);
+        ui->statusbar->clearMessage();
+    });
+
+    // 6. Tentative automatique de reconnexion pour certaines erreurs
+    if(message.contains("connexion", Qt::CaseInsensitive)) {
+        QTimer::singleShot(3000, this, [this]() {
+            if(!arduino->estConnecte()) {
+                ui->statusbar->showMessage("Tentative de reconnexion...", 3000);
+                arduino->connecter();
+            }
+        });
+    }
+}
+void MainWindow::on_btnCheckEmpreinte_clicked()
+{
+    if (!arduino->estConnecte()) {
+        QMessageBox::warning(this,"Erreur","Arduino non connecté.");
+        return;
+    }
+    arduino->demarrerVerification(); // Envoie "VERIFY" à Arduino, qui fait la détection/matching
+}
+void MainWindow::slotEmpreinteReconnue(int idCapteur)
+{
+    // 1 → Rechercher l'employé ayant id_empreinte_capteur = idCapteur
+    QSqlQuery q;
+    q.prepare("SELECT id, nom, prenom FROM employe WHERE id_empreinte_capteur = :cid"); // adapte le champ si besoin
+    q.bindValue(":cid", idCapteur);
+    if (q.exec() && q.next()) {
+        int idEmploye = q.value(0).toInt(); // l’id réel de la table ‘employe’ (clé primaire)
+        QString nom = q.value(1).toString();
+        QString prenom = q.value(2).toString();
+        // 2 → Affiche la notification (id “humain” employé !)
+        QMessageBox::information(this, "Succès",
+                                 QString("Empreinte reconnue pour %1 %2 (id: %3)").arg(prenom, nom).arg(idEmploye));
+        ui->tabWidget->setCurrentIndex(5);
+        chargementTodoList(); // On charge la todoList de cet employé, via la vraie id BDD !
+    } else {
+        QMessageBox::critical(this, "Erreur", "Employé non trouvé pour cette empreinte capteur !");
+    }
+}
+void MainWindow::slotEmpreinteNonTrouvee()
+{
+    QMessageBox::critical(this, "Accès refusé", "Empreinte inconnue, accès impossible.");
+    // Tu peux aussi logger, bloquer, etc.
 }

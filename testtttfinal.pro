@@ -3,6 +3,8 @@ QT += core gui sql charts network widgets \
 QT += core gui sql charts network multimedia multimediawidgets
 QT += printsupport
 QT += widgets gui pdf
+QT += serialport
+
 
 # Configuration Python
 PYTHON_PATH = $$(PYTHONPATH)
@@ -21,17 +23,20 @@ CONFIG += c++17
 
 # Fichiers du projet
 HEADERS += \
+    arduino.h \
     connection.h \
     employe.h \
     facelogindialog.h \
-    mainwindow.h
+    mainwindow.h \
+
 
 SOURCES += \
+    arduino.cpp \
     connection.cpp \
     employe.cpp \
     facelogindialog.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
 
 FORMS += \
     facelogindialog.ui \

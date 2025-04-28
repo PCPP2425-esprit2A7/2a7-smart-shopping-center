@@ -29,6 +29,7 @@
 #include <QWidget>
 #include <QEvent>
 #include "facelogindialog.h"  // Ajouter cette ligne
+#include "arduino.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -73,8 +74,18 @@ private slots:
     void on_btnAccederTodo_clicked();  // Ajouter cette ligne
     void toutMarquerCommeTermine();
     void on_pushButton_faceId_clicked();
+    void on_cvButton_clicked();
+
+    void on_btnAjouterEmpreinte_clicked();  // Nouveau bouton
+    void onEmpreinteEnregistree(int id);
+    void onErreurArduino(const QString &message);
+    void on_btnCheckEmpreinte_clicked();
+
+    void slotEmpreinteReconnue(int id);
+    void slotEmpreinteNonTrouvee();
 
 private:
+
     Ui::MainWindow *ui;
     QString cheminImagePDP;
     int employeSelectionneId;
@@ -88,12 +99,16 @@ private:
     QImageCapture *imageCapture;
     bool isCameraActive;
     QByteArray faceIdTemp;
+    QByteArray empreinteTemp;
+    enum Mode { Idle, Enroll, Validate } fingerprintMode = Idle;
+
 
     QByteArray analyzeImage(const QByteArray &imageData);
     QSqlQueryModel *todoModel = nullptr;
     bool compareFaces(const QString &tempImage, const QString &storedImage);
-
-
+    QString extractInfo(const QString& content, const QRegularExpression& regex);
+    Arduino *arduino;
+    int dernierIdEmploye; // Pour stocker le dernier ID
 
 };
 

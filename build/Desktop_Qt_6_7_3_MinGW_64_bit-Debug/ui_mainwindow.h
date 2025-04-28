@@ -72,7 +72,7 @@ public:
     QPushButton *pushButton_analysePDP;
     QPushButton *pushButton_pdp;
     QPushButton *pushButton_ajouter;
-    QPushButton *btnImporterCV;
+    QPushButton *cvButton;
     QWidget *liste_2;
     QTableView *tableView;
     QPushButton *afficher;
@@ -113,8 +113,8 @@ public:
     QLabel *label_33;
     QPushButton *pushButton_pdp_2;
     QPushButton *pushButton_modifierPhoto;
-    QPushButton *pushButton_enregistrer;
     QPushButton *pushButton_12;
+    QPushButton *pushButton_appliquerModif;
     QWidget *tab_2;
     QGroupBox *groupBox_9;
     QPushButton *pushButton_2;
@@ -122,6 +122,7 @@ public:
     QLabel *label_35;
     QPushButton *pushButton_13;
     QPushButton *btnAccederTodo;
+    QPushButton *btnCheckEmpreinte;
     QPushButton *pushButton_8;
     QWidget *tab_3;
     QLabel *label_6;
@@ -130,14 +131,17 @@ public:
     QWidget *tab_4;
     QGroupBox *groupBox_10;
     QPushButton *pushButton_faceId;
-    QLabel *label_37;
     QLineEdit *lineEdit_3;
+    QGroupBox *groupBox_11;
+    QPushButton *btnAjouterEmpreinte;
+    QLineEdit *lineEdit_4;
     QLabel *label_4;
     QPushButton *liste;
     QPushButton *stat;
     QPushButton *ajout;
     QPushButton *pushButton_11;
     QPushButton *login;
+    QPushButton *liste_3;
     QMenuBar *menubar;
     QStatusBar *statusbar;
 
@@ -145,12 +149,12 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName("MainWindow");
-        MainWindow->resize(1005, 717);
+        MainWindow->resize(1274, 1070);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName("centralwidget");
         groupBox = new QGroupBox(centralwidget);
         groupBox->setObjectName("groupBox");
-        groupBox->setGeometry(QRect(0, 0, 1011, 741));
+        groupBox->setGeometry(QRect(0, 0, 1331, 1011));
         groupBox->setStyleSheet(QString::fromUtf8("background-color: rgb(70, 126, 171);"));
         pushButton_10 = new QPushButton(groupBox);
         pushButton_10->setObjectName("pushButton_10");
@@ -225,7 +229,7 @@ public:
         pushButton_7->setIcon(icon5);
         label = new QLabel(groupBox);
         label->setObjectName("label");
-        label->setGeometry(QRect(120, 20, 791, 81));
+        label->setGeometry(QRect(110, 20, 1101, 81));
         label->setStyleSheet(QString::fromUtf8("background-color: rgb(227, 241, 244);\n"
 "border: 2px solid; /* Ajoute une bordure */\n"
 "border-image-source: linear-gradient(to right, black, white); /* D\303\251finir le gradient */\n"
@@ -234,12 +238,12 @@ public:
 ""));
         label_2 = new QLabel(groupBox);
         label_2->setObjectName("label_2");
-        label_2->setGeometry(QRect(450, 29, 81, 41));
+        label_2->setGeometry(QRect(550, 29, 81, 41));
         label_2->setStyleSheet(QString::fromUtf8("background : none ;\n"
 "font: 700 22pt \"Arial\";"));
         label_3 = new QLabel(groupBox);
         label_3->setObjectName("label_3");
-        label_3->setGeometry(QRect(410, 70, 181, 21));
+        label_3->setGeometry(QRect(500, 70, 181, 21));
         label_3->setStyleSheet(QString::fromUtf8("background : none ;\n"
 "font: 14pt \"Segoe Fluent Icons\";"));
         pushButton_9 = new QPushButton(groupBox);
@@ -252,7 +256,7 @@ public:
         pushButton_9->setIcon(icon6);
         tabWidget = new QTabWidget(groupBox);
         tabWidget->setObjectName("tabWidget");
-        tabWidget->setGeometry(QRect(140, 180, 861, 471));
+        tabWidget->setGeometry(QRect(140, 170, 1071, 501));
         tabWidget->setStyleSheet(QString::fromUtf8("background-color: rgb(227, 241, 244);\n"
 "border: 2px solid; /* Ajoute une bordure */\n"
 "border-image-source: linear-gradient(to right, black, white); /* D\303\251finir le gradient */\n"
@@ -264,7 +268,7 @@ public:
         groupBox_5 = new QGroupBox(Ajout);
         groupBox_5->setObjectName("groupBox_5");
         groupBox_5->setEnabled(true);
-        groupBox_5->setGeometry(QRect(30, 30, 401, 401));
+        groupBox_5->setGeometry(QRect(90, 30, 401, 401));
         groupBox_5->setStyleSheet(QString::fromUtf8("background-color: rgb(176, 186, 196);\n"
 "border: 2px solid black ; /* Ajoute une bordure */\n"
 ""));
@@ -425,7 +429,7 @@ public:
 "font: 600 11pt \"Segoe UI\";"));
         groupBox_6 = new QGroupBox(Ajout);
         groupBox_6->setObjectName("groupBox_6");
-        groupBox_6->setGeometry(QRect(460, 70, 241, 291));
+        groupBox_6->setGeometry(QRect(560, 70, 241, 291));
         groupBox_6->setStyleSheet(QString::fromUtf8("background-color: rgb(176, 186, 196);\n"
 "border: 2px solid black ; /* Ajoute une bordure */\n"
 ""));
@@ -450,11 +454,11 @@ public:
         pushButton_choisirImage->setIcon(icon8);
         pushButton_analysePDP = new QPushButton(groupBox_6);
         pushButton_analysePDP->setObjectName("pushButton_analysePDP");
-        pushButton_analysePDP->setGeometry(QRect(170, 160, 51, 51));
+        pushButton_analysePDP->setGeometry(QRect(160, 160, 51, 61));
         pushButton_analysePDP->setStyleSheet(QString::fromUtf8("qproperty-iconSize: 40px 40px; /* Ajuste la taille de l'ic\303\264ne */\n"
-""));
+"border : none ;"));
         QIcon icon9;
-        icon9.addFile(QString::fromUtf8(":/Downloads/3344350.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+        icon9.addFile(QString::fromUtf8(":/Downloads/1672561.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         pushButton_analysePDP->setIcon(icon9);
         pushButton_pdp = new QPushButton(groupBox_6);
         pushButton_pdp->setObjectName("pushButton_pdp");
@@ -470,28 +474,28 @@ public:
         pushButton_analysePDP->raise();
         pushButton_ajouter = new QPushButton(Ajout);
         pushButton_ajouter->setObjectName("pushButton_ajouter");
-        pushButton_ajouter->setGeometry(QRect(520, 380, 111, 31));
+        pushButton_ajouter->setGeometry(QRect(620, 380, 111, 31));
         pushButton_ajouter->setStyleSheet(QString::fromUtf8("border: 3px solid black;\n"
 "background-color: rgb(132, 194, 49);\n"
 "border-radius: 15px;\n"
 "font: 700 12pt \"Arial Rounded MT\";"));
-        btnImporterCV = new QPushButton(Ajout);
-        btnImporterCV->setObjectName("btnImporterCV");
-        btnImporterCV->setGeometry(QRect(770, 20, 61, 61));
-        btnImporterCV->setStyleSheet(QString::fromUtf8("qproperty-iconSize: 50px 50px; /* Ajuste la taille de l'ic\303\264ne */\n"
+        cvButton = new QPushButton(Ajout);
+        cvButton->setObjectName("cvButton");
+        cvButton->setGeometry(QRect(840, 140, 111, 151));
+        cvButton->setStyleSheet(QString::fromUtf8("qproperty-iconSize: 110px 110px; /* Ajuste la taille de l'ic\303\264ne */\n"
 "border : none ;"));
         QIcon icon11;
-        icon11.addFile(QString::fromUtf8(":/Downloads/1604478.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
-        btnImporterCV->setIcon(icon11);
+        icon11.addFile(QString::fromUtf8(":/Downloads/8347432.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+        cvButton->setIcon(icon11);
         tabWidget->addTab(Ajout, QString());
         liste_2 = new QWidget();
         liste_2->setObjectName("liste_2");
         tableView = new QTableView(liste_2);
         tableView->setObjectName("tableView");
-        tableView->setGeometry(QRect(30, 30, 621, 311));
+        tableView->setGeometry(QRect(30, 50, 821, 311));
         afficher = new QPushButton(liste_2);
         afficher->setObjectName("afficher");
-        afficher->setGeometry(QRect(690, 50, 111, 31));
+        afficher->setGeometry(QRect(910, 50, 111, 31));
         afficher->setStyleSheet(QString::fromUtf8("border: 3px solid black;\n"
 "background-color: rgb(132, 194, 49);\n"
 "border-radius: 15px;\n"
@@ -500,7 +504,7 @@ public:
         afficher->setIcon(icon12);
         pushButton_modifier = new QPushButton(liste_2);
         pushButton_modifier->setObjectName("pushButton_modifier");
-        pushButton_modifier->setGeometry(QRect(690, 100, 111, 31));
+        pushButton_modifier->setGeometry(QRect(910, 100, 111, 31));
         pushButton_modifier->setStyleSheet(QString::fromUtf8("border: 3px solid black;\n"
 "background-color: rgb(250, 146, 75);\n"
 "border-radius: 15px;\n"
@@ -509,7 +513,7 @@ public:
         pushButton_modifier->setIcon(icon13);
         pushButton_supprimer = new QPushButton(liste_2);
         pushButton_supprimer->setObjectName("pushButton_supprimer");
-        pushButton_supprimer->setGeometry(QRect(690, 150, 111, 31));
+        pushButton_supprimer->setGeometry(QRect(910, 150, 111, 31));
         pushButton_supprimer->setStyleSheet(QString::fromUtf8("border: 3px solid black;\n"
 "background-color: rgb(255, 0, 0);\n"
 "border-radius: 15px;\n"
@@ -518,10 +522,10 @@ public:
         pushButton_supprimer->setIcon(icon14);
         label_5 = new QLabel(liste_2);
         label_5->setObjectName("label_5");
-        label_5->setGeometry(QRect(680, 30, 131, 391));
+        label_5->setGeometry(QRect(900, 30, 131, 371));
         pushButton_exporterPDF = new QPushButton(liste_2);
         pushButton_exporterPDF->setObjectName("pushButton_exporterPDF");
-        pushButton_exporterPDF->setGeometry(QRect(720, 200, 51, 41));
+        pushButton_exporterPDF->setGeometry(QRect(940, 200, 51, 41));
         pushButton_exporterPDF->setStyleSheet(QString::fromUtf8("background-color: rgb(227, 241, 244);\n"
 "border: 2px solid; /* Ajoute une bordure */\n"
 "border-image-source: linear-gradient(to right, black, white); /* D\303\251finir le gradient */\n"
@@ -534,7 +538,7 @@ public:
         pushButton_exporterPDF->setIcon(icon15);
         statt = new QPushButton(liste_2);
         statt->setObjectName("statt");
-        statt->setGeometry(QRect(720, 260, 51, 41));
+        statt->setGeometry(QRect(940, 260, 51, 41));
         statt->setStyleSheet(QString::fromUtf8("background-color: rgb(227, 241, 244);\n"
 "border: 2px solid; /* Ajoute une bordure */\n"
 "border-image-source: linear-gradient(to right, black, white); /* D\303\251finir le gradient */\n"
@@ -547,7 +551,7 @@ public:
         statt->setIcon(icon16);
         tri = new QPushButton(liste_2);
         tri->setObjectName("tri");
-        tri->setGeometry(QRect(720, 320, 51, 41));
+        tri->setGeometry(QRect(940, 320, 51, 41));
         tri->setStyleSheet(QString::fromUtf8("background-color: rgb(227, 241, 244);\n"
 "border: 2px solid; /* Ajoute une bordure */\n"
 "border-image-source: linear-gradient(to right, black, white); /* D\303\251finir le gradient */\n"
@@ -559,7 +563,7 @@ public:
         tri->setIcon(icon17);
         comboRecherchePar = new QComboBox(liste_2);
         comboRecherchePar->setObjectName("comboRecherchePar");
-        comboRecherchePar->setGeometry(QRect(80, 360, 211, 22));
+        comboRecherchePar->setGeometry(QRect(80, 380, 211, 22));
         comboRecherchePar->setStyleSheet(QString::fromUtf8("background-color: rgb(227, 241, 244);\n"
 "font: 700 11pt \"Segoe UI\";\n"
 "border: 2px solid; /* Ajoute une bordure */\n"
@@ -569,12 +573,12 @@ public:
 "qproperty-iconSize: 15px 15px; /* Ajuste la taille de l'ic\303\264ne */"));
         labelIndication = new QLabel(liste_2);
         labelIndication->setObjectName("labelIndication");
-        labelIndication->setGeometry(QRect(310, 360, 261, 21));
+        labelIndication->setGeometry(QRect(310, 380, 261, 21));
         labelIndication->setStyleSheet(QString::fromUtf8("font: 900 12pt \"Arial\";\n"
 "border : none ;"));
         champRecherche = new QLineEdit(liste_2);
         champRecherche->setObjectName("champRecherche");
-        champRecherche->setGeometry(QRect(310, 390, 181, 21));
+        champRecherche->setGeometry(QRect(310, 410, 181, 21));
         champRecherche->setStyleSheet(QString::fromUtf8("background-color: rgb(227, 241, 244);\n"
 "font: 700 9pt \"Segoe UI\";\n"
 "border: 2px solid black ; /* Ajoute une bordure */\n"
@@ -584,7 +588,7 @@ public:
 "border-radius: 10px; /* Ajuste selon le degr\303\251 d'arrondi souhait\303\251 */"));
         btnRechercher = new QPushButton(liste_2);
         btnRechercher->setObjectName("btnRechercher");
-        btnRechercher->setGeometry(QRect(470, 380, 91, 41));
+        btnRechercher->setGeometry(QRect(470, 400, 91, 41));
         btnRechercher->setStyleSheet(QString::fromUtf8("background: none; /* Supprime le fond */\n"
 "qproperty-iconSize: 20px 20px; /* Augmente la taille de l'ic\303\264ne */\n"
 "border: none; /* Supprime la bordure si n\303\251cessaire */\n"
@@ -610,14 +614,14 @@ public:
         stat_2->setObjectName("stat_2");
         graphicsView = new QGraphicsView(stat_2);
         graphicsView->setObjectName("graphicsView");
-        graphicsView->setGeometry(QRect(0, 0, 851, 451));
+        graphicsView->setGeometry(QRect(0, 0, 1061, 531));
         tabWidget->addTab(stat_2, QString());
         tab = new QWidget();
         tab->setObjectName("tab");
         groupBox_7 = new QGroupBox(tab);
         groupBox_7->setObjectName("groupBox_7");
         groupBox_7->setEnabled(true);
-        groupBox_7->setGeometry(QRect(40, 20, 361, 401));
+        groupBox_7->setGeometry(QRect(150, 20, 361, 401));
         groupBox_7->setStyleSheet(QString::fromUtf8("background-color: rgb(176, 186, 196);\n"
 "border: 2px solid black ; /* Ajoute une bordure */\n"
 ""));
@@ -767,26 +771,26 @@ public:
         sexe_2->setGeometry(QRect(130, 180, 151, 31));
         groupBox_8 = new QGroupBox(tab);
         groupBox_8->setObjectName("groupBox_8");
-        groupBox_8->setGeometry(QRect(420, 60, 271, 331));
+        groupBox_8->setGeometry(QRect(580, 60, 271, 331));
         groupBox_8->setStyleSheet(QString::fromUtf8("background-color: rgb(176, 186, 196);\n"
 "border: 2px solid black ; /* Ajoute une bordure */\n"
 ""));
         label_33 = new QLabel(groupBox_8);
         label_33->setObjectName("label_33");
-        label_33->setGeometry(QRect(50, 20, 141, 31));
+        label_33->setGeometry(QRect(80, 20, 141, 31));
         label_33->setStyleSheet(QString::fromUtf8("border: 2px solid transparent ; /* Ajoute une bordure */\n"
 "font: 700 13pt \"Arial Rounded MT\";\n"
 ""));
         pushButton_pdp_2 = new QPushButton(groupBox_8);
         pushButton_pdp_2->setObjectName("pushButton_pdp_2");
-        pushButton_pdp_2->setGeometry(QRect(40, 60, 131, 131));
+        pushButton_pdp_2->setGeometry(QRect(70, 60, 131, 131));
         pushButton_pdp_2->setStyleSheet(QString::fromUtf8("qproperty-iconSize: 80px 80px; /* Ajuste la taille de l'ic\303\264ne */\n"
 "border: 2px solid black ; /* Ajoute une bordure */\n"
 ""));
         pushButton_pdp_2->setIcon(icon10);
         pushButton_modifierPhoto = new QPushButton(groupBox_8);
         pushButton_modifierPhoto->setObjectName("pushButton_modifierPhoto");
-        pushButton_modifierPhoto->setGeometry(QRect(40, 210, 141, 41));
+        pushButton_modifierPhoto->setGeometry(QRect(70, 210, 141, 41));
         pushButton_modifierPhoto->setStyleSheet(QString::fromUtf8("background-color: rgb(70, 126, 171);\n"
 "font: 900 10pt \"Segoe UI\";\n"
 "border: 12px solid transparent ; /* Ajoute une bordure */\n"
@@ -796,28 +800,28 @@ public:
 "\n"
 ""));
         pushButton_modifierPhoto->setIcon(icon8);
-        pushButton_enregistrer = new QPushButton(groupBox_8);
-        pushButton_enregistrer->setObjectName("pushButton_enregistrer");
-        pushButton_enregistrer->setGeometry(QRect(170, 280, 91, 31));
-        pushButton_enregistrer->setStyleSheet(QString::fromUtf8("border: 3px solid black;\n"
-"background-color: rgb(132, 194, 49);\n"
-"border-radius: 15px;\n"
-"font: 700 10pt \"Arial Rounded MT\";"));
         pushButton_12 = new QPushButton(groupBox_8);
         pushButton_12->setObjectName("pushButton_12");
-        pushButton_12->setGeometry(QRect(150, 150, 51, 51));
+        pushButton_12->setGeometry(QRect(180, 150, 51, 51));
         pushButton_12->setStyleSheet(QString::fromUtf8("qproperty-iconSize: 40px 40px; /* Ajuste la taille de l'ic\303\264ne */\n"
 ""));
         QIcon icon19;
         icon19.addFile(QString::fromUtf8(":/img/chatbot-icon-simple-style-vector-removebg-preview.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         pushButton_12->setIcon(icon19);
+        pushButton_appliquerModif = new QPushButton(tab);
+        pushButton_appliquerModif->setObjectName("pushButton_appliquerModif");
+        pushButton_appliquerModif->setGeometry(QRect(690, 420, 91, 31));
+        pushButton_appliquerModif->setStyleSheet(QString::fromUtf8("border: 3px solid black;\n"
+"background-color: rgb(132, 194, 49);\n"
+"border-radius: 15px;\n"
+"font: 700 10pt \"Arial Rounded MT\";"));
         tabWidget->addTab(tab, QString());
         tab_2 = new QWidget();
         tab_2->setObjectName("tab_2");
         groupBox_9 = new QGroupBox(tab_2);
         groupBox_9->setObjectName("groupBox_9");
         groupBox_9->setEnabled(true);
-        groupBox_9->setGeometry(QRect(310, 50, 291, 291));
+        groupBox_9->setGeometry(QRect(360, 50, 291, 291));
         groupBox_9->setStyleSheet(QString::fromUtf8("background-color: rgb(176, 186, 196);\n"
 "border: 3px solid black ; /* Ajoute une bordure */\n"
 ""));
@@ -848,7 +852,7 @@ public:
 "background : none;"));
         pushButton_13 = new QPushButton(groupBox_9);
         pushButton_13->setObjectName("pushButton_13");
-        pushButton_13->setGeometry(QRect(30, 210, 61, 31));
+        pushButton_13->setGeometry(QRect(30, 190, 61, 31));
         pushButton_13->setStyleSheet(QString::fromUtf8("qproperty-iconSize: 25px 25px; /* Ajuste la taille de l'ic\303\264ne */\n"
 "border: none ; /* Ajoute une bordure */\n"
 "background : none;"));
@@ -857,7 +861,7 @@ public:
         pushButton_13->setIcon(icon21);
         btnAccederTodo = new QPushButton(groupBox_9);
         btnAccederTodo->setObjectName("btnAccederTodo");
-        btnAccederTodo->setGeometry(QRect(100, 210, 171, 31));
+        btnAccederTodo->setGeometry(QRect(100, 210, 171, 41));
         btnAccederTodo->setStyleSheet(QString::fromUtf8("background-color: rgb(100, 113, 121);\n"
 "border: 12px solid transparent ; /* Ajoute une bordure */\n"
 "border-image-source: linear-gradient(to right, black, white); /* D\303\251finir le gradient */\n"
@@ -866,14 +870,24 @@ public:
 "border: 2px solid black ; /* Ajoute une bordure */\n"
 "font: 700 12pt \"Arial Rounded MT\";\n"
 ""));
+        btnCheckEmpreinte = new QPushButton(groupBox_9);
+        btnCheckEmpreinte->setObjectName("btnCheckEmpreinte");
+        btnCheckEmpreinte->setGeometry(QRect(30, 230, 61, 31));
+        btnCheckEmpreinte->setStyleSheet(QString::fromUtf8("qproperty-iconSize: 25px 25px; /* Ajuste la taille de l'ic\303\264ne */\n"
+"border: none ; /* Ajoute une bordure */\n"
+"background : none;"));
+        QIcon icon22;
+        icon22.addFile(QString::fromUtf8(":/Downloads/1230982.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+        btnCheckEmpreinte->setIcon(icon22);
         btnAccederTodo->raise();
         pushButton_2->raise();
         lineEdit_nom->raise();
         label_35->raise();
         pushButton_13->raise();
+        btnCheckEmpreinte->raise();
         pushButton_8 = new QPushButton(tab_2);
         pushButton_8->setObjectName("pushButton_8");
-        pushButton_8->setGeometry(QRect(380, 360, 161, 31));
+        pushButton_8->setGeometry(QRect(430, 360, 161, 31));
         pushButton_8->setStyleSheet(QString::fromUtf8("\n"
 "font: 700 14pt \"Arial Rounded MT\";\n"
 "background-color: rgb(67, 164, 8);\n"
@@ -888,69 +902,92 @@ public:
         tab_3->setObjectName("tab_3");
         label_6 = new QLabel(tab_3);
         label_6->setObjectName("label_6");
-        label_6->setGeometry(QRect(40, 20, 781, 81));
+        label_6->setGeometry(QRect(40, 20, 991, 81));
         label_6->setStyleSheet(QString::fromUtf8("background-color: rgb(176, 186, 196);\n"
 "border: 3px solid black ; /* Ajoute une bordure */\n"
 "font: 700 30pt \"Segoe UI Variable\";"));
         tableTodo = new QTableView(tab_3);
         tableTodo->setObjectName("tableTodo");
-        tableTodo->setGeometry(QRect(35, 120, 781, 281));
+        tableTodo->setGeometry(QRect(35, 120, 1001, 311));
         pushButton = new QPushButton(tab_3);
         pushButton->setObjectName("pushButton");
-        pushButton->setGeometry(QRect(250, 30, 141, 51));
+        pushButton->setGeometry(QRect(380, 30, 141, 51));
         pushButton->setStyleSheet(QString::fromUtf8("qproperty-iconSize: 90px 90px; /* Ajuste la taille de l'ic\303\264ne */\n"
 "border: none ; /* Ajoute une bordure */\n"
 "background : none ;"));
-        QIcon icon22;
-        icon22.addFile(QString::fromUtf8(":/Downloads/To-do-list-icon-Graphics-17618184-1-removebg-preview.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
-        pushButton->setIcon(icon22);
+        QIcon icon23;
+        icon23.addFile(QString::fromUtf8(":/Downloads/To-do-list-icon-Graphics-17618184-1-removebg-preview.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+        pushButton->setIcon(icon23);
         tabWidget->addTab(tab_3, QString());
         tab_4 = new QWidget();
         tab_4->setObjectName("tab_4");
         groupBox_10 = new QGroupBox(tab_4);
         groupBox_10->setObjectName("groupBox_10");
         groupBox_10->setEnabled(true);
-        groupBox_10->setGeometry(QRect(310, 100, 221, 191));
+        groupBox_10->setGeometry(QRect(210, 100, 181, 191));
         groupBox_10->setStyleSheet(QString::fromUtf8("background-color: rgb(176, 186, 196);\n"
 "border: 3px solid black ; /* Ajoute une bordure */\n"
 ""));
         pushButton_faceId = new QPushButton(groupBox_10);
         pushButton_faceId->setObjectName("pushButton_faceId");
-        pushButton_faceId->setGeometry(QRect(30, 30, 161, 131));
+        pushButton_faceId->setGeometry(QRect(10, 30, 171, 131));
         pushButton_faceId->setStyleSheet(QString::fromUtf8("qproperty-iconSize: 150px 150px; /* Ajuste la taille de l'ic\303\264ne */\n"
 "border : none ;\n"
 "background : none ;"));
-        QIcon icon23;
-        icon23.addFile(QString::fromUtf8(":/Downloads/pngtree-application-facial-recognition-icon-vector-png-image_7481810-removebg-preview.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
-        pushButton_faceId->setIcon(icon23);
-        label_37 = new QLabel(tab_4);
-        label_37->setObjectName("label_37");
-        label_37->setGeometry(QRect(330, 320, 381, 31));
-        label_37->setStyleSheet(QString::fromUtf8("border: 2px solid transparent ; /* Ajoute une bordure */\n"
-"font: 700 11pt \"Arial Rounded MT\";\n"
-"background : none;"));
+        QIcon icon24;
+        icon24.addFile(QString::fromUtf8(":/Downloads/pngtree-application-facial-recognition-icon-vector-png-image_7481810-removebg-preview.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+        pushButton_faceId->setIcon(icon24);
         lineEdit_3 = new QLineEdit(tab_4);
         lineEdit_3->setObjectName("lineEdit_3");
-        lineEdit_3->setGeometry(QRect(310, 320, 231, 31));
+        lineEdit_3->setGeometry(QRect(200, 320, 231, 31));
         lineEdit_3->setStyleSheet(QString::fromUtf8("background-color: rgb(70, 126, 171);\n"
 "border: 12px solid transparent ; /* Ajoute une bordure */\n"
 "border-image-source: linear-gradient(to right, black, white); /* D\303\251finir le gradient */\n"
 "border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */\n"
 "border-radius: 15px; /* Ajuste selon le degr\303\251 d'arrondi souhait\303\251 */\n"
 "border: 2px solid black ; /* Ajoute une bordure */\n"
+"font: 700 11pt \"Arial Rounded MT\";\n"
+""));
+        groupBox_11 = new QGroupBox(tab_4);
+        groupBox_11->setObjectName("groupBox_11");
+        groupBox_11->setEnabled(true);
+        groupBox_11->setGeometry(QRect(590, 100, 161, 181));
+        groupBox_11->setStyleSheet(QString::fromUtf8("background-color: rgb(176, 186, 196);\n"
+"border: 3px solid black ; /* Ajoute une bordure */\n"
+""));
+        btnAjouterEmpreinte = new QPushButton(groupBox_11);
+        btnAjouterEmpreinte->setObjectName("btnAjouterEmpreinte");
+        btnAjouterEmpreinte->setGeometry(QRect(20, 30, 131, 121));
+        btnAjouterEmpreinte->setStyleSheet(QString::fromUtf8("qproperty-iconSize: 100px 100px; /* Ajuste la taille de l'ic\303\264ne */\n"
+"border : none ;\n"
+"background : none ;"));
+        QIcon icon25;
+        icon25.addFile(QString::fromUtf8(":/Downloads/3076455.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+        btnAjouterEmpreinte->setIcon(icon25);
+        lineEdit_4 = new QLineEdit(tab_4);
+        lineEdit_4->setObjectName("lineEdit_4");
+        lineEdit_4->setGeometry(QRect(560, 320, 231, 31));
+        lineEdit_4->setStyleSheet(QString::fromUtf8("background-color: rgb(70, 126, 171);\n"
+"border: 12px solid transparent ; /* Ajoute une bordure */\n"
+"border-image-source: linear-gradient(to right, black, white); /* D\303\251finir le gradient */\n"
+"border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */\n"
+"border-radius: 15px; /* Ajuste selon le degr\303\251 d'arrondi souhait\303\251 */\n"
+"border: 2px solid black ; /* Ajoute une bordure */\n"
+"font: 700 11pt \"Arial Rounded MT\";\n"
 ""));
         tabWidget->addTab(tab_4, QString());
         lineEdit_3->raise();
         groupBox_10->raise();
-        label_37->raise();
+        groupBox_11->raise();
+        lineEdit_4->raise();
         label_4 = new QLabel(groupBox);
         label_4->setObjectName("label_4");
-        label_4->setGeometry(QRect(630, 40, 291, 41));
+        label_4->setGeometry(QRect(940, 40, 291, 41));
         label_4->setStyleSheet(QString::fromUtf8("background : none ;\n"
 "font: 700 18pt \"Arial\";"));
         liste = new QPushButton(groupBox);
         liste->setObjectName("liste");
-        liste->setGeometry(QRect(580, 120, 101, 41));
+        liste->setGeometry(QRect(800, 120, 101, 41));
         liste->setStyleSheet(QString::fromUtf8("background-color: rgb(227, 241, 244);\n"
 "font: 700 11.5pt \"Segoe UI\";\n"
 "border: 2px solid black ; /* Ajoute une bordure */\n"
@@ -959,12 +996,12 @@ public:
 "qproperty-iconSize: 20px 20px; /* Ajuste la taille de l'ic\303\264ne */\n"
 "border-radius: 20px; /* Ajuste selon le degr\303\251 d'arrondi souhait\303\251 */\n"
 ""));
-        QIcon icon24;
-        icon24.addFile(QString::fromUtf8(":/Desktop/img/570170-removebg-preview[1].png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
-        liste->setIcon(icon24);
+        QIcon icon26;
+        icon26.addFile(QString::fromUtf8(":/Desktop/img/570170-removebg-preview[1].png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+        liste->setIcon(icon26);
         stat = new QPushButton(groupBox);
         stat->setObjectName("stat");
-        stat->setGeometry(QRect(700, 120, 111, 41));
+        stat->setGeometry(QRect(930, 120, 111, 41));
         stat->setStyleSheet(QString::fromUtf8("background-color: rgb(227, 241, 244);\n"
 "font: 700 12pt \"Segoe UI\";\n"
 "border: 2px solid black ; /* Ajoute une bordure */\n"
@@ -973,12 +1010,12 @@ public:
 "qproperty-iconSize: 20px 20px; /* Ajuste la taille de l'ic\303\264ne */\n"
 "border-radius: 20px; /* Ajuste selon le degr\303\251 d'arrondi souhait\303\251 */\n"
 ""));
-        QIcon icon25;
-        icon25.addFile(QString::fromUtf8(":/Desktop/img/1170667-removebg-preview.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
-        stat->setIcon(icon25);
+        QIcon icon27;
+        icon27.addFile(QString::fromUtf8(":/Desktop/img/1170667-removebg-preview.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+        stat->setIcon(icon27);
         ajout = new QPushButton(groupBox);
         ajout->setObjectName("ajout");
-        ajout->setGeometry(QRect(830, 120, 111, 41));
+        ajout->setGeometry(QRect(1070, 120, 111, 41));
         ajout->setStyleSheet(QString::fromUtf8("background-color: rgb(227, 241, 244);\n"
 "font: 700 10pt \"Segoe UI\";\n"
 "border: 2px solid black ; /* Ajoute une bordure */\n"
@@ -987,9 +1024,9 @@ public:
 "qproperty-iconSize: 30px 30px; /* Ajuste la taille de l'ic\303\264ne */\n"
 "border-radius: 20px; /* Ajuste selon le degr\303\251 d'arrondi souhait\303\251 */\n"
 ""));
-        QIcon icon26;
-        icon26.addFile(QString::fromUtf8(":/Desktop/img/18926930-conception-d-icone-de-formulaire-gratuit-vectoriel-removebg-preview[1].png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
-        ajout->setIcon(icon26);
+        QIcon icon28;
+        icon28.addFile(QString::fromUtf8(":/Desktop/img/18926930-conception-d-icone-de-formulaire-gratuit-vectoriel-removebg-preview[1].png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+        ajout->setIcon(icon28);
         pushButton_11 = new QPushButton(groupBox);
         pushButton_11->setObjectName("pushButton_11");
         pushButton_11->setGeometry(QRect(-30, 130, 131, 61));
@@ -999,22 +1036,33 @@ public:
 "border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */\n"
 "border-radius: 30px; /* Ajuste selon le degr\303\251 d'arrondi souhait\303\251 */\n"
 "qproperty-iconSize: 42px 42px; /* Ajuste la taille de l'ic\303\264ne */"));
-        QIcon icon27;
-        icon27.addFile(QString::fromUtf8(":/img/employe.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
-        pushButton_11->setIcon(icon27);
+        QIcon icon29;
+        icon29.addFile(QString::fromUtf8(":/img/employe.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+        pushButton_11->setIcon(icon29);
         login = new QPushButton(groupBox);
         login->setObjectName("login");
-        login->setGeometry(QRect(480, 120, 101, 41));
-        login->setStyleSheet(QString::fromUtf8("qproperty-iconSize: 50px 50px; /* Ajuste la taille de l'ic\303\264ne */\n"
+        login->setGeometry(QRect(130, 120, 91, 51));
+        login->setStyleSheet(QString::fromUtf8("qproperty-iconSize: 60px 60px; /* Ajuste la taille de l'ic\303\264ne */\n"
 "border: none ; /* Ajoute une bordure */\n"
 "background : none;"));
-        QIcon icon28;
-        icon28.addFile(QString::fromUtf8(":/Downloads/4661334.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
-        login->setIcon(icon28);
+        QIcon icon30;
+        icon30.addFile(QString::fromUtf8(":/Downloads/5238442.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+        login->setIcon(icon30);
+        liste_3 = new QPushButton(groupBox);
+        liste_3->setObjectName("liste_3");
+        liste_3->setGeometry(QRect(210, 130, 251, 31));
+        liste_3->setStyleSheet(QString::fromUtf8("background-color: rgba(240,200,160,255);\n"
+"border: 12px solid transparent ; /* Ajoute une bordure */\n"
+"border-image-source: linear-gradient(to right, black, white); /* D\303\251finir le gradient */\n"
+"border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */\n"
+"border-radius: 15px; /* Ajuste selon le degr\303\251 d'arrondi souhait\303\251 */\n"
+"border: 2px solid black ; /* Ajoute une bordure */\n"
+"font: 700 11.5pt \"Segoe UI\";"));
+        liste_3->setIcon(icon26);
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName("menubar");
-        menubar->setGeometry(QRect(0, 0, 1005, 18));
+        menubar->setGeometry(QRect(0, 0, 1274, 18));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName("statusbar");
@@ -1067,7 +1115,7 @@ public:
         pushButton_analysePDP->setText(QString());
         pushButton_pdp->setText(QString());
         pushButton_ajouter->setText(QCoreApplication::translate("MainWindow", "Ajouter", nullptr));
-        btnImporterCV->setText(QString());
+        cvButton->setText(QString());
         tabWidget->setTabText(tabWidget->indexOf(Ajout), QCoreApplication::translate("MainWindow", "Tab 1", nullptr));
         afficher->setText(QCoreApplication::translate("MainWindow", "Actualiser", nullptr));
         pushButton_modifier->setText(QCoreApplication::translate("MainWindow", "Modifier", nullptr));
@@ -1099,22 +1147,26 @@ public:
         label_33->setText(QCoreApplication::translate("MainWindow", "Photo de profil", nullptr));
         pushButton_pdp_2->setText(QString());
         pushButton_modifierPhoto->setText(QCoreApplication::translate("MainWindow", "Modifier image", nullptr));
-        pushButton_enregistrer->setText(QCoreApplication::translate("MainWindow", "Enregistrer", nullptr));
         pushButton_12->setText(QString());
+        pushButton_appliquerModif->setText(QCoreApplication::translate("MainWindow", "Enregistrer", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab), QCoreApplication::translate("MainWindow", "Page", nullptr));
         groupBox_9->setTitle(QString());
         pushButton_2->setText(QString());
         label_35->setText(QCoreApplication::translate("MainWindow", "Nom", nullptr));
         pushButton_13->setText(QString());
         btnAccederTodo->setText(QCoreApplication::translate("MainWindow", "Authentification ", nullptr));
+        btnCheckEmpreinte->setText(QString());
         pushButton_8->setText(QCoreApplication::translate("MainWindow", "Valider", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QCoreApplication::translate("MainWindow", "Page", nullptr));
-        label_6->setText(QCoreApplication::translate("MainWindow", "                           TO DO LIST ", nullptr));
+        label_6->setText(QCoreApplication::translate("MainWindow", "                                     TO DO LIST ", nullptr));
         pushButton->setText(QString());
         tabWidget->setTabText(tabWidget->indexOf(tab_3), QCoreApplication::translate("MainWindow", "Page", nullptr));
         groupBox_10->setTitle(QString());
         pushButton_faceId->setText(QString());
-        label_37->setText(QCoreApplication::translate("MainWindow", "Enregistrer votre faceId", nullptr));
+        lineEdit_3->setText(QCoreApplication::translate("MainWindow", "      Enregistrer votre face id", nullptr));
+        groupBox_11->setTitle(QString());
+        btnAjouterEmpreinte->setText(QString());
+        lineEdit_4->setText(QCoreApplication::translate("MainWindow", "              Enregistrer votre empreinte", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_4), QCoreApplication::translate("MainWindow", "Page", nullptr));
         label_4->setText(QCoreApplication::translate("MainWindow", "Gestion Des employ\303\251s ", nullptr));
         liste->setText(QCoreApplication::translate("MainWindow", "Liste", nullptr));
@@ -1123,6 +1175,7 @@ public:
 " employe", nullptr));
         pushButton_11->setText(QString());
         login->setText(QString());
+        liste_3->setText(QCoreApplication::translate("MainWindow", "Login a la liste des maintenances", nullptr));
     } // retranslateUi
 
 };

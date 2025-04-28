@@ -19,6 +19,8 @@ private:
     double salaire;
     QByteArray pdp; // Stockage de l'image en binaire
     QByteArray face_id;
+    QByteArray empreinte;
+
 
 
 public:
@@ -27,7 +29,7 @@ public:
     // ✅ Constructeurs
     Employe();
     Employe(QString nom, QString prenom, QDate date_embauche, QString poste, double salaire,
-            QString email, QString sexe, QString telephone, QByteArray pdp, QString statut, QByteArray face_id);
+            QString email, QString sexe, QString telephone, QByteArray pdp, QString statut, QByteArray face_id,QByteArray empreinte);
 
     // ✅ CRUD Operations
     bool ajouter();
@@ -80,6 +82,8 @@ public:
     void setPdp(const QByteArray &pdp) { this->pdp = pdp; }
     QByteArray getFaceId() const { return face_id; }
     void setFaceId(const QByteArray &value) { face_id = value; }
+    QByteArray getEmpreinte() const { return empreinte; }
+    void setEmpreinte(const QByteArray &value) { empreinte = value; }
 
 
 };

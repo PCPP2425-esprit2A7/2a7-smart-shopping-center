@@ -1,0 +1,10 @@
+release/arduino.o
+release/connection.o
+release/employe.o
+release/facelogindialog.o
+release/main.o
+release/mainwindow.o
+release/qrc_img.o
+release/moc_arduino.o
+release/moc_facelogindialog.o
+release/moc_mainwindow.o

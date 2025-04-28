@@ -20,12 +20,14 @@ Employe::Employe() {
     pdp = QByteArray(); // Correction du type
     statut = "";
     face_id = QByteArray(); // Correction du type
+    empreinte = QByteArray(); // Correction du type
+
 
 }
 
 // ✅ Constructeur paramétré
 Employe::Employe(QString nom, QString prenom, QDate date_embauche, QString poste, double salaire,
-                 QString email, QString sexe, QString telephone, QByteArray pdp, QString statut, QByteArray face_id) {
+                 QString email, QString sexe, QString telephone, QByteArray pdp, QString statut, QByteArray face_id, QByteArray empreinte) {
     this->nom = nom;
     this->prenom = prenom;
     this->date_embauche = date_embauche;
@@ -37,13 +39,15 @@ Employe::Employe(QString nom, QString prenom, QDate date_embauche, QString poste
     this->pdp = pdp;
     this->statut = statut;
     this->face_id= face_id;
+    this->empreinte= empreinte;
+
 }
 
 bool Employe::ajouter()
 {
     QSqlQuery query;
-    query.prepare("INSERT INTO employe (nom, prenom, date_embauche, poste, salaire, email, sexe, telephone, pdp, statut, face_id) "
-                  "VALUES (:nom, :prenom, :date_embauche, :poste, :salaire, :email, :sexe, :telephone, :pdp, :statut, :face_id)");
+    query.prepare("INSERT INTO employe (nom, prenom, date_embauche, poste, salaire, email, sexe, telephone, pdp, statut, face_id, empreinte) "
+                  "VALUES (:nom, :prenom, :date_embauche, :poste, :salaire, :email, :sexe, :telephone, :pdp, :statut, :face_id, :empreinte)");
 
     query.bindValue(":nom", nom);
     query.bindValue(":prenom", prenom);
@@ -70,6 +74,13 @@ bool Employe::ajouter()
     } else {
         query.bindValue(":face_id", face_id);
     }
+    // Gestion de l'empreinte digitale
+    if (empreinte.isEmpty()) {
+        qDebug() << "⚠️ Pas d'empreinte digitale fournie.";
+        query.bindValue(":empreinte", QVariant()); // NULL pour empreinte
+    } else {
+        query.bindValue(":empreinte", empreinte);
+    }
 
     // 🔥 Debug de la requête SQL
     qDebug() << "Tentative d'insertion de l'employé :"
@@ -83,7 +94,9 @@ bool Employe::ajouter()
              << "Téléphone:" << telephone
              << "Statut:" << statut
              << "Image (taille en octets):" << pdp.size()
-             << "Face ID (taille en octets):" << face_id.size();
+             << "Face ID (taille en octets):" << face_id.size()
+             << "empreinte (taille en octets):" << empreinte.size();
+
 
     // Exécuter la requête
     if (query.exec()) {
@@ -172,6 +185,8 @@ Employe Employe::rechercher(int id)
         employe.setPdp(query.value("PDP").toByteArray()); // ✅ Correction ici
         employe.setStatut(query.value("STATUT").toString());
         employe.setFaceId(query.value("FACE_ID").toByteArray()); // ✅ Correction ici
+        employe.setFaceId(query.value("empreinte").toByteArray()); // ✅ Correction ici
+
 
 
         return employe;
@@ -185,7 +200,7 @@ Employe Employe::rechercher(int id)
 bool Employe::modifier(int id)
 {
     QSqlQuery query;
-    query.prepare("UPDATE employe SET NOM = :nom, PRENOM = :prenom, DATE_EMBAUCHE = :date_embauche, POSTE = :poste, SALAIRE = :salaire, EMAIL = :email, SEXE = :sexe, TELEPHONE = :telephone, PDP = :pdp, FACE_ID = :face_id, STATUT = :statut WHERE ID = :id");
+    query.prepare("UPDATE employe SET NOM = :nom, PRENOM = :prenom, DATE_EMBAUCHE = :date_embauche, POSTE = :poste, SALAIRE = :salaire, EMAIL = :email, SEXE = :sexe, TELEPHONE = :telephone, PDP = :pdp, FACE_ID = :face_id, EMPREINTE = :empreinte, STATUT = :statut WHERE ID = :id");
     query.bindValue(":id", id);
     query.bindValue(":nom", nom);
     query.bindValue(":prenom", prenom);
@@ -198,6 +213,8 @@ bool Employe::modifier(int id)
     query.bindValue(":pdp", pdp);
     query.bindValue(":statut", statut);
     query.bindValue(":face_id", face_id);
+    query.bindValue(":empreinte", face_id);
+
 
 
     return query.exec();

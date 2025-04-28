@@ -1,0 +1,10 @@
+debug/arduino.o
+debug/connection.o
+debug/employe.o
+debug/facelogindialog.o
+debug/main.o
+debug/mainwindow.o
+debug/qrc_img.o
+debug/moc_arduino.o
+debug/moc_facelogindialog.o
+debug/moc_mainwindow.o
