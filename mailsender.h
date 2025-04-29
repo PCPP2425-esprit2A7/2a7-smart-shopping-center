@@ -2,7 +2,7 @@
 #define MAILSENDER_H
 
 #include <QObject>
-#include <QTcpSocket>
+#include <QSslSocket>
 #include <QTextStream>
 
 class MailSender : public QObject {
@@ -13,8 +13,9 @@ public:
     void sendEmail(const QString &to, const QString &subject, const QString &body);
 
 private:
-    QTcpSocket *socket;
-    QString message;
+    QSslSocket *socket;
+    QTextStream *stream;
+    void waitForResponse();
 };
 
 #endif // MAILSENDER_H

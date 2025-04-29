@@ -20,7 +20,7 @@
 #include "mailsender.h"
 #include <QTextBrowser>
 #include <QDateTime>
-#include <QProcess>
+
 
 HoverButton::HoverButton(QWidget *parent) : QPushButton(parent)  // ✅ Implémentation correcte
 {
@@ -63,10 +63,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->liste, &QPushButton::clicked, this, &MainWindow::changerCouleurBouton);
     connect(ui->form, &QPushButton::clicked, this, &MainWindow::changerCouleurBouton);
     connect(ui->stat, &QPushButton::clicked, this, &MainWindow::changerCouleurBouton);
-    connect(ui->chat, &QPushButton::clicked, this, &MainWindow::changerCouleurBouton);
     connect(ui->save_stat, &QPushButton::clicked, this, &MainWindow::changerCouleurBouton);
     connect(ui->btnTrierServices, &QPushButton::clicked, this, &MainWindow::trierServices);
-    connect(ui->comboBox_StatutFiltre, &QComboBox::currentTextChanged, this, &MainWindow::filtrerServicesParStatut);
     connect(ui->lineEdit_Recherche, &QLineEdit::textChanged, this, &MainWindow::rechercherService);
     connect(ui->sendButton, &QPushButton::clicked, this, &MainWindow::envoyerRequete);
     connect(ui->btnGenererDescription, &QPushButton::clicked, this, &MainWindow::genererDescriptionIA);
@@ -75,109 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     openAIClient = new OpenAIClient();
-    // Configure le style de base
-    ui->textBrowserReponse->setOpenLinks(false);
-    ui->textBrowserReponse->document()->setDefaultStyleSheet(
-        "/* Styles des bulles */"
-        ".user-message {"
-        "   background: #0084ff;"
-        "   color: white;"
-        "   border-radius: 18px 18px 0 18px;"
-        "   padding: 10px 14px;"
-        "   margin-left: 50px;"
-        "   display: inline-block;"
-        "   max-width: 75%;"
-        "   word-wrap: break-word;"
-        "}"
-        ".bot-message {"
-        "   background: #e5e5ea;"
-        "   color: black;"
-        "   border-radius: 18px 18px 18px 0;"
-        "   padding: 10px 14px;"
-        "   margin-right: 50px;"
-        "   display: inline-block;"
-        "   max-width: 75%;"
-        "   word-wrap: break-word;"
-        "}"
 
-        "/* Conteneurs et alignement */"
-        ".message-container {"
-        "   margin: 10px 0;"
-        "}"
-        ".user-container {"
-        "   text-align: right;"
-        "}"
-        ".bot-container {"
-        "   text-align: left;"
-        "}"
-
-        "/* Avatars */"
-        ".avatar {"
-        "   width: 32px;"
-        "   height: 32px;"
-        "   border-radius: 50%;"
-        "   margin: 0 8px;"
-        "   vertical-align: middle;"
-        "}"
-
-        "/* Timestamps */"
-        ".timestamp {"
-        "   color: #999999;"
-        "   font-size: 10px;"
-        "   margin: 0 8px;"
-        "   display: inline-block;"
-        "}"
-
-        "/* Animation */"
-        "@keyframes fadeIn {"
-        "   from { opacity: 0; transform: translateY(10px); }"
-        "   to { opacity: 1; transform: translateY(0); }"
-        "}"
-        ".message-container {"
-        "   animation: fadeIn 0.3s ease-out;"
-        "}"
-        );
-
-    // Message de l'utilisateur
-    connect(ui->btnEnvoyer, &QPushButton::clicked, this, [=]() {
-        QString question = ui->lineEditQuestion->toPlainText().trimmed();
-        if (!question.isEmpty()) {
-            QString timestamp = QDateTime::currentDateTime().toString("HH:mm");
-            QString html = QString(
-                               "<div class='message-container user-container'>"
-                               "   <div class='user-message'>%1</div>"
-                               "   <span class='timestamp'>%2</span>"
-                               "</div>"
-                               ).arg(question.toHtmlEscaped().replace("\n", "<br>"), timestamp);
-
-            ui->textBrowserReponse->append(html);
-            ui->textBrowserReponse->verticalScrollBar()->setValue(
-                ui->textBrowserReponse->verticalScrollBar()->maximum()
-                );
-
-            openAIClient->envoyerMessageChatbot(question);
-            ui->lineEditQuestion->clear();
-        }
-    });
-
-    // Réponse du bot
-    connect(openAIClient, &OpenAIClient::chatbotResponse, this, [=](const QString &reponse) {
-        QString timestamp = QDateTime::currentDateTime().toString("HH:mm");
-        QString formatted = reponse.toHtmlEscaped().replace("\n", "<br>");
-
-        QString html = QString(
-                           "<div class='message-container bot-container'>"
-                           "   <img src='../icons/employe.jpg' class='avatar'>"
-                           "   <div class='bot-message'>%1</div>"
-                           "   <span class='timestamp'>%2</span>"
-                           "</div>"
-                           ).arg(formatted, timestamp);
-
-        ui->textBrowserReponse->append(html);
-        ui->textBrowserReponse->verticalScrollBar()->setValue(
-            ui->textBrowserReponse->verticalScrollBar()->maximum()
-            );
-    });
 
     ui->lineEdit_Recherche->setPlaceholderText("🔎 Rechercher un service...");
 
@@ -201,11 +97,7 @@ MainWindow::MainWindow(QWidget *parent)
         ui->tabWidget->setCurrentIndex(2);
         qDebug() << "Passage à l'onglet Statistiques";
     });
-    connect(ui->chat, &QPushButton::clicked, this, [=]() {
-        ui->tabWidget->setCurrentIndex(4);
-        qDebug() << "Passage à l'onglet Statistiques";
-        ui->textBrowserReponse->clear();
-    });
+
 }
 
 MainWindow::~MainWindow()
@@ -217,24 +109,49 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_btnVoix_clicked()
 {
-    QProcess process;
-    process.start("python", QStringList() << "voice_recognizer.py");
-
-    if (!process.waitForFinished()) {
-        qDebug() << "Le script n'a pas terminé correctement.";
-        return;
+    // Nettoie une ancienne instance si elle existe
+    if (process) {
+        process->kill();
+        process->deleteLater();
     }
 
-    QString output = process.readAllStandardOutput().trimmed();
-    qDebug() << "Texte reconnu :" << output;
+    process = new QProcess(this);
 
-    if (!output.isEmpty()) {
-        ui->requete->setText(output);
-    } else {
-        ui->requete->setPlaceholderText("Aucune voix détectée");
+    connect(process, &QProcess::readyReadStandardOutput, this, &MainWindow::readVoiceOutput);
+    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            this, &MainWindow::processVoiceFinished);
+    connect(process, &QProcess::errorOccurred, this, [](QProcess::ProcessError error){
+        qDebug() << "Erreur du processus :" << error;
+    });
+
+    QString scriptPath = "C:/Users/21698/Desktop/projet c++/ess1/voice_recognizer.py";
+    process->start("python", QStringList() << scriptPath);
+
+    if (!process->waitForStarted()) {
+        qDebug() << "Échec du démarrage du script.";
     }
 }
 
+void MainWindow::readVoiceOutput()
+{
+    bufferOutput += process->readAllStandardOutput();
+}
+
+void MainWindow::processVoiceFinished(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    QString finalOutput = bufferOutput.trimmed();
+    qDebug() << "Texte reconnu :" << finalOutput;
+
+    if (!finalOutput.isEmpty()) {
+        ui->requete->setText(finalOutput);
+    } else {
+        ui->requete->setPlaceholderText("Aucune voix détectée");
+    }
+
+    process->deleteLater();
+    process = nullptr;
+    bufferOutput.clear();
+}
 
 
 
@@ -596,8 +513,6 @@ void MainWindow::on_pdf_clicked()
     QDesktopServices::openUrl(QUrl::fromLocalFile(filePath));
     QMessageBox::information(this, "Succès", "Le PDF stylisé a été généré avec succès !");
 }
-
-
 void MainWindow::afficherStatistiques() {
     QSqlQuery query;
     query.prepare("SELECT nom, cout FROM SERVICE");
@@ -640,7 +555,7 @@ void MainWindow::afficherStatistiques() {
 
     QChartView *pieChartView = new QChartView(pieChart);
     pieChartView->setRenderHint(QPainter::Antialiasing);
-    pieChartView->setFixedSize(600, 500);
+    pieChartView->setFixedSize(500, 400);  // Réduire la taille des graphiques
 
     // ** Création du graphique à barres **
     QBarSet *set = new QBarSet("Coût (€)");
@@ -663,17 +578,16 @@ void MainWindow::afficherStatistiques() {
     barSeries->attachAxis(axisY);
 
     QBarCategoryAxis *axisX = new QBarCategoryAxis();
-   // axisX->append(QStringList::fromVector(QVector<QString>::fromStdVector(noms)));
     axisX->setTitleText("Services");
     barChart->addAxis(axisX, Qt::AlignBottom);
     barSeries->attachAxis(axisX);
 
     QChartView *barChartView = new QChartView(barChart);
     barChartView->setRenderHint(QPainter::Antialiasing);
-    barChartView->setFixedSize(600, 500);
-
-    // ** Mise à jour de l'affichage dans l'onglet des statistiques **
+    barChartView->setFixedSize(500, 400);  // Réduire la taille des graphiques
     QWidget *statistiquesTab = ui->tabWidget->widget(2);
+
+
 
     // Supprimer l'ancien layout s'il existe
     if (statistiquesTab->layout()) {
@@ -685,13 +599,16 @@ void MainWindow::afficherStatistiques() {
         delete statistiquesTab->layout();
     }
 
-    // Ajouter les graphiques dans un layout horizontal
-    QHBoxLayout *layout = new QHBoxLayout(statistiquesTab);
-    layout->addWidget(pieChartView);
-    layout->addWidget(barChartView);
-    statistiquesTab->setLayout(layout);
-}
+    // Ajouter le titre et les graphiques dans un layout horizontal
+    QVBoxLayout *mainLayout = new QVBoxLayout(statistiquesTab);
 
+    // Ajouter les graphiques dans un layout horizontal
+    QHBoxLayout *graphLayout = new QHBoxLayout();
+    graphLayout->addWidget(pieChartView);
+    graphLayout->addWidget(barChartView);
+    mainLayout->addLayout(graphLayout);  // Ajouter le layout horizontal dans le layout principal
+    statistiquesTab->setLayout(mainLayout);
+}
 
 void MainWindow::on_save_stat_clicked()
 {
@@ -716,7 +633,7 @@ void MainWindow::changerCouleurBouton() {
     if (!button) return;
 
     // Liste de tous les boutons
-    QList<QPushButton*> boutons = {ui->stat, ui->form, ui->liste, ui->save_stat, ui->chat}; // Ajoute tous tes boutons ici
+    QList<QPushButton*> boutons = {ui->stat, ui->form, ui->liste, ui->save_stat}; // Ajoute tous tes boutons ici
 
     // Réinitialiser le style de tous les boutons
     for (QPushButton* btn : boutons) {
@@ -939,12 +856,74 @@ void MainWindow::on_saveButton_clicked()
 
 
     if (nouveauStatut.toLower() == "suspendu") {
-        qDebug() << "Le service est suspendu, envoi de l'e-mail en cours...";
+        // Récupération de l'ID_ESPACE du service
+        QSqlQuery query;
+        query.prepare("SELECT ID_ESPACE FROM SERVICE WHERE ID = :idService");
+        query.bindValue(":idService", idServiceAModifier);
 
+        int idEspace = -1;
+        if (query.exec() && query.next()) {
+            idEspace = query.value(0).toInt();
+        } else {
+            qDebug() << "Erreur : Impossible de récupérer l'ID_ESPACE.";
+            return;
+        }
+
+        // Insertion dans la table MAINTENANCE
+        QSqlQuery insertQuery;
+        insertQuery.prepare(R"(
+        INSERT INTO MAINTENANCE (ID, TYPE, DESCRIPTION, COUT, STATUT, DATE_RESOLUTION, ID_EMPLOYE, ID_ESPACE)
+        VALUES (MAINTENANCE_SEQ.NEXTVAL, :type, :desc, :cout, :statut, SYSDATE, NULL, :espace)
+    )");
+
+        insertQuery.bindValue(":type", "Interruption de service");
+        insertQuery.bindValue(":desc", "Ajout automatique suite à suspension du service ID " + QString::number(idServiceAModifier));
+        insertQuery.bindValue(":cout", 0);  // si coût inconnu initialement
+        insertQuery.bindValue(":statut", "En attente");
+        insertQuery.bindValue(":espace", idEspace);
+
+        if (insertQuery.exec()) {
+            qDebug() << "Maintenance ajoutée avec succès.";
+        } else {
+            qDebug() << "Erreur lors de l'ajout de la maintenance :" << insertQuery.lastError().text();
+        }
+
+        qDebug() << "Le service est suspendu, envoi de l'e-mail en cours...";
         MailSender mail;
-        mail.sendEmail("jouiniridha200@gmail.com",
-                       "Alerte : Service Suspendu",
-                       "Le service ID " + QString::number(idServiceAModifier) + " a été suspendu.");
+        QString idServiceStr = QString::number(idServiceAModifier);
+        QString dateStr = QDateTime::currentDateTime().toString("dd/MM/yyyy HH:mm");
+
+        QString body = R"(
+<html>
+<body style="font-family: Arial, sans-serif; color: #333;">
+    <h2 style="color: #d9534f;">🚨 Alerte : Service Suspendu</h2>
+    <p>Bonjour Ahmed,</p>
+    <p>Ce message vous informe que le service suivant a été <strong>suspendu</strong> :</p>
+
+    <table border="1" cellpadding="10" cellspacing="0" style="border-collapse: collapse; margin-top: 10px;">
+        <tr style="background-color: #f2f2f2;">
+            <th>ID du service</th>
+            <td>)" + idServiceStr + R"(</td>
+        </tr>
+        <tr>
+            <th>Date</th>
+            <td>)" + dateStr + R"(</td>
+        </tr>
+    </table>
+
+    <p style="margin-top: 20px; color: #8a2be2;">Merci de vérifier la situation dès que possible.</p>
+    <p>Cordialement,<br><em>Votre application de gestion des services</em></p>
+</body>
+</html>
+)";
+
+
+        mail.sendEmail(
+            "jouiniridha200@gmail.com",
+            "Alerte : Service Suspendu",
+            body  // <-- le body HTML
+            );
+
 
         qDebug() << "Email envoyé ?";
     }
@@ -975,31 +954,6 @@ void MainWindow::trierServices() {
     // Appliquer le tri sur la colonne sélectionnée
     proxyModel->sort(columnIndex, Qt::AscendingOrder);
     qDebug() << "Tri effectué sur la colonne : " << columnIndex;
-}
-void MainWindow::filtrerServicesParStatut(const QString &statut) {
-    // Obtenez d'abord le modèle source correct (remplacez serviceModel par votre vrai modèle)
-    QAbstractItemModel *sourceModel = ui->tableView->model(); // ou autre modèle que vous utilisez
-
-    // Vérifier si un proxyModel existe déjà
-    QSortFilterProxyModel *proxyModel = qobject_cast<QSortFilterProxyModel*>(ui->tableView->model());
-
-    if (!proxyModel) {
-        proxyModel = new QSortFilterProxyModel(this);
-        proxyModel->setSourceModel(sourceModel);
-        proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
-        ui->tableView->setModel(proxyModel);
-    }
-
-    // Appliquer le filtre sur la colonne du statut
-    int statutColumnIndex = 3; // Ajustez cet index selon votre modèle
-
-    if (statut == "Tous") {
-        proxyModel->setFilterFixedString(""); // Efface tout filtre
-    } else {
-        proxyModel->setFilterRegularExpression(
-            QRegularExpression(statut, QRegularExpression::CaseInsensitiveOption));
-        proxyModel->setFilterKeyColumn(statutColumnIndex);
-    }
 }
 
 

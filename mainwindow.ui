@@ -71,7 +71,7 @@ border-radius: 25px;
 </string>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="listes">
         <attribute name="title">
@@ -202,75 +202,6 @@ qproperty-iconSize: 50px 50px; /* Ajuste la taille de l'icône */</string>
            <normaloff>:/img/26221823-tri-icone-vecteur-symbole-conception-illustration-vectoriel-removebg-preview.png</normaloff>:/img/26221823-tri-icone-vecteur-symbole-conception-illustration-vectoriel-removebg-preview.png</iconset>
          </property>
         </widget>
-        <widget class="QComboBox" name="comboBox_StatutFiltre">
-         <property name="geometry">
-          <rect>
-           <x>1095</x>
-           <y>425</y>
-           <width>101</width>
-           <height>31</height>
-          </rect>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QComboBox#comboBox_Statut {
-    border: 2px solid #0078D7;  /* Bordure bleue élégante */
-    border-radius: 30px;         /* Coins arrondis */
-    padding: 6px 12px;          /* Espacement interne */
-    font-size: 14px;            /* Taille du texte */
-    background-color: #F5F5F5;  /* Fond légèrement gris */
-    selection-background-color: #0078D7; /* Couleur de sélection */
-}
-
-/* Effet quand on passe la souris */
-QComboBox#comboBox_Statut:hover {
-    border: 2px solid #0056A3;  /* Bordure plus foncée */
-}
-
-/* Effet quand on clique */
-QComboBox#comboBox_Statut:focus {
-    border: 2px solid #003E7E;
-    background-color: white;
-}
-
-/* Style du menu déroulant */
-QComboBox#comboBox_Statut QAbstractItemView {
-    border: 1px solid #0078D7;
-    border-radius: 4px;
-    background: white;
-    selection-background-color: #0078D7;
-    selection-color: white;
-}
-
-/* Style de la flèche */
-QComboBox#comboBox_Statut::drop-down {
-    border: none;
-    width: 24px;
-    background: none;
-}
-
-QComboBox#comboBox_Statut::down-arrow {
-    image: url(:/icons/down-arrow.png); /* Ajoute une icône personnalisée */
-    width: 16px;
-    height: 16px;
-}
-</string>
-         </property>
-         <item>
-          <property name="text">
-           <string>Tous</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Actif</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Suspendu</string>
-          </property>
-         </item>
-        </widget>
         <widget class="QLineEdit" name="lineEdit_Recherche">
          <property name="geometry">
           <rect>
@@ -319,7 +250,12 @@ QLineEdit#lineEdit_Recherche {
           </rect>
          </property>
          <property name="styleSheet">
-          <string notr="true"/>
+          <string notr="true">    border: 2px solid #0078D7;  /* Bordure bleue élégante */
+    border-radius: 8px;         /* Coins arrondis */
+    padding: 6px 12px;          /* Espacement interne */
+    font-size: 14px;            /* Taille du texte */
+    background-color: #F5F5F5;  /* Fond légèrement gris */
+    selection-background-color: #0078D7; /* Couleur de sélection */</string>
          </property>
         </widget>
         <widget class="QPushButton" name="sendButton">
@@ -403,7 +339,6 @@ QPushButton:hover {
         <zorder>modifyButton</zorder>
         <zorder>pdf</zorder>
         <zorder>btnTrierServices</zorder>
-        <zorder>comboBox_StatutFiltre</zorder>
         <zorder>lineEdit_Recherche</zorder>
         <zorder>requete</zorder>
         <zorder>sendButton</zorder>
@@ -914,6 +849,23 @@ font: 700 12pt &quot;Arial Rounded MT&quot;;</string>
         <attribute name="title">
          <string>Page</string>
         </attribute>
+        <widget class="QLabel" name="label_3">
+         <property name="geometry">
+          <rect>
+           <x>560</x>
+           <y>20</y>
+           <width>251</width>
+           <height>41</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border-color: transparent;
+font: 900 18pt &quot;Arial&quot;</string>
+         </property>
+         <property name="text">
+          <string>STATISTIQUE</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QWidget" name="tab">
         <attribute name="title">
@@ -1369,129 +1321,6 @@ border-radius: 10px; /* Ajuste selon le degré d'arrondi souhaité */</string>
           </property>
           <property name="icon">
            <iconset theme="QIcon::ThemeIcon::SystemLogOut"/>
-          </property>
-         </widget>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="tab_2">
-        <attribute name="title">
-         <string>Page</string>
-        </attribute>
-        <widget class="QGroupBox" name="groupBox_7">
-         <property name="geometry">
-          <rect>
-           <x>-100</x>
-           <y>0</y>
-           <width>1481</width>
-           <height>571</height>
-          </rect>
-         </property>
-         <property name="title">
-          <string>GroupBox</string>
-         </property>
-         <widget class="QTextEdit" name="lineEditQuestion">
-          <property name="geometry">
-           <rect>
-            <x>220</x>
-            <y>420</y>
-            <width>991</width>
-            <height>124</height>
-           </rect>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QTextEdit {
-    background-color: #f0f0f0; /* Couleur de fond claire */
-    border: 2px solid #ccc; /* Bordure douce */
-    border-radius: 8px; /* Coins arrondis */
-    padding: 10px; /* Espacement intérieur */
-    font-family: &quot;Arial&quot;, sans-serif; /* Police */
-    font-size: 14px; /* Taille de la police */
-    color: #333; /* Couleur du texte */
-    min-height: 100px; /* Hauteur minimale du champ */
-    max-height: 150px; /* Hauteur maximale */
-    line-height: 1.5; /* Hauteur de ligne pour une meilleure lisibilité */
-}
-
-QTextEdit:focus {
-    border-color: #6fa3ef; /* Changer la couleur de la bordure quand le champ est actif */
-    background-color: #ffffff; /* Changer la couleur de fond quand le champ est actif */
-}
-
-QTextEdit::placeholder {
-    color: #aaa; /* Couleur du texte de l'espace réservé (placeholder) */
-    font-style: italic; /* Style du texte de l'espace réservé */
-}
-</string>
-          </property>
-         </widget>
-         <widget class="QTextBrowser" name="textBrowserReponse">
-          <property name="geometry">
-           <rect>
-            <x>220</x>
-            <y>10</y>
-            <width>991</width>
-            <height>401</height>
-           </rect>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QLineEdit{
-    border: 2px solid #0078D7;  /* Bordure bleue élégante */
-    border-radius: 8px;         /* Coins arrondis */
-    padding: 6px 12px;          /* Espacement interne */
-    font-size: 14px;            /* Taille du texte */
-    background-color: #F5F5F5;  /* Fond légèrement gris */
-    selection-background-color: #0078D7; /* Couleur de sélection */
-}
-
-QLineEdit#lineEdit_Recherche:focus {
-    border: 2px solid #0056A3;  /* Bordure plus foncée en focus */
-    background-color: white;
-}
-
-QLineEdit#lineEdit_Recherche::placeholder {
-    color: #808080;  /* Texte en gris clair */
-    font-style: italic;
-}
-QLineEdit{
-    padding-left: 30px; /* Décale le texte pour laisser place à l'icône */
-    background-image: url(:/icons/search.png);
-    background-position: 5px center;
-    background-repeat: no-repeat;
-}
-
-</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="btnEnvoyer">
-          <property name="geometry">
-           <rect>
-            <x>1210</x>
-            <y>420</y>
-            <width>81</width>
-            <height>121</height>
-           </rect>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(227, 241, 244);
-font: 700 9pt &quot;Segoe UI&quot;;
-border: 2px solid black ; /* Ajoute une bordure */
-border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
-border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
-qproperty-iconSize: 30px 30px; /* Ajuste la taille de l'icône */
-border-radius: 20px; /* Ajuste selon le degré d'arrondi souhaité */</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset resource="img.qrc">
-            <normaloff>:/img/image-removebg-preview (3).png</normaloff>:/img/image-removebg-preview (3).png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>30</width>
-            <height>30</height>
-           </size>
           </property>
          </widget>
         </widget>
@@ -1980,38 +1809,6 @@ qproperty-iconSize: 52px 52px; /* Ajuste la taille de l'icône */
         <size>
          <width>52</width>
          <height>52</height>
-        </size>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="chat">
-       <property name="geometry">
-        <rect>
-         <x>790</x>
-         <y>160</y>
-         <width>51</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(227, 241, 244);
-font: 700 9pt &quot;Segoe UI&quot;;
-border: 2px solid black ; /* Ajoute une bordure */
-border-image-source: linear-gradient(to right, black, white); /* Définir le gradient */
-border-image-slice: 1; /* Permet d'appliquer le gradient sur toute la bordure */
-qproperty-iconSize: 30px 30px; /* Ajuste la taille de l'icône */
-border-radius: 20px; /* Ajuste selon le degré d'arrondi souhaité */</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="img.qrc">
-         <normaloff>:/img/image-removebg-preview (3).png</normaloff>:/img/image-removebg-preview (3).png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>30</width>
-         <height>30</height>
         </size>
        </property>
       </widget>

@@ -51,27 +51,7 @@ void OpenAIClient::envoyerRequete(const QString &question) {
     manager->post(request, QJsonDocument(json).toJson());
 }
 
-// 🔥 Fonction pour envoyer un message au chatbot
-void OpenAIClient::envoyerMessageChatbot(const QString &message) {
-    if (apiKey.isEmpty()) {
-        qDebug() << "Erreur : La clé API est manquante.";
-        return;
-    }
 
-    QNetworkRequest request((QUrl(apiUrl)));
-    request.setRawHeader("Authorization", "Bearer " + apiKey.toUtf8());
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-
-    QJsonObject json;
-    json["model"] = "gpt-3.5-turbo";
-
-    QJsonArray messages;
-    messages.append(QJsonObject{{"role", "system"}, {"content", "Tu es un chatbot capable de répondre aux questions sur les services proposés."}});
-    messages.append(QJsonObject{{"role", "user"}, {"content", message}});
-    json["messages"] = messages;
-
-    manager->post(request, QJsonDocument(json).toJson());
-}
 
 void OpenAIClient::onReplyFinished(QNetworkReply *reply) {
     if (reply->error() != QNetworkReply::NoError) {
@@ -112,15 +92,11 @@ void OpenAIClient::onReplyFinished(QNetworkReply *reply) {
         emit requeteSQLPr(responseText);
     }
     // Vérifier si la réponse est une description de service
-    else if (responseText.contains("Découvrez") || responseText.contains("hebdomadaire") || responseText.contains("actif") || responseText.contains("Profitez")  ) {
+    else {
         qDebug() << "Description générée : " << responseText;
         emit descriptionGeneree(responseText);
     }
-    // Sinon, c'est une réponse du chatbot
-    else {
-        qDebug() << "Réponse chatbot : " << responseText;
-        emit chatbotResponse(responseText);
-    }
+
 
     reply->deleteLater();
 }

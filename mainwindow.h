@@ -8,7 +8,7 @@
 #include <QSqlError>
 #include <QSqlQueryModel>
 #include <qtextedit.h>
-
+#include <QProcess>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -56,7 +56,7 @@ private slots:
     // Slot pour l'effet de survol et d'avancement des boutons de navigation
     void onEnterNavigationButton();
     void onLeaveNavigationButton();
-    void filtrerServicesParStatut(const QString &statut);
+   // void filtrerServicesParStatut(const QString &statut);
     void trierServices();
     void on_saveButton_clicked();
     void rechercherService(const QString &searchText);
@@ -67,6 +67,8 @@ private slots:
     void on_lineEdit_id_textChanged(const QString &text);
     void on_lineEdit_id_textChanged2(const QString &text);
     void on_btnVoix_clicked();
+    void readVoiceOutput();
+    void processVoiceFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
 
@@ -79,6 +81,9 @@ private:
     OpenAIClient *openAIClient;
     Ui::MainWindow *ui;
     QTextEdit *textBrowserReponse;  // Déclaration du QTextBrowser
+    QProcess *process = nullptr;
+    QString bufferOutput;
+
 
 
 };
