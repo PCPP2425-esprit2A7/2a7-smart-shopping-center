@@ -2,6 +2,7 @@
 #include <QApplication>
 #include <QMessageBox>
 #include "connexion.h"
+//#include "arduinocommunication.h"
 
 int main(int argc, char *argv[])
 {
@@ -16,12 +17,15 @@ int main(int argc, char *argv[])
                                              "Click Cancel to exit."), QMessageBox::Cancel);
 
     }
-    else
+    else{
         QMessageBox::critical(nullptr, QObject::tr("database is not open"),
                               QObject::tr("connection failed.\n"
-                                          "Click Cancel to exit."), QMessageBox::Cancel);
-
-
-
+                                          "Click Cancel to exit."), QMessageBox::Cancel);}
+    /*ArduinoCommunication arduino;
+    QString portName = "COM3"; // Assurez-vous que c'est le bon port
+    if (!arduino.openSerialPort(portName)) {
+        qDebug() << "Erreur ouverture port série";
+        return 1;
+    }*/
     return a.exec();
 }

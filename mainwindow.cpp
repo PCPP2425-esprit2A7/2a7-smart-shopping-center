@@ -1,9 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "event.h"
-#include "dialog.h"
-#include <QMessageBox>
-#include <QTabBar>  // Ajouté pour éviter l'erreur
+#include <QMessageBox>  // Ajouté pour éviter l'erreur
 #include <QDebug>   // Pour utiliser qDebug()
 #include <QFileDialog>
 #include <QMessageBox>
@@ -27,7 +25,15 @@
 #include <QTableWidget>
 #include "connexion.h"
 #include <QPrinter>
-
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QCheckBox>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QFile>
+#include <QTextStream>
+#include <QProcess>
+#include <QTabBar>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -35,27 +41,54 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->searchText->setPlaceholderText("🔎 Rechercher ...");
+
+    todoModel = new QStandardItemModel(this);
+    todoModel->setColumnCount(3);
+    todoModel->setHorizontalHeaderLabels(QStringList() << "✔" << "Tâche" << "Statut");
+
+    ui->table_todo->setModel(todoModel);
+    ui->table_todo->horizontalHeader()->setStretchLastSection(true);
+    ui->table_todo->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->table_todo->setAlternatingRowColors(true);
+    ui->table_todo->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->table_todo->verticalHeader()->setVisible(false);
+    ui->table_todo->horizontalHeader()->setStretchLastSection(true);
+    ui->table_todo->setStyleSheet(R"(
+    QTableView {
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 14px;
+        background-color: #f4f6f7;
+        alternate-background-color: #e3e9ed;
+        gridline-color: #d0d7de;
+    }
+    QHeaderView::section {
+        background-color: #dbe5eb;
+        padding: 6px;
+        border: 1px solid #c2cfd6;
+        font-weight: bold;
+    }
+)");
+
+
+    Connection c;
+    c.createconnect();
     tablewidget=new QTableWidget();
     model = new QSqlTableModel(this);
     model->setTable("evenements"); // Remplace "evenements" par le nom correct de ta table
     model->select();
     ui->tableView->setModel(model);
-    // Initialisation de l'interface
-    //statModel = new QSqlQueryModel(this);
-
-    afficherEvenement();
 
     //connect(ui->pushButton_choisirImage, &QPushButton::clicked, this, &MainWindow::on_pushButton_choisirImage_clicked);
-    connect(ui->liste, &QPushButton::clicked, this, &MainWindow::afficherEvenement);
-    connect(ui->btnDialog, &QPushButton::clicked, this, &MainWindow::on_btnDialog_clicked);
-    connect(ui->stat, &QPushButton::clicked, this, &MainWindow::afficherStatistiques);
-    connect(ui->btn_trierDate, &QPushButton::clicked, this, &MainWindow::on_btn_trierDate_clicked);
+    connect(ui->liste_ev, &QPushButton::clicked, this, &MainWindow::afficherEvenement);
+    connect(ui->stat_ev, &QPushButton::clicked, this, &MainWindow::afficherStatistiques);
+    connect(ui->btn_trierDate_ev, &QPushButton::clicked, this, &MainWindow::on_btn_trierDate_clicked);
     connect(ui->searchText, &QLineEdit::textChanged, this, &MainWindow::rechercherevenement);
+    connect(ui->table_todo, &QTableView::clicked, this, &MainWindow::on_table_todo_clicked);
+
 
     // Initialiser le modèle pour afficher les événements dans le QListView
     eventModel = new QStringListModel(this);// listViewEvents doit être l'objet QListView dans ton UI
-
-
 
 
 
@@ -64,17 +97,17 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tabWidget->tabBar()->hide();
 
     // Connexion des boutons pour changer d'onglet
-    connect(ui->liste, &QPushButton::clicked, this, [=]() {
+    connect(ui->liste_ev, &QPushButton::clicked, this, [=]() {
         ui->tabWidget->setCurrentIndex(1);
         qDebug() << "Passage à l'onglet Ajout";
     });
 
-    connect(ui->ajout, &QPushButton::clicked, this, [=]() {
+    connect(ui->ajout_ev, &QPushButton::clicked, this, [=]() {
         ui->tabWidget->setCurrentIndex(0);
         qDebug() << "Retour à l'onglet Affichage";
     });
 
-    connect(ui->stat, &QPushButton::clicked, this, [=]() {
+    connect(ui->stat_ev, &QPushButton::clicked, this, [=]() {
         ui->tabWidget->setCurrentIndex(2);
         qDebug() << "Passage à l'onglet Statistiques";
     });
@@ -82,20 +115,42 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->tabWidget->setCurrentIndex(3);
         qDebug() << "Passage à l'onglet Statistiques";
     });
+    connect(ui->todo, &QPushButton::clicked, this, [=]() {
+        ui->tabWidget->setCurrentIndex(6);
+        qDebug() << "Passage à l'onglet TODO";
+    });
 
     openAIClient = new OpenAIClient(this);
     connect(openAIClient, &OpenAIClient::reponseRecue, this, [](const QString &reponse) {
         qDebug() << "Réponse du chatbot : " << reponse;
     });
-    connect(ui->btnEnvoyer, &QPushButton::clicked, this, [=]() {
+    connect(ui->btnEnvoyer_ev, &QPushButton::clicked, this, [=]() {
         QString question = ui->lineEditQuestion->text();
         openAIClient->envoyerRequete(question);
     });
     connect(openAIClient, &OpenAIClient::reponseRecue, this, [=](const QString &reponse) {
 
+        QString stylesheet = "background-color: rgb(205, 239, 255); "
+                             "border: 1px solid #A0C4FF; "
+                             "border-radius: 16px; "
+                             "padding: 4px 8px; "
+                             "color: rgb(17, 35, 51); "
+                             "font-size: 12px; "
+                             "font-family: 'Arial Black', Arial, sans-serif; "
+                             "max-width: 400px; "
+                             "box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);";
 
-        QString stylesheet="background-color: rgb(205, 239, 255); border-radius: 12px; padding-left: 6px;color:  rgb(17, 35, 51);font-size: 15px;font-family: Arial;";
-        QString stylesheet2="background-color: rgb(227, 241, 244); border-radius: 12px; padding-left: 6px;color: rgb(17, 35, 51);font-size: 15px;font-family: Arial;";
+        QString stylesheet2 = "background-color: rgb(227, 241, 244); "
+                              "border: 1px solid #BFD7EA; "
+                              "border-radius: 16px; "
+                              "padding: 4px 8px; "
+                              "color: rgb(17, 35, 51); "
+                              "font-size: 12px; "
+                              "font-family: 'Arial Black', Arial, sans-serif; "
+                              "max-width: 400px; "
+                              "box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.05);";
+
+
         ui->listWidget->setFrameShape(QFrame::NoFrame);
         addLabelToRightInListWidget(ui->listWidget, "\n"+ui->lineEditQuestion->text()+"\n",stylesheet,true,200);
         ui->lineEditQuestion->clear();
@@ -123,8 +178,7 @@ MainWindow::MainWindow(QWidget *parent) :
         "}";
 
 
-    Connection c;
-    c.createconnect();
+
     Evenement ev;
     QSqlQueryModel* model = ev.afficher();
 
@@ -133,9 +187,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
        copyTableViewToTableWidget(ui->tableView, tablewidget);
     // Appliquer le style à chaque bouton
-    ui->liste->setStyleSheet(buttonStyle);
-    ui->ajout->setStyleSheet(buttonStyle);
-    ui->stat->setStyleSheet(buttonStyle);
+    ui->liste_ev->setStyleSheet(buttonStyle);
+    ui->ajout_ev->setStyleSheet(buttonStyle);
+    ui->stat_ev->setStyleSheet(buttonStyle);
     ui->pushButton_choisirImage->setStyleSheet(buttonStyle);
 
 
@@ -291,10 +345,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_ajouter_button_clicked()
 {
-
     // Récupérer les valeurs des champs
     QString titre = ui->titrel->text();
-    //QString description = ui->deslwew->text(); // Utiliser text() pour QLineEdit
     QString description = ui->desl->toPlainText(); // Utiliser toPlainText() pour QTextEdit
     QDate dateDebut = ui->ddl->date();
     QDate dateFin = ui->dfl->date();
@@ -304,8 +356,17 @@ void MainWindow::on_ajouter_button_clicked()
     QString categorie = ui->catl->text(); // Utiliser text() pour QLineEdit
     QString type = ui->typl->text();  // Utiliser text() pour QLineEdit
     QString organisateur = ui->orgl->text();
-    int id_espace = ui->lieul->text().toInt(); // Ajout du champ lieu (assurez-vous que lieul existe dans l'UI)
-
+    int id_espace = ui->lieul->text().toInt();
+    QByteArray imageData;
+    if (!cheminImagePDP.isEmpty()) {
+        QFile file(cheminImagePDP);
+        if (file.open(QIODevice::ReadOnly)) {
+            imageData = file.readAll();
+            file.close();
+        } else {
+            QMessageBox::warning(this, "Erreur", "Impossible de lire l'image pour l'affiche.");
+        }    // Ajout du champ lieu (assurez-vous que lieul existe dans l'UI)
+    }
     // Contrôle des champs obligatoires
     if (titre.isEmpty() || description.isEmpty() || capacite <= 0 || prix <= 0 || statut.isEmpty() ||
         categorie.isEmpty() || type.isEmpty() || organisateur.isEmpty() || id_espace < 0) {
@@ -332,7 +393,7 @@ void MainWindow::on_ajouter_button_clicked()
     }
 
     // Créer l’objet Evenement avec les données validées
-    Evenement ev(titre, type, capacite, prix, description, dateDebut, dateFin, categorie, statut, organisateur, id_espace);
+    Evenement ev(titre, type, capacite, prix, description, dateDebut, dateFin, categorie, statut, organisateur, id_espace , imageData);
 
     // Appeler la méthode ajouter()
     if (ev.ajouter()) {
@@ -350,15 +411,29 @@ void MainWindow::on_pushButton_choisirImage_clicked()
     if (!filePath.isEmpty()) {
         QPixmap pixmap(filePath);
         if (!pixmap.isNull()) {
-            ui->affichel->setPixmap(pixmap);  // Utilise setPixmap pour un QLabel
-            ui->affichel->setScaledContents(true);  // Permet à l'image de s'adapter à la taille du QLabel
-            ui->affichel->setFixedSize(150, 150);  // Fixe la taille du QLabel à 150x150
+            // Affichage dans l'interface
+            ui->affichel->setPixmap(pixmap);
+            ui->affichel->setScaledContents(true);
+            ui->affichel->setFixedSize(150, 150);
             cheminImagePDP = filePath;
+
+            // Lecture du fichier image en QByteArray
+            QFile file(filePath);
+            if (file.open(QIODevice::ReadOnly)) {
+                QByteArray imageData = file.readAll();
+                file.close();
+
+                // Transférer l'image à l'objet Evenement (exemple ici avec un membre evenementCourant)
+                evenementCourant.setAffiche(imageData); // Assure-toi d'avoir ce setter dans Evenement
+            } else {
+                QMessageBox::warning(this, "Erreur", "Impossible de lire le fichier image.");
+            }
         } else {
             QMessageBox::warning(this, "Erreur", "Impossible de charger l'image.");
         }
     }
 }
+
 void MainWindow::afficherEvenement() {
     Evenement ev;
     QSqlQueryModel* model = ev.afficher();
@@ -397,7 +472,7 @@ void MainWindow::afficherEvenement() {
 }
 
 
-void MainWindow::on_supprimer_clicked()
+void MainWindow::on_supprimer_event_clicked()
 {
     QModelIndex index = ui->tableView->currentIndex();
     if (!index.isValid()) {
@@ -425,36 +500,100 @@ void MainWindow::on_supprimer_clicked()
     }
 }
 
-void MainWindow::on_btnDialog_clicked()
+void MainWindow::chargerDetailsEvenement(int eventId)
 {
-    // Récupérer le modèle de sélection de la table
+    Evenement event;
+    if (event.loadById(eventId)) {
+        ui->modif_titre->setText(event.getTitre());
+        ui->modif_type->setText(event.getType());
+        ui->modif_capacite->setText(QString::number(event.getCapacite())); // ✅ CORRECT
+        ui->modif_prix->setValue(event.getPrix());
+        ui->modif_description->setPlainText(event.getDescription());
+        ui->modif_dateDebut->setDate(event.getDateDebut());
+        ui->modif_dateFin->setDate(event.getDateFin());
+        ui->modif_categorie->setText(event.getCategorie());
+        ui->modif_statut->setCurrentText(event.getStatut());
+        ui->modif_organisateur->setText(event.getOrganisateur());
+        ui->modif_lieu->setText(QString::number(event.getid_espace()));
+
+        QString affichePath = event.getAffiche();
+        if (!affichePath.isEmpty()) {
+            QPixmap pixmap;
+            if (pixmap.load(affichePath)) {
+                ui->pushButton_affiche->setIcon(QIcon(pixmap));
+                ui->pushButton_affiche->setIconSize(QSize(150, 150));            }
+        }
+
+        idEvenementAModifier = eventId;
+        ui->tabWidget->setCurrentIndex(4); // aller à la page 5
+    }
+}
+
+void MainWindow::on_pushButton_save_modif_clicked()
+{
+    if (idEvenementAModifier == -1) return;
+
+    Evenement evenement;
+    int capacite = ui->modif_capacite->text().toDouble();
+    double prix = ui->modif_prix->value();
+    int lieu = ui->modif_lieu->text().toInt();
+
+    if (ui->modif_dateFin->date() <= ui->modif_dateDebut->date()) {
+        QMessageBox::warning(this, "Erreur", "La date de fin doit être postérieure à la date de début.");
+        return;
+    }
+
+    if (evenement.modifier(idEvenementAModifier,
+                           ui->modif_titre->text(),
+                           ui->modif_type->text(),
+                           capacite,
+                           prix,
+                           ui->modif_description->toPlainText(),
+                           ui->modif_dateDebut->date().toString("dd-MM-yy"),
+                           ui->modif_dateFin->date().toString("dd-MM-yy"),
+                           ui->modif_categorie->text(),
+                           ui->modif_statut->currentText(),
+                           ui->modif_organisateur->text(),
+                           lieu)) {
+        ui->tabWidget->setCurrentIndex(1);
+        afficherEvenement();
+        QMessageBox::information(this, "Succès", "Événement modifié avec succès.");
+    } else {
+        QMessageBox::critical(this, "Erreur", "Échec de la modification.");
+    }
+}
+
+void MainWindow::on_pushButton_modif_affiche_clicked()
+{
+    QString filePath = QFileDialog::getOpenFileName(this, "Choisir une image", "", "Images (*.png *.jpg *.jpeg *.bmp)");
+
+    if (!filePath.isEmpty()) {
+        QPixmap pixmap(filePath);
+        if (!pixmap.isNull()) {
+            ui->pushButton_affiche->setIcon(QIcon(pixmap));
+            ui->pushButton_affiche->setIconSize(QSize(150, 150));
+            // ✅ En option : sauvegarde du chemin de l’image
+            // evenemnt.setAffiche(filePath);  ← À gérer si tu veux stocker l'image
+        } else {
+            QMessageBox::warning(this, "Erreur", "Image invalide.");
+        }
+    }
+}
+
+void MainWindow::on_btnUpdate_ev_clicked()
+{
     QItemSelectionModel *select = ui->tableView->selectionModel();
     QModelIndexList selectedRows = select->selectedRows();
 
-    // Vérifier si une ligne est sélectionnée
     if (selectedRows.isEmpty()) {
-        QMessageBox::warning(this, "Erreur", "Veuillez sélectionner un service à modifier.");
+        QMessageBox::warning(this, "Erreur", "Veuillez sélectionner un événement à modifier.");
         return;
     }
 
-    // Récupérer l'ID du service sélectionné depuis la première colonne
-    int idEvent = selectedRows.first().data().toInt();
-
-    // Vérifier que l'ID est valide
-    if (idEvent <= 0) {
-        QMessageBox::warning(this, "Erreur", "ID invalide pour le service.");
-        return;
-    }
-
-    // Ouvrir la fenêtre de modification avec l'ID du service
-    Dialog dialog(idEvent, this);
-
-    // Afficher le dialogue pour permettre la modification
-    if (dialog.exec() == QDialog::Accepted) {
-        // Si le dialogue est validé, effectuer des actions supplémentaires si nécessaire
-        // Par exemple, recharger ou rafraîchir les données de la table
-    }
+    int eventId = selectedRows.first().siblingAtColumn(0).data().toInt(); // colonne 0 = ID
+    chargerDetailsEvenement(eventId);  // Ouvre page 5 avec détails remplis
 }
+
 
 
 
@@ -487,7 +626,7 @@ QList<QList<QString>> MainWindow::getEventData() {
 }
 
 
-void MainWindow::on_pdf_clicked()
+void MainWindow::on_pdf_ev_clicked()
 {
     QString filePath = QFileDialog::getSaveFileName(this, "Exporter en PDF", "", "PDF Files (*.pdf)");
     if (filePath.isEmpty()) {
@@ -594,6 +733,7 @@ void MainWindow::on_pdf_clicked()
 
     painter.end();
     QMessageBox::information(this, "Succès", "Le fichier PDF a été généré avec succès !");
+    QDesktopServices::openUrl(QUrl::fromLocalFile(filePath));
 }
 
 
@@ -773,14 +913,18 @@ void MainWindow::on_historique_clicked()
 
     painter.end();
     QMessageBox::information(this, "Succès", "Le fichier PDF a été généré avec succès !");
+    QDesktopServices::openUrl(QUrl::fromLocalFile(filePath));
 }
+
 
 
 void MainWindow::on_btn_trierDate_clicked() {
     // Récupérer l'index de la colonne sélectionnée
+    //1. Récupérer l’index de la colonne sélectionnée
     int columnIndex = ui->tableView->currentIndex().column();
 
     // Vérifier si aucune colonne n'est sélectionnée
+    //2. Vérifier si aucune colonne n’est sélectionnée
     if (columnIndex < 0) {
         QMessageBox::warning(this, "Tri impossible", "Veuillez choisir une colonne à trier !");
         return; // Arrêter la fonction si aucune colonne n'est sélectionnée
@@ -789,6 +933,7 @@ void MainWindow::on_btn_trierDate_clicked() {
     qDebug() << "Tri en cours sur la colonne : " << columnIndex;
 
     // Vérifier si un proxyModel existe déjà
+    //Créer un QSortFilterProxyModel si besoin
     QSortFilterProxyModel *proxyModel = qobject_cast<QSortFilterProxyModel *>(ui->tableView->model());
     if (!proxyModel) {
         // Si aucun proxyModel n'existe, on en crée un
@@ -1227,39 +1372,6 @@ int nombreLabels = labels.size();
             qDebug() << "❌ Format non reconnu";
         }
 
-        /*QRegularExpression re("^[A-Za-z]+(\\d{2})(\\d{1})/(\\d{4})$"); // Jour : 2 chiffres, Mois : 1 chiffre
-        QRegularExpressionMatch match = re.match(input);
-
-        if (match.hasMatch()) {
-            int day = match.captured(1).toInt();     // "12"
-            int month = match.captured(2).toInt();   // "4"
-            int year = match.captured(3).toInt();    // "2025"
-
-            QDate date(year, month, day);
-            Evenement ev;
-            query = ev.getEvenementByDate(date);
-            while(!query.next()){date=date.addDays(-1);query = ev.getEvenementByDate(date);}
-            ui->titrel_3->setText(query.value("TITRE").toString());
-            ui->desl_3->setPlainText(query.value("DESCRIPTION").toString());
-            ui->ddl_3->setDate(query.value("DATE_DEB").toDate());
-            ui->dfl_3->setDate(query.value("DATE_FIN").toDate());
-            ui->capl_3->setText(query.value("CAPACITE").toString());
-            ui->prixl_3->setValue(query.value("PRIX").toDouble());
-            ui->statusl_3->setCurrentText(query.value("STATUT").toString());
-            ui->catl_3->setText(query.value("CATEGORIE").toString());
-            ui->typl_3->setText(query.value("TYPE").toString());
-            ui->orgl_3->setText(query.value("ORGANISATEUR").toString());
-            ui->lieul_3->setText(query.value("ID_ESPACE").toString());
-
-            if (date.isValid()) {
-                qDebug() << "✅ Date convertie :" << date.toString("dd/MM/yyyy");
-            } else {
-                qDebug() << "❌ Date invalide";
-            }
-        } else {
-            qDebug() << "❌ Format non reconnu";
-        }*/
-
     }
 
 
@@ -1268,11 +1380,10 @@ int nombreLabels = labels.size();
 }
 
 
-void MainWindow::on_planifier_clicked()
+void MainWindow::on_planifier_clicked() //valider la planification
 {
     ui->groupBox_6moez_2->hide();
     QString titre = ui->titrel_3->text();
-    //QString description = ui->deslwew->text(); // Utiliser text() pour QLineEdit
     QString description = ui->desl_3->toPlainText(); // Utiliser toPlainText() pour QTextEdit
     QDate dateDebut = ui->ddl_3->date();
     QDate dateFin = ui->dfl_3->date();
@@ -1282,7 +1393,8 @@ void MainWindow::on_planifier_clicked()
     QString categorie = ui->catl_3->text(); // Utiliser text() pour QLineEdit
     QString type = ui->typl_3->text();  // Utiliser text() pour QLineEdit
     QString organisateur = ui->orgl_3->text();
-    int id_espace = ui->lieul_3->text().toInt(); // Ajout du champ lieu (assurez-vous que lieul existe dans l'UI)
+    int id_espace = ui->lieul_3->text().toInt();
+
 
     // Contrôle des champs obligatoires
     if (titre.isEmpty() || description.isEmpty() || capacite <= 0 || prix <= 0 || statut.isEmpty() ||
@@ -1310,17 +1422,18 @@ void MainWindow::on_planifier_clicked()
     }
 
     // Créer l’objet Evenement avec les données validées
-    Evenement ev(titre, type, capacite, prix, description, dateDebut, dateFin, categorie, statut, organisateur, id_espace);
+    Evenement ev(titre, type, capacite, prix, description, dateDebut, dateFin,
+                 categorie, statut, organisateur, id_espace);
+
 
     // Appeler la méthode ajouter()
     if (ev.ajouter()) {
         QMessageBox::information(this, "Succès", "Événement ajouté avec succès !");
         afficherEvenement();
         ui->calendrier_2->clearContents();
-        //currentdate=currentdate.addMonths(-1);
-        //ui->calendrier_2->clearContents();
+
         int verif=0;
-        QDate datee=currentdate;
+        //SQDate datee=currentdate;
         QDate firstDayOfMonth(currentdate.year(), currentdate.month(), 1);
         QDate datelable(currentdate);
         ui->label->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
@@ -1451,7 +1564,7 @@ void MainWindow::on_planifier_clicked()
     }
 }
 
-void MainWindow::on_supprimer_ev_clicked()
+void MainWindow::on_supprimer_ev_clicked() //supprimer l'evenement du calendrier
 {
 
     ui->groupBox_6moez_2->hide();
@@ -1461,10 +1574,8 @@ void MainWindow::on_supprimer_ev_clicked()
         // Rafraîchir l'affichage après suppression
         afficherEvenement();
         ui->calendrier_2->clearContents();
-        //currentdate=currentdate.addMonths(-1);
-        //ui->calendrier_2->clearContents();
         int verif=0;
-        QDate datee=currentdate;
+        //QDate datee=currentdate;
         QDate firstDayOfMonth(currentdate.year(), currentdate.month(), 1);
         QDate datelable(currentdate);
         ui->label->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
@@ -1595,102 +1706,13 @@ void MainWindow::on_supprimer_ev_clicked()
 }
 
 
-
-
-
-void MainWindow::on_ticket_clicked(){
-    // Vérifie si une ligne est sélectionnée
-    QModelIndexList selectedRows = ui->tableView->selectionModel()->selectedRows();
-if (selectedRows.isEmpty()) {
-    QMessageBox::warning(this, "Erreur", "Veuillez sélectionner un événement dans le tableau.");
-    return;
-}
-
-// Récupérer l'ID de l'événement sélectionné
-QModelIndex index = selectedRows.first();
-int row = index.row();
-qDebug() << "Contenu ligne sélectionnée :";
-
-// Afficher les données de la ligne sélectionnée
-for (int i = 1; i < model->columnCount(); ++i) {
-    qDebug() << "Colonne" << i << ":" << model->index(row, i).data().toString();
-}
-//query.next();
-// Récupérer les données de la ligne sélectionnée
-QString titre = query.value("TITRE").toString();
-QString dateDebut =query.value("DATE_DEB").toString(); // Date de début en colonne 2
-QString dateFin = query.value("DATE_FIN").toString(); ; // Date de fin en colonne 3
-QString prix =  query.value("PRIX").toString();  // Prix en colonne 4
-qDebug()<<"prix   :"<<prix;
-// Générer le contenu du ticket PDF
-QString contenu =
-    "<html>"
-    "<head>"
-    "<style>"
-    "body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }"
-    ".ticket-container { max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; padding: 30px; border: 1px solid #ccc; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }"
-    ".ticket-header { text-align: center; background-color: #4CAF50; color: white; padding: 15px; border-radius: 8px 8px 0 0; font-size: 24px; }"
-    ".ticket-content { margin-top: 20px; padding: 10px; }"
-    ".ticket-content p { font-size: 16px; line-height: 1.6; margin: 10px 0; }"
-    ".ticket-footer { margin-top: 20px; text-align: center; padding: 10px; font-size: 14px; background-color: #f1f1f1; border-radius: 0 0 8px 8px; }"
-    ".ticket-footer .note { font-style: italic; color: #777; }"
-    "</style>"
-    "</head>"
-    "<body>"
-    "<div class='ticket-container'>"
-    "<div class='ticket-header'>🎫 Ticket Événement</div>"
-    "<div class='ticket-content'>"
-    "<p><strong>Titre :</strong> " + titre +  "</p>"
-              "<p><strong>Date de début :</strong> " + dateDebut + "</p>"
-                  "<p><strong>Date de fin :</strong> " + dateFin + "</p>"
-                "<p><strong>Prix :</strong> " + prix + " DT</p>"
-             "</div>"
-             "<div class='ticket-footer'>"
-             "<p class='note'>Merci d'avoir choisi notre événement. Nous espérons que vous passerez un excellent moment !</p>"
-             "</div>"
-             "</div>"
-             "</body>"
-             "</html>";
-
-
-QTextDocument doc;
-doc.setHtml(contenu);
-
-// Choisir où enregistrer le fichier
-QString fileName = QFileDialog::getSaveFileName(this, "Enregistrer le ticket PDF", "", "PDF Files (*.pdf)");
-if (fileName.isEmpty())
-    return;
-
-// Configurer l'imprimante PDF
-QPrinter printer(QPrinter::PrinterResolution);
-printer.setOutputFormat(QPrinter::PdfFormat);
-printer.setOutputFileName(fileName);
-printer.setPageMargins(QMarginsF(15, 15, 15, 15));
-
-// Générer le PDF
-doc.print(&printer);
-
-QMessageBox::information(this, "Succès", "Le ticket a été généré avec succès !");
-QDesktopServices::openUrl(QUrl::fromLocalFile(fileName));
-}
-
-
-void MainWindow::on_todo_clicked()
-{
-
-}
-
-
-
-
-
-void MainWindow::on_valide_date_clicked()
+void MainWindow::on_valide_date_clicked() //pour la recherche de la date
 {
     ui->calendrier_2->clearContents();
     currentdate=ui->date->date();
     //ui->calendrier_2->clearContents();
     int verif=0;
-    QDate datee=currentdate;
+    //QDate datee=currentdate;
     QDate firstDayOfMonth(currentdate.year(), currentdate.month(), 1);
     QDate datelable(currentdate);
     ui->label->setText("    "+datelable.toString("dddd"));datelable=datelable.addDays(1);
@@ -1844,9 +1866,6 @@ void MainWindow::on_calendrier_clicked()
             QVBoxLayout *layout = new QVBoxLayout(container);
             //layout->addStretch();
             layout->addWidget(label3); // Espace flexible avant le label
-
-            // L'espace flexible après le label
-
             // Réinitialiser les marges du layout pour éviter l'espace inutile
             layout->setContentsMargins(0, 0, 0, 0);
 
@@ -1947,24 +1966,255 @@ void MainWindow::on_calendrier_clicked()
         }}}
 
 
-void MainWindow::on_tableView_activated(const QModelIndex &index)
+void MainWindow::on_todo_ok_clicked()
 {
-    int eventId = ui->tableView->model()->data(ui->tableView->model()->index(index.row(), 0)).toInt();
-    qDebug()<<eventId;
-    Evenement ev;
-    query = ev.getEvenementID(eventId);
+    ui->write_todo->setStyleSheet(R"(
+    QTextEdit {
+        background-color: #f4f6f7;
+        border: 1px solid #c2cfd6;
+        border-radius: 8px;
+        padding: 8px;
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 14px;
+        color: #1c1c1c;
+    }
+    QTextEdit:focus {
+        border: 1px solid #0078d4;
+        background-color: #ffffff;
+    }
+)");
+
+    QString taskText = ui->write_todo->toPlainText().trimmed();
+    if (taskText.isEmpty()) return;
+
+    // ✅ Vraie checkbox cliquable
+    QStandardItem *checkItem = new QStandardItem();
+    checkItem->setCheckable(true);
+    checkItem->setCheckState(Qt::Unchecked);
+    checkItem->setEditable(false);
+
+    // 📝 Texte de la tâche
+    QStandardItem *taskItem = new QStandardItem(taskText);
+    taskItem->setEditable(false);
+
+    // 🔴 Statut : Pas encore fait (rouge)
+    QStandardItem *statusItem = new QStandardItem("Pas encore fait");
+    statusItem->setEditable(false);
+    statusItem->setForeground(QBrush(QColor("#c62828")));  // rouge
+
+    QList<QStandardItem*> rowItems;
+    rowItems << checkItem << taskItem << statusItem;
+    todoModel->appendRow(rowItems);
+
+    ui->write_todo->clear();
+}
+
+void MainWindow::on_table_todo_clicked(const QModelIndex &index)
+{
+    if (index.column() == 0) {
+        QStandardItem *checkItem = todoModel->item(index.row(), 0);
+        QStandardItem *statusItem = todoModel->item(index.row(), 2);
+
+        bool isChecked = (checkItem->checkState() == Qt::Checked);
+
+        if (isChecked) {
+            checkItem->setCheckState(Qt::Unchecked);
+            statusItem->setText("Pas encore fait");
+            statusItem->setForeground(QBrush(QColor("#c62828")));  // rouge
+        } else {
+            checkItem->setCheckState(Qt::Checked);
+            statusItem->setText("Fait");
+            statusItem->setForeground(QBrush(QColor("#2e7d32")));  // vert
+        }
+    }
+}
+
+
+void MainWindow::on_btnVoix_ev_clicked()
+{
+    // Nettoie une ancienne instance si elle existe
+    if (process) {
+        process->kill();
+        process->deleteLater();
+    }
+
+    process = new QProcess(this);
+
+    connect(process, &QProcess::readyReadStandardOutput, this, &MainWindow::readVoiceOutput);
+    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            this, &MainWindow::processVoiceFinished);
+    connect(process, &QProcess::errorOccurred, this, [](QProcess::ProcessError error){
+        qDebug() << "Erreur du processus :" << error;
+    });
+
+    QString scriptPath = "C:/Users/TIR ELLIL/Documents/event/voice_recognizer.py";
+    process->start("python", QStringList() << scriptPath);
+
+    if (!process->waitForStarted()) {
+        qDebug() << "Échec du démarrage du script.";
+    }
+}
+void MainWindow::readVoiceOutput()
+{
+    bufferOutput += process->readAllStandardOutput();
+}
+
+void MainWindow::processVoiceFinished(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    QString finalOutput = bufferOutput.trimmed();
+    qDebug() << "Texte reconnu :" << finalOutput;
+
+    if (!finalOutput.isEmpty()) {
+        ui->lineEditQuestion->setText(finalOutput);
+    } else {
+        ui->lineEditQuestion->setPlaceholderText("Aucune voix détectée");
+    }
+
+    process->deleteLater();
+    process = nullptr;
+    bufferOutput.clear();
+}
 
 
 
+
+void MainWindow::on_ticket_clicked()
+{
+    QModelIndex currentIndex = ui->tableView->currentIndex();
+
+    if (!currentIndex.isValid()) {
+        QMessageBox::warning(this, "Sélection requise", "Veuillez sélectionner un événement.");
+        return;
+    }
+
+    int row = currentIndex.row();
+    QAbstractItemModel* model = ui->tableView->model();
+
+    QString id = model->index(row, 0).data().toString(); // colonne 0 = ID
+
+    QSqlQuery query;
+    query.prepare("SELECT TITRE, DATE_DEB, DATE_FIN, PRIX, ID_ESPACE FROM EVENEMENT WHERE ID = :id");
+    query.bindValue(":id", id);
+
+    if (query.exec() && query.next()) {
+        QString titre = query.value(0).toString();
+        QString date_deb = query.value(1).toString();
+        QString date_fin = query.value(2).toString();
+        QString prix = query.value(3).toString();
+        QString id_espace = query.value(4).toString();
+
+        QString scriptPath = "python";
+        QString scriptFile = "C:/Users/TIR ELLIL/Documents/event/generate_ticket.py";
+
+        QStringList arguments;
+        arguments << scriptFile << titre << date_deb << date_fin << prix << id_espace;
+
+        QProcess *process = new QProcess(this);
+        process->start(scriptPath, arguments);
+
+        connect(process, &QProcess::readyReadStandardOutput, [process]() {
+            QString output = process->readAllStandardOutput();
+            qDebug() << "Ticket généré:\n" << output;
+        });
+
+        connect(process, &QProcess::readyReadStandardError, [process]() {
+            qDebug() << "Erreur Python:" << process->readAllStandardError();
+        });
+
+    } else {
+        qDebug() << "Événement non trouvé";
+    }
+}
+
+
+
+
+void MainWindow::on_voiraffiche_clicked()
+{
+    // Obtenir l'index de la ligne sélectionnée dans le QTableView
+    QModelIndexList selectedRows = ui->tableView->selectionModel()->selectedRows();
+    if (selectedRows.isEmpty()) {
+        QMessageBox::warning(this, "Aucune sélection", "Veuillez sélectionner un événement dans la table.");
+        return;
+    }
+
+    int selectedRow = selectedRows.first().row();
+
+    // Récupérer les données de la ligne sélectionnée - CORRECTION: colonne 0 pour le TITRE
+    QString titre = ui->tableView->model()->data(ui->tableView->model()->index(selectedRow, 1)).toString(); // colonne 1 : TITRE
+
+    qDebug() << "Titre sélectionné : " << titre;
+
+    // Le reste du code reste inchangé...
+    QSqlQuery query;
+    query.prepare("SELECT ID, AFFICHE FROM EVENEMENT WHERE TITRE = :titre");
+    query.bindValue(":titre", titre);
+
+    if (!query.exec()) {
+        qDebug() << "Erreur SQL : " << query.lastError().text();
+        QMessageBox::critical(this, "Erreur", "Impossible de récupérer l'affiche depuis la base.");
+        return;
+    }
+
+    if (!query.next()) {
+        qDebug() << "Aucun événement trouvé avec ce titre.";
+        QMessageBox::critical(this, "Erreur", "Aucun événement trouvé avec ce titre.");
+        return;
+    }
+
+    int eventId = query.value(0).toInt();
+    QByteArray imageData = query.value(1).toByteArray();
+
+    qDebug() << "Taille de l'affiche récupérée : " << imageData.size();
+
+    if (imageData.isEmpty()) {
+        QMessageBox::information(this, "Aucune affiche", "Cet événement n'a pas d'affiche.");
+        return;
+    }
+
+    QPixmap pixmap;
+    if (!pixmap.loadFromData(imageData)) {
+        qDebug() << "Erreur de chargement de l'image à partir des données.";
+        QMessageBox::critical(this, "Erreur", "Impossible de charger l'affiche depuis les données.");
+        return;
+    }
+
+    QDialog *dialog = new QDialog(this);
+    dialog->setWindowTitle("Aperçu de l'affiche");
+    dialog->setMinimumSize(500, 600);
+    dialog->setStyleSheet("background-color: #fdfdfd; border: 1px solid #ccc; border-radius: 10px;");
+
+    // Titre de l’événement
+    QLabel *titreLabel = new QLabel(titre, dialog);
+    titreLabel->setAlignment(Qt::AlignCenter);
+    titreLabel->setStyleSheet("font-size: 20px; font-weight: bold; color: #333; margin-bottom: 15px;");
+
+    // Affiche
+    QLabel *imageLabel = new QLabel(dialog);
+    imageLabel->setPixmap(pixmap.scaled(450, 450, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    imageLabel->setAlignment(Qt::AlignCenter);
+    imageLabel->setStyleSheet("border: 1px solid #ddd;");
+
+    // Bouton Fermer
+    QPushButton *closeButton = new QPushButton("Fermer", dialog);
+    closeButton->setFixedWidth(100);
+    closeButton->setStyleSheet("padding: 8px 16px; font-size: 14px;");
+    connect(closeButton, &QPushButton::clicked, dialog, &QDialog::accept);
+
+    // Layout principal
+    QVBoxLayout *layout = new QVBoxLayout(dialog);
+    layout->addWidget(titreLabel);
+    layout->addWidget(imageLabel);
+    layout->addSpacing(10);
+    layout->addWidget(closeButton, 0, Qt::AlignCenter);
+
+    dialog->setLayout(layout);
+    dialog->exec();
 
 }
 
 
-void MainWindow::on_tableView_clicked(const QModelIndex &index)
-{
-    int eventId = ui->tableView->model()->data(ui->tableView->model()->index(index.row(), 0)).toInt();
-    qDebug()<<eventId;
-    Evenement ev;
-    query = ev.getEvenementID(eventId);
-}
+
+
+
 

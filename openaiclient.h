@@ -10,9 +10,12 @@ class OpenAIClient : public QObject {
 public:
     explicit OpenAIClient(QObject *parent = nullptr);
     void envoyerRequete(const QString &question);
+     void genererImage(const QString &prompt);  // <<==== AJOUTE CETTE LIGNE
 
 signals:
     void reponseRecue(QString response);
+    void imageGeneree(const QString &imageUrl);
+
 
 private slots:
     void onReplyFinished(QNetworkReply *reply);

@@ -3,7 +3,8 @@ QT += core gui sql \
        printsupport \
        charts \
        network \
-       widgets
+       widgets \
+       serialport
 
 CONFIG += c++17
 
@@ -12,24 +13,23 @@ CONFIG += c++17
 # DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    arduinocommunication.cpp \
     calendrier.cpp \
     connexion.cpp \
-    dialog.cpp \
     event.cpp \
     main.cpp \
     mainwindow.cpp \
     openaiclient.cpp
 
 HEADERS += \
+    arduinocommunication.h \
     calendrier.h \
     connexion.h \
-    dialog.h \
     event.h \
     mainwindow.h \
     openaiclient.h
 
 FORMS += \
-    dialog.ui \
     mainwindow.ui
 
 
@@ -42,4 +42,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 RESOURCES += \
     resss.qrc \
     img.qrc
+
+DISTFILES += \
+    generate_ticket.py \
+    voice_recognizer.py
 

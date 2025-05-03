@@ -45,6 +45,11 @@
         <file>../../Downloads/5582334.png</file>
         <file>../../Downloads/337946.png</file>
         <file>../../Downloads/786401.png</file>
+        <file>../../Downloads/imagegenerator.jpg</file>
+        <file>../../Downloads/stat.png</file>
+        <file>../../Downloads/liste.png</file>
+        <file>../../Downloads/ajout.png</file>
+        <file>../../Downloads/affichtaaa.png</file>
     </qresource>
     <qresource prefix="/">
         <file>../../Downloads/18926930-conception-d-icone-de-formulaire-gratuit-vectoriel-removebg-preview.png</file>
@@ -73,5 +78,12 @@
         <file>../../Downloads/5253543.png</file>
         <file>../../Downloads/logo_final-removebg-preview.png</file>
         <file>../../Downloads/business-to-do-list-flat-icon-modern-style-vector-removebg-preview.png</file>
+        <file>../../Downloads/calendar-date-vector-flat-icon-png-7017516949739211umvfiwzkw-removebg-preview.png</file>
+        <file>../../Downloads/g.png</file>
+        <file>../../Downloads/d.png</file>
+        <file>../../Downloads/saffbot_temp_transparent-removebg-preview.png</file>
+        <file>../../Downloads/voice-assistant-icon-style-vector.jpg</file>
+        <file>../../Downloads/voice-assistant-icon-style-vector-removebg-preview.png</file>
+        <file>../../Downloads/3721812.png</file>
     </qresource>
 </RCC>

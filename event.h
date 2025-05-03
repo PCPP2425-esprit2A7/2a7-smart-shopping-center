@@ -15,7 +15,7 @@ private:
     QString type;
     int capacite;
     double prix;
-    QString affiche;
+    QByteArray affiche;
     QString description;
     QDate date_debut;
     QDate date_fin;
@@ -24,13 +24,14 @@ private:
     QString organisateur;
     int id_espace; // Jointure avec espace
 
+
 public:
     // Constructeurs
     Evenement() {}
 
     Evenement( QString titre, QString type, int capacite, double prix,
               QString description, QDate date_debut, QDate date_fin, QString categorie,
-              QString statut, QString organisateur,int id_espace )
+              QString statut, QString organisateur,int id_espace ,QByteArray affiche = QByteArray() )
     {
 
         this->titre = titre;
@@ -44,6 +45,7 @@ public:
         this->statut = statut;
         this->organisateur = organisateur;
         this->id_espace = id_espace;
+        this->affiche = affiche;  // ✅ ajout de l'affiche
     }
     ~Evenement() {}
 
@@ -53,7 +55,7 @@ public:
     QString getType() const { return type; }
     int getCapacite() const { return capacite; }
     double getPrix() const { return prix; }
-    QString getAffiche() const { return affiche; }
+    QByteArray getAffiche() const { return affiche; }
     QString getDescription() const { return description; }
     QDate getDateDebut() const { return date_debut; }
     QDate getDateFin() const { return date_fin; }
@@ -90,25 +92,12 @@ public:
     bool modifier(int id, const QString &titre, const QString &type, int capacite, double prix,
                   const QString &description, const QString &dateDebut,
                   const QString &dateFin, const QString &categorie, const QString &statut,
-                  const QString &organisateur ,const int &id_espace);
+                  const QString &organisateur ,const int &id_espace );
     QSqlQuery getEvenementByDate(const QDate& date)
     {
         QSqlQuery query;
         query.prepare("SELECT * FROM EVENEMENT WHERE DATE_DEB = :date");
         query.bindValue(":date", date); // QDate sera converti automatiquement
-
-        if (!query.exec()) {
-            qDebug() << "Erreur SQL:" << query.lastError().text();
-        }
-
-
-        return query;
-    }
-    QSqlQuery getEvenementID(int id)
-    {
-        QSqlQuery query;
-        query.prepare("SELECT * FROM EVENEMENT WHERE ID = :id");
-        query.bindValue(":id", id); // QDate sera converti automatiquement
 
         if (!query.exec()) {
             qDebug() << "Erreur SQL:" << query.lastError().text();

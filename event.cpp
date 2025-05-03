@@ -9,9 +9,8 @@ bool Evenement::ajouter()
 {
     QSqlQuery query;
 
-    // Préparation de la requête SQL avec l'ajout de LIEU
-    query.prepare("INSERT INTO evenement (TITRE, DESCRIPTION, DATE_DEB, DATE_FIN, CAPACITE, STATUT, CATEGORIE, TYPE, PRIX, ORGANISATEUR, ID_ESPACE) "
-                  "VALUES (:titre, :description, :date_debut, :date_fin, :capacite, :statut, :categorie, :type, :prix, :organisateur, :id_espace)");
+    query.prepare("INSERT INTO evenement (TITRE, DESCRIPTION, DATE_DEB, DATE_FIN, CAPACITE, STATUT, CATEGORIE, TYPE, PRIX, ORGANISATEUR, ID_ESPACE,AFFICHE) "
+                  "VALUES (:titre, :description, :date_debut, :date_fin, :capacite, :statut, :categorie, :type, :prix, :organisateur, :id_espace ,:affiche)");
 
     // Binding des valeurs aux paramètres
     query.bindValue(":titre", titre);
@@ -25,6 +24,7 @@ bool Evenement::ajouter()
     query.bindValue(":prix", prix);
     query.bindValue(":organisateur", organisateur);
     query.bindValue(":id_espace", id_espace); // Ajout du champ lieu
+    query.bindValue(":affiche", affiche);     // Ajout de l'affiche (type QByteArray)
 
     // Exécution de la requête
     if (query.exec()) {
@@ -41,7 +41,8 @@ bool Evenement::ajouter()
 QSqlQueryModel* Evenement::afficher()
 {
     QSqlQueryModel* model = new QSqlQueryModel();
-    model->setQuery("SELECT * FROM EVENEMENT");
+    //model->setQuery("SELECT * FROM EVENEMENT");
+    model->setQuery("SELECT ID , TITRE, TYPE, CAPACITE, PRIX, DESCRIPTION, DATE_DEB, DATE_FIN, CATEGORIE, STATUT, ORGANISATEUR, ID_ESPACE FROM EVENEMENT");
     return model;
 }
 bool Evenement::supprimer(int id)

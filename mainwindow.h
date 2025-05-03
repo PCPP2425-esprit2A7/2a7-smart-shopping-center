@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+#include "event.h"
 #include "openaiclient.h"
+#include "qstandarditemmodel.h"
 #include <QMainWindow>
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -24,7 +26,6 @@
 #include <QSqlQuery>
 #include<QList>
 #include <QDate>
-
 #include <QListWidget>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -33,6 +34,7 @@
 #include <QFileInfoList>
 #include <QTimer>
 #include <QTextBrowser>
+#include <QProcess>
 class Dialog;
 
 QT_BEGIN_NAMESPACE
@@ -129,18 +131,12 @@ public:
             }
         }
     }
-
-
-
-
-
 private slots:
     void on_ajouter_button_clicked();
     void on_pushButton_choisirImage_clicked();
     void afficherEvenement();
-    void on_supprimer_clicked();
-    void on_btnDialog_clicked();
-    void on_pdf_clicked();
+    void on_supprimer_event_clicked();
+    void on_pdf_ev_clicked();
     void on_historique_clicked();
     void on_btn_trierDate_clicked();
     void rechercherevenement();
@@ -152,22 +148,22 @@ private slots:
     void on_planifier_clicked();
     void on_supprimer_ev_clicked();
     void on_ticket_clicked();
-
-    void on_todo_clicked();
-
-
-
     void on_valide_date_clicked();
-
-
-
     void on_calendrier_clicked();
+    void on_todo_ok_clicked();
+    void on_table_todo_clicked(const QModelIndex &index);
+    void on_btnVoix_ev_clicked();
+    void readVoiceOutput();
+    void processVoiceFinished(int exitCode , QProcess::ExitStatus exitStatus);
 
-    void on_tableView_activated(const QModelIndex &index);
 
-    //void on_tableView_activated(const QModelIndex &index);
+    void on_pushButton_save_modif_clicked();
+    void chargerDetailsEvenement(int eventId);
+    void on_pushButton_modif_affiche_clicked();
+    void on_chatbot_clicked();
+    void on_voiraffiche_clicked();
+    void on_btnUpdate_ev_clicked();
 
-    void on_tableView_clicked(const QModelIndex &index);
 
 private:
     Ui::MainWindow *ui;
@@ -186,10 +182,10 @@ private:
     int colummnn;
     QTableWidget *tablewidget;
     QSqlQuery query;
-
-
-
-
-
+    QStandardItemModel *todoModel;
+    QProcess *process = nullptr;
+    QString bufferOutput;
+    int idEvenementAModifier=-1;
+    Evenement evenementCourant;
 };
 #endif // MAINWINDOW_H
