@@ -9,6 +9,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     MainWindow w;
     Connection c;
+    qSetMessagePattern("[%{time hh:mm:ss}] %{type} %{message}");
 
     bool test = c.createconnect();
     if (test) {
@@ -33,6 +34,7 @@ int main(int argc, char *argv[])
         qDebug() << "Erreur ouverture port série";
         return 1;
     }*/
+
 
 
     return a.exec();

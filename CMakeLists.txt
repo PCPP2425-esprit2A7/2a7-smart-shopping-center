@@ -11,10 +11,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Trouver Qt6 avec Widgets, Sql, Charts, Network, SerialPort
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Sql Charts Network SerialPort)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Sql Charts Network SerialPort )
 
 # Vérification de la version Qt
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql Charts Network Core SerialPort)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql Charts Network Core SerialPort WebSockets REQUIRED Multimedia)
 
 # Ajouter les fichiers de votre projet
 set(PROJECT_SOURCES
@@ -39,6 +39,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         mailsender.h mailsender.cpp
         arduinocommunication.h arduinocommunication.cpp
         voice_recognizer.py
+        chatmanager.h chatmanager.cpp
+        chatwindow.h chatwindow.cpp chatwindow.ui
+
     )
 else()
     if(ANDROID)
@@ -59,6 +62,8 @@ target_link_libraries(gestion_services PRIVATE
     Qt${QT_VERSION_MAJOR}::Network
     Qt${QT_VERSION_MAJOR}::SerialPort  # Ajout de SerialPort ici
     Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::WebSockets
+    Qt${QT_VERSION_MAJOR}::Multimedia
 )
 
 # Définir les propriétés pour macOS et Windows

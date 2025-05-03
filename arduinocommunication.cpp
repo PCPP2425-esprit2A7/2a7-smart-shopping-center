@@ -1,9 +1,9 @@
 /*#include "ArduinoCommunication.h"
+#include "connection.h"
 #include <QSerialPortInfo>
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
-#include "connexion.h"
 
 #include <QPushButton>
 #include <QPixmap>
@@ -11,6 +11,10 @@
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QMediaPlayer>
+#include <QMediaPlayer>
+#include <QAudioOutput>
+#include <QUrl>
 
 ArduinoCommunication::ArduinoCommunication(QObject *parent) : QObject(parent) {
     connect(&serial, &QSerialPort::readyRead, this, &ArduinoCommunication::handleReadyRead);
@@ -35,14 +39,44 @@ void ArduinoCommunication::closeSerialPort() {
     }
 }
 
+
+
 void ArduinoCommunication::handleReadyRead() {
     QByteArray data = serial.readAll();
+
     if (data.contains("1")) {
-        QString eventInfo = getNextEventInfo(currentEventIndex + 1); // Passe l'index actuel pour obtenir l'événement suivant
+        // Partie toujours exécutée
+        QString eventInfo = getNextEventInfo(currentEventIndex + 1);
         serial.write(eventInfo.toUtf8());
-        afficherImageDepuisBDD();  // Affiche l'image de l'événement suivant
+        afficherImageDepuisBDD();
+        qDebug() << "Obstacle détecté !";
+
+        // Partie jouée UNE seule fois
+        if (!sonDejaJoue) {
+            sonDejaJoue = true;
+            qDebug() << "Lecture du son bref.mp3";
+
+            QMediaPlayer* player = new QMediaPlayer(this);
+            QAudioOutput* audioOutput = new QAudioOutput(this);
+            player->setAudioOutput(audioOutput);
+            audioOutput->setVolume(1.0);
+            player->setSource(QUrl::fromLocalFile("C:/Users/21698/Desktop/projet c++/bref.mp3"));
+            player->play();
+
+            connect(player, &QMediaPlayer::mediaStatusChanged, player, [player](QMediaPlayer::MediaStatus status) {
+                if (status == QMediaPlayer::EndOfMedia || status == QMediaPlayer::InvalidMedia) {
+                    player->deleteLater();
+                }
+            });
+        }
+    }
+
+    // Réinitialisation possible (optionnel)
+    if (data.contains("reset")) {
+        sonDejaJoue = false;
     }
 }
+
 
 
 QString ArduinoCommunication::getNextEventInfo(int offset) {

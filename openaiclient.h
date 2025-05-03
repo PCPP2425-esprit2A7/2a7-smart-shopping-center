@@ -24,6 +24,7 @@ private slots:
 
 private:
     QNetworkAccessManager *manager;
+    //const QString apiKey = "";
     const QString apiUrl = "https://api.openai.com/v1/chat/completions";
 
 };

@@ -1,5 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+#include "chatmanager.h"
 #include "openaiclient.h"
 #include <QMainWindow>
 #include <QPushButton>
@@ -9,7 +10,8 @@
 #include <QSqlQueryModel>
 #include <qtextedit.h>
 #include <QProcess>
-
+#include <QPointer>
+#include "chatwindow.h"
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -44,11 +46,11 @@ public:
 
 private slots:
 
-    void on_ajouter_2_clicked();
+    void on_ajouter_srv_clicked();
     void afficherServices();
     void on_deleteButton_clicked();
     //void supprimerService(int idService); // Déclaration de la fonction supprimer
-    void on_modifyButton_clicked(); // Slot pour le bouton modifier
+    void on_modifier_srv_clicked(); // Slot pour le bouton modifier
     void afficherStatistiques();
     void on_pdf_clicked();
     void changerCouleurBouton();
@@ -58,7 +60,7 @@ private slots:
     void onLeaveNavigationButton();
    // void filtrerServicesParStatut(const QString &statut);
     void trierServices();
-    void on_saveButton_clicked();
+    void on_save_srv_clicked();
     void rechercherService(const QString &searchText);
     void envoyerRequete();
     void executerRequeteSQL(const QString &sqlQuery);
@@ -69,7 +71,8 @@ private slots:
     void on_btnVoix_clicked();
     void readVoiceOutput();
     void processVoiceFinished(int exitCode, QProcess::ExitStatus exitStatus);
-
+    void openChatWindow() ;
+    void updateChatSenderName(int index);
 private:
 
 
@@ -83,6 +86,8 @@ private:
     QTextEdit *textBrowserReponse;  // Déclaration du QTextBrowser
     QProcess *process = nullptr;
     QString bufferOutput;
+    ChatManager *m_chatManager; // <-- Ajoutez cette ligne
+    QPointer<chatwindow> m_chatWindow;  // <-- Ajoutez cette ligne
 
 
 

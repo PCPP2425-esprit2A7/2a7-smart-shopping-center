@@ -22,6 +22,8 @@ private slots:
 private:
     QSerialPort serial;
     QSqlDatabase db;
+    bool sonDejaJoue = false;
+
     QString getNextEventInfo(int offset);
     bool isImageDisplayed = false; // Déclaration de la variable
     int currentEventIndex = 0;  // Déclare currentEventIndex ici
