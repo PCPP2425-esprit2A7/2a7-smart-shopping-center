@@ -8,13 +8,21 @@
 #include <QDebug>
 #include <QProcess>
 #include <QCoreApplication>
-#include <QBuffer>
 #include <QTimer>
 #include <QLabel>
 #include <QPixmap>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QMediaDevices>
+#include <QtMultimedia/QCamera>
+#include <QtMultimedia/QCameraDevice>
+#include <QtMultimedia/QMediaCaptureSession>
+#include <QtMultimedia/QImageCapture>
+#include <QtMultimediaWidgets/QVideoWidget>
+#include <QBuffer>
+
+
 
 FaceLoginDialog::FaceLoginDialog(QWidget *parent) : QDialog(parent), ui(new Ui::FaceLoginDialog)
 {
@@ -29,7 +37,7 @@ FaceLoginDialog::FaceLoginDialog(QWidget *parent) : QDialog(parent), ui(new Ui::
     }
 
     // Configuration de la caméra
-    camera = new QCamera(this);
+    camera = new QCamera(QMediaDevices::defaultVideoInput(), this);
     viewfinder = new QVideoWidget(ui->cameraFrame);
     captureSession = new QMediaCaptureSession(this);
     imageCapture = new QImageCapture(this);
@@ -385,6 +393,7 @@ bool FaceLoginDialog::saveFaceIDToDatabase(const QString &employeeId, const QIma
     QByteArray imageData;
     QBuffer buffer(&imageData);
     buffer.open(QIODevice::WriteOnly);
+
 
     // Sauvegarder l'image dans le buffer (format PNG)
     if (!faceImage.save(&buffer, "PNG")) {

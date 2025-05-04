@@ -43,6 +43,7 @@ public:
 
     // ✅ Méthodes supplémentaires
     bool chargerImage(int id) const;
+    // ✅ Enregistrer une image par ID
     bool enregistrerImage(const QPixmap &pixmap, int id);
     QImage getImageById(int id) const;
     bool enregistrerFaceId(const QByteArray &faceData);

@@ -1,6 +1,5 @@
 QT += core gui widgets sql charts network serialport multimedia multimediawidgets pdf websockets printsupport
 
-
 CONFIG += c++17
 DEFINES += QT_DEPRECATED_WARNINGS
 
@@ -99,7 +98,14 @@ DISTFILES += \
     img/validated_buyer_user_apply_done_icon_177174 (1).png \
     img/website_maintenance_settings_window_alert_icon_193897 (1).png
 
-# Déploiement
+# 🔧 Spécial MinGW : forcer le linkage avec Qt3D libs (si nécessaire)
+win32:CONFIG(release, debug|release): LIBS += -L$$[QT_INSTALL_LIBS] \
+    -lQt63DCore -lQt63DRender -lQt63DInput -lQt63DLogic -lQt63DExtras -lQt63DAnimation
+
+# 🧩 Ajout pour s'assurer que tous les includes sont trouvés
+INCLUDEPATH += $$[QT_INSTALL_HEADERS]
+
+# 📦 Déploiement
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target

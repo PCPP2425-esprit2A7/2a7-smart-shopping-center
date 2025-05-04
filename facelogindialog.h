@@ -27,6 +27,7 @@
 #include <QJsonObject>
 #include <QJsonParseError>
 #include <QJsonValue>
+
 namespace Ui {
 class FaceLoginDialog;
 }

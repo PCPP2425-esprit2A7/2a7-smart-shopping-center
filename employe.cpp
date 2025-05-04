@@ -4,7 +4,9 @@
 #include <QVariant>
 #include <QDebug>
 #include <QSqlError>
-#include <QBuffer>
+#include <QBuffer>    // ✅ Corriger ici
+#include <QIODevice>  // ✅ Pour QIODevice::WriteOnly
+
 
 // ✅ Constructeur par défaut
 Employe::Employe() {
@@ -236,7 +238,7 @@ bool Employe::chargerImage(int id) const
 }
 
 // ✅ Enregistrer une image par ID
-bool Employe::enregistrerImage(const QPixmap &pixmap, int id)
+/*bool Employe::enregistrerImage(const QPixmap &pixmap, int id)
 {
     QByteArray imageData;
     QBuffer buffer(&imageData);
@@ -249,7 +251,7 @@ bool Employe::enregistrerImage(const QPixmap &pixmap, int id)
     query.bindValue(":id", id);
 
     return query.exec();
-}
+}*/
 
 QImage Employe::getImageById(int id) const
 {
