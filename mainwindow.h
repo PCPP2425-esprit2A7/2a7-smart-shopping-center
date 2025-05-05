@@ -53,6 +53,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QBuffer>
+#include <QGraphicsScene>
 
 #include "arduino.h"
 #include "chatmanager.h"
@@ -61,6 +62,9 @@
 #include "employe.h"
 #include "facelogindialog.h"
 #include "event.h"
+#include "dimensionsdialog.h"
+#include "espace3dview.h"
+#include "qcombobox.h"
 
 
 
@@ -78,6 +82,8 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void afficherLocataires();
+
 
     void afficherEmployeSelectionne(const Employe &employe);
 
@@ -340,6 +346,56 @@ private slots:
 
 
 
+
+    //______________insaf______________
+
+
+    void on_afficher_clicked();
+    void on_supprimer_espace_clicked();
+    void on_modifier_espace_clicked();
+    void chargerDonneesEspace(int id);
+
+    void on_exporterPDF_clicked();
+    void on_liste_clicked();
+    void on_lineEdit_Nom_textChanged(const QString &text);
+    void on_stat_2_clicked();
+    void rechercherEspaces();
+    void on_id_locataire_entered();
+    void on_map_clicked();
+    void on_space_clicked(const QString &spaceName);
+    void createMapZones(QGraphicsScene* scene);
+    void on_enregistrer_mod_espace_clicked();
+    void loadSpacesFromDatabase(QGraphicsScene* scene, QComboBox* spaceSelector, QGraphicsView* view);
+    void showMapView();
+
+
+    void on_tri_espaces_clicked();
+
+
+    void on_ajouterespace_clicked();
+    void on_lineEdit_id_locataire_2_espace_editingFinished();
+
+    //__________________HAMZA______________________
+
+
+
+    void on_btnAjouterLocataire_clicked() ;
+    void on_btnSupprimerLocataire_clicked();
+    void on_btnModifierLocataire_clicked();
+    void trierlocataire();
+    void exporterPDF_locataire();
+    void rechercherLocataire(const QString &searchText);
+    void on_upload_clicked();
+    void envoyerImageAOpenAI(const QString &cheminImage);
+    void traiterReponseOpenAI(QNetworkReply *reply);
+    //void analyserDocument();
+    void afficherStatistiques_locataire();
+    void genererContratDepuisOpenAI();
+    void envoyerPromptAOpenAI(const QString& prompt);
+    void verifierEmail(const QString &text);
+
+
+
 private:
 
     //_______________________yassmine_________________
@@ -419,6 +475,29 @@ private:
     QMediaPlayer* player;
     QAudioOutput* audioOutput;
 
+
+
+    //_____________insaf_______________
+
+
+    QCompleter* completer;
+    QNetworkAccessManager* networkManager;
+    int espaceID_a_modifier = -1;
+    QGraphicsScene* m_scene; // Ajoutez cette ligne
+
+
+    void getAISuggestions(const QString &inputText);
+    void afficherEspaces();
+    void show3DView(const QString &spaceName);
+
+
+    //_____________HAMZA________________
+
+    QString cheminContrat;
+
+
+protected:
+    bool eventFilter(QObject *object, QEvent *event) override;
 
 };
 

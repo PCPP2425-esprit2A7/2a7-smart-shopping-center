@@ -17,7 +17,6 @@ if sys.stdout.encoding.lower() != 'utf-8':
     except AttributeError:
         pass  # Pour les consoles qui ne supportent pas reconfigure
 
-# API OpenAI
 
 # Fonction pour générer le texte du ticket
 def generate_ticket_text(titre, date_deb, date_fin, prix, id_espace):

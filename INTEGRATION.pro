@@ -6,10 +6,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     chatwindow.cpp \
     clickablerectitem.cpp \
+    dialog.cpp \
     dimensionsdialog.cpp \
     espace.cpp \
     espace3dview.cpp \
     event.cpp \
+    locataire.cpp \
     mailjetsender.cpp \
     mailsender.cpp \
     main.cpp \
@@ -27,10 +29,12 @@ SOURCES += \
 HEADERS += \
     chatwindow.h \
     clickablerectitem.h \
+    dialog.h \
     dimensionsdialog.h \
     espace.h \
     espace3dview.h \
     event.h \
+    locataire.h \
     mailjetsender.h \
     mailsender.h \
     maintenance.h \
@@ -46,6 +50,7 @@ HEADERS += \
 
 FORMS += \
     chatwindow.ui \
+    dialog.ui \
     dimensionsdialog.ui \
     mainwindow.ui \
     facelogindialog.ui
